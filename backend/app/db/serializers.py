@@ -1,0 +1,145 @@
+from datetime import datetime, timezone
+from app.db.models import Carpeta
+
+
+def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
+    asignacion = carpeta.asignacion
+    docente = asignacion.docente
+    curso = asignacion.curso
+    semestre = asignacion.semestre
+
+    secciones_ordenadas = sorted(carpeta.secciones, key=lambda s: s.plantilla.orden)
+    obligatorias = [s for s in secciones_ordenadas if s.plantilla.obligatoria]
+    total_obligatorias = len(obligatorias) or 1
+
+    # RF8: Avance porcentual de la carpeta (secciones obligatorias con documento entregado/aprobado)
+    completadas = [
+        s for s in obligatorias if s.estado in ("entregado", "aprobado") and len(s.documentos) > 0
+    ]
+    aprobadas = [s for s in obligatorias if s.estado == "aprobado"]
+    observadas = [s for s in secciones_ordenadas if s.estado == "observado"]
+    entregadas = [s for s in secciones_ordenadas if s.estado == "entregado"]
+    pendientes = [s for s in secciones_ordenadas if s.estado == "pendiente"]
+
+    porcentaje_entrega = round((len(completadas) / total_obligatorias) * 100)
+    porcentaje_aprobacion = round((len(aprobadas) / total_obligatorias) * 100)
+
+    now = datetime.now(timezone.utc)
+    fecha_limite = semestre.fecha_limite
+    if fecha_limite and fecha_limite.tzinfo is None:
+        fecha_limite = fecha_limite.replace(tzinfo=timezone.utc)
+    vencida = bool(fecha_limite and now > fecha_limite and porcentaje_entrega < 100)
+
+    if len(observadas) > 0:
+        estado_global = "observada"
+    elif porcentaje_aprobacion == 100:
+        estado_global = "aprobada"
+    elif porcentaje_entrega == 100:
+        estado_global = "completa_en_revision"
+    elif vencida:
+        estado_global = "vencida"
+    else:
+        estado_global = "en_progreso"
+
+    return {
+        "id": carpeta.id,
+        "asignacion_id": asignacion.id,
+        "seccion": asignacion.seccion,
+        "fecha_actualizacion": carpeta.ultima_actualizacion.isoformat() if carpeta.ultima_actualizacion else None,
+        "docente": {
+            "id": docente.id,
+            "nombre": docente.nombre,
+            "email": docente.email,
+            "escuela": docente.escuela,
+            "categoria": docente.categoria,
+        },
+        "curso": {
+            "id": curso.id,
+            "codigo": curso.codigo,
+            "nombre": curso.nombre,
+            "escuela": curso.escuela,
+            "ciclo": curso.ciclo,
+        },
+        "semestre": {
+            "id": semestre.id,
+            "nombre": semestre.nombre,
+            "inicio": semestre.inicio.isoformat(),
+            "fin": semestre.fin.isoformat(),
+            "fecha_limite": semestre.fecha_limite.isoformat(),
+            "activo": semestre.activo,
+        },
+        "metricas": {
+            "total_secciones": len(secciones_ordenadas),
+            "total_obligatorias": total_obligatorias,
+            "completadas_obligatorias": len(completadas),
+            "aprobadas": len(aprobadas),
+            "entregadas": len(entregadas),
+            "observadas": len(observadas),
+            "pendientes": len(pendientes),
+            "porcentaje_avance": porcentaje_entrega,
+            "porcentaje_aprobacion": porcentaje_aprobacion,
+            "vencida": vencida,
+            "estado_global": estado_global,
+        },
+    }
+
+
+def serialize_carpeta_detail(carpeta: Carpeta) -> dict:
+    summary = serialize_carpeta_summary(carpeta)
+    secciones_ordenadas = sorted(carpeta.secciones, key=lambda s: s.plantilla.orden)
+
+    secciones_data = []
+    for sec in secciones_ordenadas:
+        docs_data = [
+            {
+                "id": d.id,
+                "nombre": d.nombre,
+                "tamano_mb": d.tamano_mb,
+                "version": d.version,
+                "subido_por": d.autor.nombre if d.autor else "Docente",
+                "fecha": d.fecha.isoformat() if d.fecha else None,
+            }
+            for d in sec.documentos
+        ]
+        obs_data = [
+            {
+                "id": o.id,
+                "texto": o.texto,
+                "resuelta": o.resuelta,
+                "revisor_nombre": o.revisor.nombre if o.revisor else "Revisor",
+                "fecha": o.fecha.isoformat() if o.fecha else None,
+            }
+            for o in sec.observaciones
+        ]
+        secciones_data.append(
+            {
+                "id": sec.id,
+                "estado": sec.estado,
+                "plantilla": {
+                    "id": sec.plantilla.id,
+                    "orden": sec.plantilla.orden,
+                    "nombre": sec.plantilla.nombre,
+                    "descripcion": sec.plantilla.descripcion,
+                    "obligatoria": sec.plantilla.obligatoria,
+                    "tipos_permitidos": sec.plantilla.tipos_permitidos,
+                },
+                "documentos": docs_data,
+                "observaciones": obs_data,
+            }
+        )
+
+    historial_data = [
+        {
+            "id": h.id,
+            "accion": h.accion,
+            "detalle": h.detalle,
+            "usuario_nombre": h.usuario.nombre if h.usuario else "Sistema",
+            "usuario_rol": h.usuario.rol if h.usuario else "sistema",
+            "fecha": h.fecha.isoformat() if h.fecha else None,
+        }
+        for h in carpeta.historial
+    ]
+
+    summary["secciones"] = secciones_data
+    summary["historial"] = historial_data
+    return summary
