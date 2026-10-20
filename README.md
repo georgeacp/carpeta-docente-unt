@@ -61,3 +61,13 @@ Estos archivos, la configuración, `package.json` y `package-lock.json` deben
 versionarse para reproducir las mismas reglas al clonar el proyecto. No deben
 añadirse a `.gitignore`; las dependencias descargadas en `/node_modules/` ya
 están excluidas.
+
+## Thermos: revisión de código con Codex
+
+Las tres skills de Thermos están instaladas para este proyecto en `.agents/skills/`.
+Para combinar la revisión de errores y seguridad con la de mantenibilidad, escribe
+en el chat: `Usa $thermos para revisar mis cambios sin commit, sin modificar archivos`.
+
+También puedes invocar `$thermo-nuclear-review` o
+`$thermo-nuclear-code-quality-review` por separado. No requieren conectar GitHub.
+Consulta la [guía de uso y configuración](.agents/THERMOS.md).

@@ -1,12 +1,16 @@
 ---
 name: thermo-nuclear-code-quality-review
 description: Run an extremely strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth. Use for a thermo-nuclear code quality review, thermonuclear review, deep code quality audit, or especially harsh maintainability review.
-disable-model-invocation: true
+license: MIT
 ---
 
 # Thermo-Nuclear Code Quality Review
 
 Use this skill for an unusually strict review focused on implementation quality, maintainability, abstraction quality, and codebase health.
+
+## Project integration (Codex)
+
+Read [project-context.md](../thermos/references/project-context.md) before collecting the review scope. Apply the complete upstream rubric below to that scope, including local changes when requested. A review produces findings and proposed remedies; implement refactors only if the user also requests fixes. Return findings in Spanish unless requested otherwise.
 
 Above all, this skill should push the reviewer to be **ambitious** about code structure. Do not merely identify local cleanup opportunities. Actively search for "code judo" moves: restructurings that preserve behavior while making the implementation dramatically simpler, smaller, more direct, and more elegant.
 

@@ -1,12 +1,16 @@
 ---
 name: thermo-nuclear-review
 description: Comprehensive security and correctness audit of a branch's changes. Use for thermo nuclear, thermonuclear, or deep review requests, or branch/PR diff audits focused on bugs, breaking changes, security issues, devex regressions, and feature-gate leaks.
-disable-model-invocation: true
+license: MIT
 ---
 
 # Thermo Nuclear Review
 
 Use this skill for a comprehensive security and correctness audit of a checked-out branch.
+
+## Project integration (Codex)
+
+Read [project-context.md](../thermos/references/project-context.md) before collecting the review scope. Apply the complete upstream rubric below to that scope, including local changes when requested. Review only; return findings in Spanish unless requested otherwise. For the conditional PR-discussion check, use an available authenticated connector or CLI; if unavailable, disclose that limitation and finish the local audit without requiring a GitHub connection.
 
 ## Prompt
 
