@@ -2,11 +2,15 @@
   "name": "carpeta-docente",
   "private": true,
   "scripts": {
+    "lint": "npm run lint:anti-slop && npm --prefix frontend run lint",
+    "lint:anti-slop": "oxlint frontend",
     "dev": "concurrently --kill-others --names FRONT,BACK \"npm run dev:front\" \"npm run dev:back\"",
     "dev:front": "npm --prefix frontend run dev",
     "dev:back": "cd backend && .venv\\Scripts\\python.exe -m uvicorn main:app --reload --port 8000"
   },
   "devDependencies": {
-    "concurrently": "^10.0.6"
+    "@oxlint/plugins": "1.89.0",
+    "concurrently": "^10.0.6",
+    "oxlint": "1.89.0"
   }
 }
