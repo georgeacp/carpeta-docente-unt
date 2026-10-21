@@ -22,6 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const savedUser = localStorage.getItem("unt_user");
     const savedToken = localStorage.getItem("unt_jwt_token");
+
     if (savedUser && savedToken) {
       try {
         setUsuario(JSON.parse(savedUser));
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("unt_jwt_token");
       }
     }
+
     setCargando(false);
   }, []);
 
@@ -83,8 +85,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
+
   if (!ctx) {
     throw new Error("useAuth debe utilizarse dentro de un AuthProvider");
   }
+
   return ctx;
 }

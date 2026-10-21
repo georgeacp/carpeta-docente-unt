@@ -5,6 +5,7 @@ import { Close } from "@tailgrids/icons";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import {
+  composeRenderProps,
   Button as AriaButton,
   type ButtonProps as AriaButtonProps,
   Dialog as AriaDialog,
@@ -113,9 +114,9 @@ export function SheetContent({
   return (
     <Modal className={cn(sheetVariants({ side }), modalClassName)} {...restModalProps}>
       <AriaDialog className={cn(sheetDialogVariants({ side }), className)} {...props}>
-        {({ close }) => (
+        {composeRenderProps(children, (content, { close }) => (
           <>
-            {typeof children === "function" ? children({ close }) : children}
+            {content}
             {showCloseButton && (
               <AriaButton
                 onPress={close}
@@ -130,7 +131,7 @@ export function SheetContent({
               </AriaButton>
             )}
           </>
-        )}
+        ))}
       </AriaDialog>
     </Modal>
   );

@@ -7,8 +7,11 @@ import * as React from "react";
 import { Button } from "./button";
 
 type CarouselApi = UseEmblaCarouselType[1];
+
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
+
 type CarouselOptions = UseCarouselParameters[0];
+
 type CarouselPlugin = UseCarouselParameters[1];
 
 type CarouselProps = {
@@ -55,6 +58,7 @@ function Carousel({
     },
     plugins,
   );
+
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
@@ -234,13 +238,16 @@ function CarouselDots({ className, ...props }: React.ComponentProps<"div">) {
 
   React.useEffect(() => {
     if (!api) return;
+
     const update = () => {
       setSlideCount(api.scrollSnapList().length);
       setSelectedIndex(api.selectedScrollSnap());
     };
+
     update();
     api.on("reInit", update);
     api.on("select", update);
+
     return () => {
       api.off("reInit", update);
       api.off("select", update);
@@ -260,6 +267,7 @@ function CarouselDots({ className, ...props }: React.ComponentProps<"div">) {
     >
       {Array.from({ length: slideCount }).map((_, index) => {
         const isActive = index === selectedIndex;
+
         return (
           <button
             key={index}

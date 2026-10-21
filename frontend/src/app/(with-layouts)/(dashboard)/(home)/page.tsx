@@ -15,6 +15,7 @@ export default function HomeDispatcherPage() {
 
     if (!usuario) {
       router.replace("/login");
+
       return;
     }
 

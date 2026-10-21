@@ -15,9 +15,11 @@ const ChartContext = React.createContext<ChartContextProps | null>(null);
 
 function useChart() {
   const context = React.useContext(ChartContext);
+
   if (!context) {
     throw new Error("useChart must be used within a ChartContainer");
   }
+
   return context;
 }
 
@@ -44,6 +46,8 @@ function ChartContainer({
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
+
+const indicatorIndexes = [0, 1, 2, 3, 4] as const;
 
 const chartTooltipContentVariants = cva("relative p-2 pl-5 font-medium text-title-50", {
   variants: {
@@ -105,7 +109,7 @@ function ChartTooltipContent({
   const { setIndicator } = useChart();
 
   React.useEffect(() => {
-    setIndicator(indicator as "dot" | "line" | "square");
+    setIndicator(indicator ?? "dot");
   }, [indicator, setIndicator]);
 
   if (!active || !payload?.length) {
@@ -141,7 +145,7 @@ function ChartTooltipContent({
                   className={cn(
                     chartTooltipContentVariants({
                       indicator: hideIndicator ? null : indicator,
-                      indicatorIndex: hideIndicator ? null : (index as 0 | 1 | 2 | 3 | 4),
+                      indicatorIndex: hideIndicator ? null : (indicatorIndexes[index] ?? null),
                     }),
                     hideIndicator && "pl-2",
                   )}
@@ -206,7 +210,7 @@ function ChartLegendContent({
                 className={cn(
                   chartLegendContentVariants({
                     indicator: hideIndicator ? null : indicator,
-                    indicatorIndex: hideIndicator ? null : (index as 0 | 1 | 2 | 3 | 4),
+                    indicatorIndex: hideIndicator ? null : (indicatorIndexes[index] ?? null),
                   }),
                 )}
               >

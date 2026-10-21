@@ -7,6 +7,7 @@ export default function BarChartTwoTooltip({
 }: TooltipContentProps<ValueType, NameType>) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+
     return (
       <div className="min-w-30 space-y-1.5 rounded-xl border border-card-border bg-card-background p-3 shadow-md">
         <p className="mb-1 border-b border-card-border pb-1 text-xs font-semibold text-text-primary">
@@ -29,5 +30,6 @@ export default function BarChartTwoTooltip({
       </div>
     );
   }
+
   return null;
 }

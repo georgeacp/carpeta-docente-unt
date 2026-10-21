@@ -2,12 +2,7 @@
 
 import { Badge } from "@/components/tailgrids/core/badge";
 import { Button } from "@/components/tailgrids/core/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/tailgrids/core/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/tailgrids/core/card";
 import {
   TableBody,
   TableCell,
@@ -64,17 +59,15 @@ export default function AdminDashboardPage() {
       .then((data) => {
         setCatalogo(data);
         const docs = data.usuarios.filter((u) => u.rol === "docente");
+
         if (docs.length > 0 && !asigDocenteId) setAsigDocenteId(docs[0].id);
+
         if (data.cursos.length > 0 && !asigCursoId) setAsigCursoId(data.cursos[0].id);
-        if (data.semestres.length > 0 && !asigSemestreId)
-          setAsigSemestreId(data.semestres[0].id);
+
+        if (data.semestres.length > 0 && !asigSemestreId) setAsigSemestreId(data.semestres[0].id);
       })
       .catch((err) =>
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : "Error al cargar catálogo administrativo",
-        ),
+        toast.error(err instanceof Error ? err.message : "Error al cargar catálogo administrativo"),
       )
       .finally(() => setLoading(false));
   };
@@ -86,7 +79,9 @@ export default function AdminDashboardPage() {
 
   const handleCrearAsignacion = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!asigDocenteId || !asigCursoId || !asigSemestreId) return;
+
     try {
       await apiCrearAsignacion({
         docente_id: Number(asigDocenteId),
@@ -105,6 +100,7 @@ export default function AdminDashboardPage() {
 
   const handleCrearCurso = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await apiCrearCurso({
         codigo: curCodigo,
@@ -123,6 +119,7 @@ export default function AdminDashboardPage() {
 
   const handleCrearUsuario = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await apiCrearUsuario({
         nombre: usrNombre,
@@ -142,6 +139,7 @@ export default function AdminDashboardPage() {
 
   const handleCrearSemestre = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await apiCrearSemestre({
         nombre: semNombre,
@@ -181,7 +179,8 @@ export default function AdminDashboardPage() {
             Gestión de Semestres, Carga Lectiva y Plantillas Oficiales
           </h1>
           <p className="text-sm leading-5 text-text-tertiary">
-            Administre el catálogo de asignaturas, usuarios @unitru.edu.pe y genere carpetas docentes automáticas de 10 secciones.
+            Administre el catálogo de asignaturas, usuarios @unitru.edu.pe y genere carpetas
+            docentes automáticas de 10 secciones.
           </p>
         </div>
       </div>
@@ -213,9 +212,7 @@ export default function AdminDashboardPage() {
 
         {loading && !catalogo ? (
           <Card className="py-12 text-center">
-            <p className="text-sm text-text-tertiary">
-              Cargando catálogo administrativo UNT...
-            </p>
+            <p className="text-sm text-text-tertiary">Cargando catálogo administrativo UNT...</p>
           </Card>
         ) : (
           <>
@@ -228,7 +225,8 @@ export default function AdminDashboardPage() {
                       <div>
                         <CardTitle>Nueva Asignación de Carga Lectiva</CardTitle>
                         <CardDescription className="text-xs">
-                          Al guardar, el sistema crea automáticamente la Carpeta Docente y sus 10 secciones (RF4).
+                          Al guardar, el sistema crea automáticamente la Carpeta Docente y sus 10
+                          secciones (RF4).
                         </CardDescription>
                       </div>
                     </CardHeader>
@@ -312,8 +310,7 @@ export default function AdminDashboardPage() {
                   <Card>
                     <CardHeader className="mb-4">
                       <CardTitle>
-                        Carpetas Generadas por Carga Lectiva (
-                        {catalogo?.asignaciones.length || 0})
+                        Carpetas Generadas por Carga Lectiva ({catalogo?.asignaciones.length || 0})
                       </CardTitle>
                     </CardHeader>
 
@@ -343,9 +340,7 @@ export default function AdminDashboardPage() {
                                 Sección {a.seccion} · Ciclo {a.curso.ciclo}°
                               </div>
                             </TableCell>
-                            <TableCell className="text-text-primary">
-                              {a.docente.nombre}
-                            </TableCell>
+                            <TableCell className="text-text-primary">{a.docente.nombre}</TableCell>
                             <TableCell className="text-center">
                               <Badge color="gray" size="sm">
                                 {a.metricas.total_secciones} secciones
@@ -530,9 +525,7 @@ export default function AdminDashboardPage() {
                             <TableCell className="font-medium text-text-primary">
                               {u.nombre}
                             </TableCell>
-                            <TableCell className="text-xs text-text-secondary">
-                              {u.email}
-                            </TableCell>
+                            <TableCell className="text-xs text-text-secondary">{u.email}</TableCell>
                             <TableCell>
                               <Badge color="gray" size="sm">
                                 {u.rol.toUpperCase()}
@@ -648,7 +641,8 @@ export default function AdminDashboardPage() {
                       Plantilla Oficial de 10 Secciones de la Carpeta Docente UNT (RF4)
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      Secciones creadas automáticamente cada vez que se asigna carga lectiva a un docente.
+                      Secciones creadas automáticamente cada vez que se asigna carga lectiva a un
+                      docente.
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -664,9 +658,7 @@ export default function AdminDashboardPage() {
                   <TableBody>
                     {catalogo?.plantillas.map((p) => (
                       <TableRow key={p.id}>
-                        <TableCell className="font-bold text-text-primary">
-                          #{p.orden}
-                        </TableCell>
+                        <TableCell className="font-bold text-text-primary">#{p.orden}</TableCell>
                         <TableCell>
                           <div className="font-semibold text-text-primary">{p.nombre}</div>
                           <div className="text-xs text-text-tertiary">{p.descripcion}</div>

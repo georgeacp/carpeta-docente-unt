@@ -22,7 +22,7 @@ import { getLastTransactionsData } from "@/services/api/home";
 import { MenuDotsIcon } from "@/utils/icon";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { SKELETON_ROW_COUNT, STATUS_COLOR_MAP } from "./data";
+import { SKELETON_ROW_COUNT, getStatusColor } from "./data";
 import { DownloadIcon, FilterIcon } from "./icon";
 import { TransactionSkeletonRow } from "./skeleton";
 import type { RawTransactionItem } from "@/services/api/home";
@@ -33,6 +33,7 @@ import { formatAmount, formatDate } from "./utils";
 function toViewModel(raw: RawTransactionItem): TransactionViewModel {
   const { date, time } = formatDate(raw.created_at);
   const statusKey = raw.status.toLowerCase();
+
   return {
     id: raw.id,
     orderId: raw.order_number,
@@ -41,7 +42,7 @@ function toViewModel(raw: RawTransactionItem): TransactionViewModel {
     customer: raw.customer.full_name,
     amount: formatAmount(raw.amount.value, raw.amount.currency_code),
     status: raw.status.charAt(0).toUpperCase() + raw.status.slice(1),
-    statusColor: STATUS_COLOR_MAP[statusKey] ?? "gray",
+    statusColor: getStatusColor(statusKey),
   };
 }
 

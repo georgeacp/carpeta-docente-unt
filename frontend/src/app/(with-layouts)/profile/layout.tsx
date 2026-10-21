@@ -31,6 +31,7 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
           <nav className="flex w-full shrink-0 grow flex-col gap-2 self-stretch border-card-border px-3 py-6 lg:max-w-84.5 lg:border-r">
             {tabsItems.map((item) => {
               const isActive = pathname === item.href;
+
               return (
                 <Link
                   key={item.href}

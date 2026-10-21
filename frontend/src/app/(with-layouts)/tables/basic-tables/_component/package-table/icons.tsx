@@ -14,6 +14,7 @@ export const EyeIcon = () => {
     </svg>
   );
 };
+
 export const TrashBinIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -44,6 +45,7 @@ export const TrashBinIcon = () => {
     </svg>
   );
 };
+
 export const DownloadIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">

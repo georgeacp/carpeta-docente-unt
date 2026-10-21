@@ -46,11 +46,14 @@ Desde la raíz:
 ```powershell
 npm run lint:anti-slop
 npm run lint
+npm run test:anti-slop
 ```
 
 El primer comando ejecuta las reglas de anti-slop sobre el frontend; el segundo
-ejecuta Oxlint y, si pasa, el ESLint existente. Las reglas pueden detectar
-problemas previos a su instalación; no se han aplicado correcciones automáticas.
+ejecuta Oxlint y, si pasa, el ESLint existente. El tercero comprueba los nombres
+de APIs externas, la restricción de nombres locales y los colores de estados.
+La regla de nombres conserva los identificadores que exige una librería externa;
+los nombres locales siguen sujetos a la política de Anti Slop.
 
 La skill para instalar o actualizar el plugin está en
 `.agents/skills/install-anti-slop/`, con alcance limitado a este repositorio.

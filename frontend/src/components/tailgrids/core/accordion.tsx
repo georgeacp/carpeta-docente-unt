@@ -17,9 +17,11 @@ const RootContext = createContext<RootContextType | null>(null);
 
 function useRootContext() {
   const context = useContext(RootContext);
+
   if (!context) {
     throw new Error("useRootContext must be used within a RootContext Provider");
   }
+
   return context;
 }
 
@@ -71,9 +73,11 @@ const ItemContext = createContext<ItemContextType | null>(null);
 
 function useItemContext() {
   const context = useContext(ItemContext);
+
   if (!context) {
     throw new Error("useItemContext must be used within a ItemContext Provider");
   }
+
   return context;
 }
 

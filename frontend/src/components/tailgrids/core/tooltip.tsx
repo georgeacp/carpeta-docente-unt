@@ -67,9 +67,11 @@ function useTooltip({
     enabled: controlledOpen == null,
     handleClose: safePolygon(),
   });
+
   const focus = useFocus(context, {
     enabled: controlledOpen == null,
   });
+
   const dismiss = useDismiss(context);
   const role = useRole(context, { role: "tooltip" });
 
@@ -103,6 +105,7 @@ const useTooltipContext = () => {
 
 export function Tooltip({ children, ...options }: { children: React.ReactNode } & TooltipOptions) {
   const tooltip = useTooltip(options);
+
   return <TooltipContext.Provider value={tooltip}>{children}</TooltipContext.Provider>;
 }
 
@@ -111,22 +114,21 @@ export const TooltipTrigger = React.forwardRef<
   React.HTMLProps<HTMLElement> & { asChild?: boolean }
 >(function TooltipTrigger({ children, asChild = false, ...props }, propRef) {
   const context = useTooltipContext();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const childrenRef = (children as any).ref;
+  const child = React.isValidElement<React.HTMLProps<HTMLElement>>(children) ? children : null;
+  const childrenRef = child?.props.ref;
   const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(
-      children,
-      context.getReferenceProps({
-        ref,
+  if (asChild && child) {
+    const referenceProps = {
+      ...context.getReferenceProps({
         ...props,
-        ...(React.isValidElement(children) && typeof children.props === "object"
-          ? children.props
-          : {}),
-        "data-state": context.open ? "open" : "closed",
-      } as React.HTMLProps<Element>),
-    );
+        ...child.props,
+      }),
+      ref,
+      "data-state": context.open ? "open" : "closed",
+    };
+
+    return React.cloneElement(child, referenceProps);
   }
 
   return (

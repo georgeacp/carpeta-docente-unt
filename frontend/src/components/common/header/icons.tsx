@@ -20,6 +20,7 @@ export const SearchIcon = (props: IconProps) => {
     </svg>
   );
 };
+
 export const BellIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -32,6 +33,7 @@ export const BellIcon = () => {
     </svg>
   );
 };
+
 export const SettingIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 16 16" fill="none">
@@ -44,6 +46,7 @@ export const SettingIcon = () => {
     </svg>
   );
 };
+
 export const LetterIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -61,6 +64,7 @@ export const LetterIcon = () => {
     </svg>
   );
 };
+
 export const CreditCardIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -85,6 +89,7 @@ export const CreditCardIcon = () => {
     </svg>
   );
 };
+
 export const PrinterIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -173,6 +178,7 @@ export const LogoutIcon = () => (
     />
   </svg>
 );
+
 export const SunIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -185,6 +191,7 @@ export const SunIcon = () => {
     </svg>
   );
 };
+
 export const MoonIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">

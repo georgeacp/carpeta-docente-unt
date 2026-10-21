@@ -17,6 +17,7 @@ export default function UploadZone() {
         <FileTrigger
           onSelect={(e) => {
             const files = e ? Array.from(e) : [];
+
             if (files.length > 0) setFile1(files[0]);
           }}
         >
@@ -42,6 +43,7 @@ export default function UploadZone() {
         <DropZone
           onDrop={async (e) => {
             const fileItem = e.items.find((item) => item.kind === "file");
+
             if (fileItem) {
               const file = await fileItem.getFile();
               setFile2(file);
@@ -118,6 +120,7 @@ export default function UploadZone() {
               <FileTrigger
                 onSelect={(e) => {
                   const files = e ? Array.from(e) : [];
+
                   if (files.length > 0) setFile2(files[0]);
                 }}
               >

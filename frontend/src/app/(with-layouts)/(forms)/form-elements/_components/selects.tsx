@@ -36,7 +36,7 @@ export default function Selects() {
       <div className="flex flex-col gap-2">
         <Select
           value={singleValue}
-          onChange={(val) => setSingleValue(val as string)}
+          onChange={(val) => setSingleValue(val === null ? "" : String(val))}
           className="w-full"
           aria-label="Select option"
           placeholder="Select option"
@@ -62,7 +62,7 @@ export default function Selects() {
         <Select
           selectionMode="multiple"
           value={selectedCountries}
-          onChange={(val) => setSelectedCountries(val as string[])}
+          onChange={(val) => setSelectedCountries(val.map(String))}
           className="w-full"
           aria-label="Select options"
         >
@@ -117,7 +117,7 @@ export default function Selects() {
       <div className="flex flex-col gap-2">
         <Select
           value={selectedCountry}
-          onChange={(val) => setSelectedCountry(val as string)}
+          onChange={(val) => setSelectedCountry(val === null ? "" : String(val))}
           className="w-full"
           aria-label="Select Country"
         >

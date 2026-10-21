@@ -7,6 +7,7 @@ export default function BarChartOneTooltip({
 }: TooltipContentProps<ValueType, NameType>) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+
     return (
       <div className="rounded-xl border border-card-border bg-card-background p-3 shadow-md">
         <p className="mb-1 text-xs font-semibold text-text-primary">{data.month}</p>
@@ -16,5 +17,6 @@ export default function BarChartOneTooltip({
       </div>
     );
   }
+
   return null;
 }

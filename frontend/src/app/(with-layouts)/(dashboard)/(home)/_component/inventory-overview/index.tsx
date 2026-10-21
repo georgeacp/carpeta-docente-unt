@@ -28,9 +28,11 @@ export default function InventoryOverview() {
 
   const inventoryOverview = data ? mapInventoryOverviewResponse(data) : undefined;
   const gaugeSegmentCount = 32;
+
   const inStockSegments = inventoryOverview
     ? Math.round((inventoryOverview.availablePercent / 100) * gaugeSegmentCount)
     : 0;
+
   const gaugeSegments = Array.from({ length: gaugeSegmentCount }, (_, index) => {
     return {
       fill:

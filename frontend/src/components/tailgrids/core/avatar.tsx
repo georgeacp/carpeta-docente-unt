@@ -5,6 +5,7 @@ import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import * as React from "react";
 
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
+
 export type AvatarStatus = "online" | "offline" | "busy";
 
 const sizeClasses: Record<AvatarSize, string> = {
@@ -155,9 +156,8 @@ export function AvatarGroupCount({
   children,
   "aria-label": ariaLabel,
   ...props
-}: React.ComponentProps<"div"> & { size?: AvatarSize }) {
-  const computedLabel =
-    ariaLabel ?? (typeof children === "string" ? `${children} more` : undefined);
+}: Omit<React.ComponentProps<"div">, "children"> & { size?: AvatarSize; children?: string }) {
+  const computedLabel = ariaLabel ?? (children === undefined ? undefined : `${children} more`);
 
   return (
     <div

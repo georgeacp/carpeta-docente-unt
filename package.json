@@ -4,6 +4,7 @@
   "scripts": {
     "lint": "npm run lint:anti-slop && npm --prefix frontend run lint",
     "lint:anti-slop": "oxlint frontend",
+    "test:anti-slop": "node --test tools/oxlint/tests/borrowed-symbols.test.mjs",
     "dev": "concurrently --kill-others --names FRONT,BACK \"npm run dev:front\" \"npm run dev:back\"",
     "dev:front": "npm --prefix frontend run dev",
     "dev:back": "cd backend && .venv\\Scripts\\python.exe -m uvicorn main:app --reload --port 8000"

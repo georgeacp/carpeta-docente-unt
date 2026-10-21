@@ -26,6 +26,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const savedLocale = localStorage.getItem("unt_locale");
+
       if (savedLocale === "es" || savedLocale === "en") {
         setLocaleState(savedLocale);
         document.documentElement.lang = savedLocale;
@@ -41,6 +42,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const setLocale = (newLocale: Locale) => {
     const target = newLocale === "en" ? "en" : "es";
     setLocaleState(target);
+
     try {
       localStorage.setItem("unt_locale", target);
       document.documentElement.lang = target;
@@ -76,8 +78,10 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
 export function useI18n() {
   const context = useContext(I18nContext);
+
   if (!context) {
     throw new Error("useI18n debe utilizarse dentro de un I18nProvider");
   }
+
   return context;
 }

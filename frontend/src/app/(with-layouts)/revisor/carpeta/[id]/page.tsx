@@ -2,12 +2,7 @@
 
 import { Badge } from "@/components/tailgrids/core/badge";
 import { Button } from "@/components/tailgrids/core/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/tailgrids/core/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/tailgrids/core/card";
 import { Progress } from "@/components/tailgrids/core/progress";
 import { SheetContent, SheetOverlay, SheetTitle } from "@/components/tailgrids/core/sheet";
 import {
@@ -48,25 +43,27 @@ export default function RevisorCarpetaDetallePage() {
     apiFetchCarpetaDetalle(carpetaId)
       .then((data) => {
         setCarpeta(data);
+
         const porRevisar = data.secciones.find(
           (s) => s.estado === "entregado" || s.estado === "observado",
         );
-        setSelectedSeccionId(porRevisar ? porRevisar.id : data.secciones[0]?.id ?? null);
+
+        setSelectedSeccionId(porRevisar ? porRevisar.id : (data.secciones[0]?.id ?? null));
       })
-      .catch((err) =>
-        toast.error(err instanceof Error ? err.message : "Error al cargar carpeta"),
-      )
+      .catch((err) => toast.error(err instanceof Error ? err.message : "Error al cargar carpeta"))
       .finally(() => setLoading(false));
   }, [carpetaId]);
 
   const handleAprobarSeccion = async (seccion: SeccionCarpeta) => {
     setProcesando(true);
+
     try {
       const updated = await apiDictaminarSeccion(
         seccion.id,
         "aprobado",
         "Sección verificada y aprobada conforme por Dirección de Escuela.",
       );
+
       setCarpeta(updated);
       toast.success(`Sección "${seccion.plantilla.nombre}" APROBADA exitosamente.`);
     } catch (err) {
@@ -79,6 +76,7 @@ export default function RevisorCarpetaDetallePage() {
   const handleConfirmarObservacion = async (seccion: SeccionCarpeta) => {
     if (!obsText.trim()) return;
     setProcesando(true);
+
     try {
       const updated = await apiDictaminarSeccion(seccion.id, "observado", obsText.trim());
       setCarpeta(updated);
@@ -115,8 +113,8 @@ export default function RevisorCarpetaDetallePage() {
   }
 
   const { curso, docente, semestre, metricas, secciones, historial } = carpeta;
-  const seccionActiva =
-    secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+
+  const seccionActiva = secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
 
   const getEstadoColor = (estado: SeccionCarpeta["estado"]) => {
     switch (estado) {
@@ -196,14 +194,14 @@ export default function RevisorCarpetaDetallePage() {
                 Secciones a Evaluar (10)
               </h2>
               <p className="text-xs text-text-tertiary">
-                {metricas.entregadas} pendientes de visto bueno · {metricas.observadas}{" "}
-                observadas
+                {metricas.entregadas} pendientes de visto bueno · {metricas.observadas} observadas
               </p>
             </div>
 
             <div className="divide-y divide-card-border">
               {secciones.map((sec) => {
                 const isSelected = seccionActiva?.id === sec.id;
+
                 return (
                   <button
                     key={sec.id}
@@ -293,7 +291,8 @@ export default function RevisorCarpetaDetallePage() {
                     Emitir Observación en {seccionActiva.plantilla.nombre} (RF7)
                   </h4>
                   <p className="text-xs text-text-secondary">
-                    Indique con claridad qué aspecto debe corregir el docente. La sección pasará a estado OBSERVADO.
+                    Indique con claridad qué aspecto debe corregir el docente. La sección pasará a
+                    estado OBSERVADO.
                   </p>
                   <textarea
                     rows={3}
@@ -393,9 +392,7 @@ export default function RevisorCarpetaDetallePage() {
                           <TableCell className="font-medium text-text-primary">
                             {d.nombre}
                           </TableCell>
-                          <TableCell className="text-text-secondary">
-                            {d.tamano_mb} MB
-                          </TableCell>
+                          <TableCell className="text-text-secondary">{d.tamano_mb} MB</TableCell>
                           <TableCell className="text-text-secondary">
                             {new Date(d.fecha).toLocaleString("es-PE")}
                           </TableCell>

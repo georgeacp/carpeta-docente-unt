@@ -139,20 +139,24 @@ export interface CatalogoAdmin {
 function getAuthHeaders(): HeadersInit {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("unt_jwt_token");
+
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let msg = "Error en la solicitud al servidor.";
+
     try {
       const errData = await res.json();
       msg = errData.detail || msg;
     } catch {
       // ignore
     }
+
     throw new Error(msg);
   }
+
   return res.json();
 }
 
@@ -162,6 +166,7 @@ export async function apiLogin(email: string, password: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
+
   return handleResponse<{ access_token: string; usuario: Usuario }>(res);
 }
 
@@ -171,6 +176,7 @@ export async function apiDemoLogin(rol: "docente" | "revisor" | "admin") {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ rol }),
   });
+
   return handleResponse<{ access_token: string; usuario: Usuario }>(res);
 }
 
@@ -178,6 +184,7 @@ export async function apiFetchMisCarpetas(): Promise<CarpetaSummary[]> {
   const res = await fetch("/api/carpetas/mis-carpetas", {
     headers: { ...getAuthHeaders() },
   });
+
   return handleResponse<CarpetaSummary[]>(res);
 }
 
@@ -185,17 +192,20 @@ export async function apiFetchCarpetaDetalle(id: number): Promise<CarpetaDetail>
   const res = await fetch(`/api/carpetas/${id}`, {
     headers: { ...getAuthHeaders() },
   });
+
   return handleResponse<CarpetaDetail>(res);
 }
 
 export async function apiSubirDocumento(seccionId: number, archivo: File): Promise<CarpetaDetail> {
   const formData = new FormData();
   formData.append("archivo", archivo);
+
   const res = await fetch(`/api/carpetas/secciones/${seccionId}/documentos`, {
     method: "POST",
     headers: { ...getAuthHeaders() },
     body: formData,
   });
+
   return handleResponse<CarpetaDetail>(res);
 }
 
@@ -203,16 +213,20 @@ export async function apiFetchCarpetasRevisor(estadoGlobal = "todos"): Promise<{
   resumen: ResumenRevisor;
   carpetas: CarpetaSummary[];
 }> {
-  const res = await fetch(`/api/revision/carpetas?estado_global=${encodeURIComponent(estadoGlobal)}`, {
-    headers: { ...getAuthHeaders() },
-  });
+  const res = await fetch(
+    `/api/revision/carpetas?estado_global=${encodeURIComponent(estadoGlobal)}`,
+    {
+      headers: { ...getAuthHeaders() },
+    },
+  );
+
   return handleResponse<{ resumen: ResumenRevisor; carpetas: CarpetaSummary[] }>(res);
 }
 
 export async function apiDictaminarSeccion(
   seccionId: number,
   estado: "aprobado" | "observado" | "entregado" | "pendiente",
-  comentario?: string
+  comentario?: string,
 ): Promise<CarpetaDetail> {
   const res = await fetch(`/api/revision/secciones/${seccionId}/estado`, {
     method: "PATCH",
@@ -222,6 +236,7 @@ export async function apiDictaminarSeccion(
     },
     body: JSON.stringify({ estado, comentario }),
   });
+
   return handleResponse<CarpetaDetail>(res);
 }
 
@@ -229,6 +244,7 @@ export async function apiFetchCatalogoAdmin(): Promise<CatalogoAdmin> {
   const res = await fetch("/api/admin/catalogo", {
     headers: { ...getAuthHeaders() },
   });
+
   return handleResponse<CatalogoAdmin>(res);
 }
 
@@ -244,6 +260,7 @@ export async function apiCrearSemestre(payload: {
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
   });
+
   return handleResponse(res);
 }
 
@@ -258,6 +275,7 @@ export async function apiCrearCurso(payload: {
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
   });
+
   return handleResponse(res);
 }
 
@@ -274,6 +292,7 @@ export async function apiCrearUsuario(payload: {
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
   });
+
   return handleResponse(res);
 }
 
@@ -288,5 +307,6 @@ export async function apiCrearAsignacion(payload: {
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
   });
+
   return handleResponse<CarpetaSummary>(res);
 }

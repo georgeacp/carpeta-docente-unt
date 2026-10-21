@@ -7,11 +7,18 @@ function containsForbiddenSymbolName(name: string): boolean {
   return name.toLowerCase().includes(FORBIDDEN_SYMBOL_NAME);
 }
 
-/** Return whether an identifier names a statically accessed member owned by another value. */
+/** Recognize names owned by a value, imported API, or receiving JSX component. */
 function isBorrowedMemberName(node: ESTree.Node): boolean {
   const parent = node.parent;
-  if (parent === null || parent.type !== "MemberExpression") return false;
-  return parent.property === node && parent.computed === false;
+  if (parent === null) return false;
+  if (parent.type === "MemberExpression") {
+    return parent.property === node && parent.computed === false;
+  }
+  if (parent.type === "ImportSpecifier") {
+    return parent.imported === node && parent.imported !== parent.local;
+  }
+  // Attribute names are owned by the receiving component, just like object members.
+  return parent.type === "JSXAttribute" && parent.name === node;
 }
 
 /** Ban the case-insensitive substring "shape" in every JavaScript and TypeScript symbol name. */

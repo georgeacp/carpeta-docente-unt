@@ -2,14 +2,25 @@
 
 import LanguageSwitcher from "@/components/common/header/language-switcher";
 import ThemeToggle from "@/components/common/header/theme-toggle";
-import { Alert, AlertContent, AlertDescription, AlertIndicator } from "@/components/tailgrids/core/alert";
+import {
+  Alert,
+  AlertContent,
+  AlertDescription,
+  AlertIndicator,
+} from "@/components/tailgrids/core/alert";
 import { Button } from "@/components/tailgrids/core/button";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/tailgrids/core/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/tailgrids/core/input-group";
 import { Label } from "@/components/tailgrids/core/label";
 import { Spinner } from "@/components/tailgrids/core/spinner";
 import { useAuth } from "@/context/auth-context";
 import { useI18n } from "@/context/i18n-context";
+import type { Usuario } from "@/lib/api";
 import { Logo } from "@/utils/icon";
 import { Envelope1, Eye, Google, Locked3 } from "@tailgrids/icons";
 import React, { useState } from "react";
@@ -17,13 +28,13 @@ import { toast } from "sonner";
 import { EyeClose } from "../(with-layouts)/(forms)/form-elements/_components/icons";
 
 interface DemoAccount {
-  id: string;
+  id: Usuario["rol"];
   name: string;
   email: string;
   roleTitle: string;
 }
 
-const DEMO_ACCOUNTS: Record<string, DemoAccount> = {
+const DEMO_ACCOUNTS = {
   docente: {
     id: "docente",
     name: "Dr. Carlos Alcántara",
@@ -42,7 +53,7 @@ const DEMO_ACCOUNTS: Record<string, DemoAccount> = {
     email: "admin@unitru.edu.pe",
     roleTitle: "Administrador Académico",
   },
-};
+} satisfies Record<Usuario["rol"], DemoAccount>;
 
 export default function LoginPage() {
   const { loginWithCredentials, loginWithDemoAccount } = useAuth();
@@ -50,17 +61,19 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("docente@unitru.edu.pe");
   const [password, setPassword] = useState("unt2026");
-  const [selectedDemoRole, setSelectedDemoRole] = useState("docente");
+  const [selectedDemoRole, setSelectedDemoRole] = useState<Usuario["rol"] | "">("docente");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRoleSelectChange = (roleKey: string) => {
-    setSelectedDemoRole(roleKey);
+    const account = Object.values(DEMO_ACCOUNTS).find((account) => account.id === roleKey);
+    setSelectedDemoRole(account?.id ?? "");
     setErrorMessage(null);
-    if (roleKey && DEMO_ACCOUNTS[roleKey]) {
-      const acc = DEMO_ACCOUNTS[roleKey];
+
+    if (account) {
+      const acc = account;
       setEmail(acc.email);
       setPassword("unt2026");
       toast.info(t("login.demoLoaded", { name: acc.name, email: acc.email }));
@@ -72,22 +85,27 @@ export default function LoginPage() {
     setErrorMessage(null);
 
     const cleanEmail = email.trim();
+
     if (!cleanEmail) {
       setErrorMessage(t("login.errorEmptyEmail"));
+
       return;
     }
 
     if (!cleanEmail.endsWith("@unitru.edu.pe")) {
       setErrorMessage(t("login.errorDomain"));
+
       return;
     }
 
     if (!password.trim()) {
       setErrorMessage(t("login.errorEmptyPassword"));
+
       return;
     }
 
     setLoading(true);
+
     try {
       await loginWithCredentials(cleanEmail, password);
       toast.success(t("login.success"));
@@ -103,8 +121,9 @@ export default function LoginPage() {
   const handleGoogleSSO = async () => {
     setLoading(true);
     setErrorMessage(null);
+
     try {
-      const targetRole = (selectedDemoRole as "docente" | "revisor" | "admin") || "docente";
+      const targetRole = selectedDemoRole || "docente";
       await loginWithDemoAccount(targetRole);
       toast.success("Autenticado con Google Workspace Institucional (@unitru.edu.pe)");
     } catch (err) {
@@ -145,9 +164,7 @@ export default function LoginPage() {
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
                   UNT · 1824
                 </span>
-                <span className="text-[10px] text-white/75 sm:text-[11px]">
-                  {t("app.faculty")}
-                </span>
+                <span className="text-[10px] text-white/75 sm:text-[11px]">{t("app.faculty")}</span>
               </div>
             </div>
           </div>
@@ -187,9 +204,7 @@ export default function LoginPage() {
               <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                 {t("login.welcomeBack")}
               </h1>
-              <p className="mt-0.5 text-xs text-text-tertiary">
-                {t("login.welcomeSub")}
-              </p>
+              <p className="mt-0.5 text-xs text-text-tertiary">{t("login.welcomeSub")}</p>
             </div>
 
             {/* Subtle Demo Role Selector */}

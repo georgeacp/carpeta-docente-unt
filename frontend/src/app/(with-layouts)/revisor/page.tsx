@@ -54,13 +54,12 @@ export default function RevisorDashboardPage() {
       })
       .catch((err) => {
         if (active)
-          toast.error(
-            err instanceof Error ? err.message : "Error al cargar panel de revisor",
-          );
+          toast.error(err instanceof Error ? err.message : "Error al cargar panel de revisor");
       })
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -69,6 +68,7 @@ export default function RevisorDashboardPage() {
   const carpetasFiltradas = carpetas.filter((c) => {
     if (!busqueda.trim()) return true;
     const q = busqueda.toLowerCase();
+
     return (
       c.docente.nombre.toLowerCase().includes(q) ||
       c.curso.nombre.toLowerCase().includes(q) ||
@@ -126,9 +126,7 @@ export default function RevisorDashboardPage() {
           <h1 className="text-[26px] leading-8 font-semibold text-text-primary">
             {t("revisor.title")}
           </h1>
-          <p className="text-sm leading-5 text-text-tertiary">
-            {t("revisor.desc")}
-          </p>
+          <p className="text-sm leading-5 text-text-tertiary">{t("revisor.desc")}</p>
         </div>
       </div>
 
@@ -143,9 +141,7 @@ export default function RevisorDashboardPage() {
                 </Badge>
               </CardHeader>
               <CardContent className="mt-4 p-0">
-                <div className="text-3xl font-bold text-text-primary">
-                  {resumen.total_carpetas}
-                </div>
+                <div className="text-3xl font-bold text-text-primary">{resumen.total_carpetas}</div>
               </CardContent>
               <CardFooter className="mt-3 flex items-center justify-between p-0">
                 <span className="text-xs text-text-tertiary">
@@ -295,8 +291,7 @@ export default function RevisorDashboardPage() {
                         <span className="font-medium text-text-primary">{c.curso.nombre}</span>
                       </div>
                       <div className="mt-1 text-xs text-text-tertiary">
-                        Sección {c.seccion} · Ciclo {c.curso.ciclo}° · Semestre{" "}
-                        {c.semestre.nombre}
+                        Sección {c.seccion} · Ciclo {c.curso.ciclo}° · Semestre {c.semestre.nombre}
                       </div>
                     </TableCell>
                     <TableCell className="min-w-48">
@@ -309,10 +304,7 @@ export default function RevisorDashboardPage() {
                           {c.metricas.porcentaje_avance}%
                         </span>
                       </div>
-                      <Progress
-                        progress={c.metricas.porcentaje_avance}
-                        className="max-w-full"
-                      />
+                      <Progress progress={c.metricas.porcentaje_avance} className="max-w-full" />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-1.5">
@@ -322,10 +314,7 @@ export default function RevisorDashboardPage() {
                         <Badge color="blue" size="sm">
                           {c.metricas.entregadas} Rev
                         </Badge>
-                        <Badge
-                          color={c.metricas.observadas > 0 ? "warning" : "gray"}
-                          size="sm"
-                        >
+                        <Badge color={c.metricas.observadas > 0 ? "warning" : "gray"} size="sm">
                           {c.metricas.observadas} Obs
                         </Badge>
                       </div>

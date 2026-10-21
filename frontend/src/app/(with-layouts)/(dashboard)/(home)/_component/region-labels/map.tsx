@@ -3,7 +3,7 @@
 import { Button } from "@/components/tailgrids/core/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/tailgrids/core/card";
 import { MenuDotsIcon, MinusIcon, PlusIcon } from "@/utils/icon";
-import type { Layer, LeafletMouseEvent, PathOptions } from "leaflet";
+import { Path, type Layer, type LeafletMouseEvent, type PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import { GeoJSON, MapContainer, useMap } from "react-leaflet";
@@ -42,6 +42,7 @@ const highlightStyle: PathOptions = {
 
 function ZoomControls() {
   const map = useMap();
+
   return (
     <div className="absolute right-3 bottom-3 z-999 flex flex-col divide-y divide-border-secondary overflow-hidden rounded-md border border-border-secondary bg-background-white-primary">
       {[
@@ -72,6 +73,7 @@ interface TooltipState {
 
 function CountryTooltip({ tooltip }: { tooltip: TooltipState }) {
   if (!tooltip.visible) return null;
+
   return (
     <div
       style={{
@@ -98,18 +100,20 @@ function CountriesLayer({
 }: {
   geoData: GeoJSON.FeatureCollection;
   setTooltip: React.Dispatch<React.SetStateAction<TooltipState>>;
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const activeLayerRef = useRef<Layer | null>(null);
+  const activeLayerRef = useRef<Path | null>(null);
 
   function onEachFeature(feature: CountryFeature, layer: Layer) {
+    if (!(layer instanceof Path)) return;
+
     const name: string = feature.properties?.name ?? "Unknown";
 
     // Map GeoJSON country name to keys in IMPORT_DATA
     const importKey = name === "USA" ? "United States of America" : name;
     const imp: number | null = IMPORT_DATA[importKey] ?? null;
 
-    const path = layer as L.Path;
+    const path = layer;
 
     layer.on({
       mouseover(e: LeafletMouseEvent) {
@@ -129,13 +133,15 @@ function CountriesLayer({
         if (activeLayerRef.current !== layer) {
           path.setStyle(defaultStyle);
         }
+
         setTooltip((prev) => ({ ...prev, visible: false }));
       },
       click() {
         // Reset previously active
         if (activeLayerRef.current && activeLayerRef.current !== layer) {
-          (activeLayerRef.current as L.Path).setStyle(defaultStyle);
+          activeLayerRef.current.setStyle(defaultStyle);
         }
+
         activeLayerRef.current = layer;
         path.setStyle(highlightStyle);
       },
@@ -149,6 +155,7 @@ function CountriesLayer({
 
 export default function RegionLabelsMap() {
   const [geoData, setGeoData] = useState<GeoJSON.FeatureCollection | null>(null);
+
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
     x: 0,
@@ -156,6 +163,7 @@ export default function RegionLabelsMap() {
     name: "",
     imp: null,
   });
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Fetch world GeoJSON (Natural Earth via public CDN)
@@ -193,11 +201,7 @@ export default function RegionLabelsMap() {
         >
           {/* Country polygons */}
           {geoData && (
-            <CountriesLayer
-              geoData={geoData}
-              setTooltip={setTooltip}
-              containerRef={containerRef as React.RefObject<HTMLDivElement>}
-            />
+            <CountriesLayer geoData={geoData} setTooltip={setTooltip} containerRef={containerRef} />
           )}
 
           {/* Custom zoom */}

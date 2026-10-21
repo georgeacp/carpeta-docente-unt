@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/utils/cn";
 import { Close } from "@tailgrids/icons";
 import type { ComponentProps } from "react";
@@ -5,6 +7,7 @@ import {
   Button as AriaButton,
   Dialog as AriaDialog,
   Modal as AriaModal,
+  composeRenderProps,
   Heading,
   type DialogProps as AriaDialogProps,
   type HeadingProps,
@@ -37,9 +40,9 @@ export function Dialog({
         )}
         {...props}
       >
-        {({ close }) => (
+        {composeRenderProps(children, (content, { close }) => (
           <>
-            {typeof children === "function" ? children({ close }) : children}
+            {content}
             {showCloseButton && (
               <AriaButton
                 onPress={close}
@@ -51,7 +54,7 @@ export function Dialog({
               </AriaButton>
             )}
           </>
-        )}
+        ))}
       </AriaDialog>
     </AriaModal>
   );

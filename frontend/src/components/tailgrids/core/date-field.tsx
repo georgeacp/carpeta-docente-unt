@@ -6,6 +6,7 @@ import {
   DateField as AriaDateField,
   DateInput as AriaDateInput,
   DateSegment as AriaDateSegment,
+  composeRenderProps,
   DateValue,
   type DateFieldProps as AriaDateFieldProps,
   type DateInputProps as AriaDateInputProps,
@@ -76,12 +77,9 @@ export interface DateInputProps extends AriaDateInputProps, VariantProps<typeof 
 export function DateInput({ state = "default", className, ...props }: DateInputProps) {
   return (
     <AriaDateInput
-      className={(renderProps) =>
-        cn(
-          dateInputStyles({ state }),
-          typeof className === "function" ? className(renderProps) : className,
-        )
-      }
+      className={composeRenderProps(className, (className) =>
+        cn(dateInputStyles({ state }), className),
+      )}
       {...props}
     />
   );

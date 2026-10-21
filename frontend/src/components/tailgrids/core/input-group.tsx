@@ -22,6 +22,7 @@ function InputGroup({ className, ...props }: InputGroupProps) {
     />
   );
 }
+
 InputGroup.displayName = "InputGroup";
 
 export interface InputGroupInputProps extends InputProps {}
@@ -38,6 +39,7 @@ function InputGroupInput({ className, ...props }: InputGroupInputProps) {
     />
   );
 }
+
 InputGroupInput.displayName = "InputGroupInput";
 
 const inputGroupAddonStyles = cva(
@@ -70,6 +72,7 @@ function InputGroupAddon({ className, align, ...props }: InputGroupAddonProps) {
     />
   );
 }
+
 InputGroupAddon.displayName = "InputGroupAddon";
 
 const inputGroupButtonStyles = cva(
@@ -108,6 +111,7 @@ function InputGroupButton({ className, size, variant = "ghost", ...props }: Inpu
     />
   );
 }
+
 InputGroupButton.displayName = "InputGroupButton";
 
 export interface InputGroupTextareaProps extends TextAreaProps {}
@@ -124,6 +128,7 @@ function InputGroupTextarea({ className, ...props }: InputGroupTextareaProps) {
     />
   );
 }
+
 InputGroupTextarea.displayName = "InputGroupTextarea";
 
 export { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea };

@@ -19,13 +19,16 @@ export function isPathActive(href: string, pathname: string): boolean {
  */
 export function findActiveGroupKey(pathname: string, navData?: NavSectionData[]): string | null {
   const sections = navData || NAV_DATA;
+
   for (const section of sections) {
     for (const item of section.items) {
       if (item.items && item.items.length > 0) {
         const hasMatch = item.items.some((child) => child.url && isPathActive(child.url, pathname));
+
         if (hasMatch) return item.title;
       }
     }
   }
+
   return null;
 }

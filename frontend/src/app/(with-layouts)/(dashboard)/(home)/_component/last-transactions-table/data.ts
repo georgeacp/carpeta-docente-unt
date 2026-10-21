@@ -50,7 +50,7 @@ export const transactionsTableData: Transaction[] = [
   },
 ];
 
-export const STATUS_COLOR_MAP: Record<string, BadgeColor> = {
+export const STATUS_COLOR_MAP = {
   shipped: "violet",
   delivered: "success",
   pending: "warning",
@@ -58,4 +58,8 @@ export const STATUS_COLOR_MAP: Record<string, BadgeColor> = {
   failed: "error",
   refunded: "orange",
   processing: "blue",
-};
+} satisfies Record<string, BadgeColor>;
+
+export function getStatusColor(status: string): BadgeColor {
+  return Object.entries(STATUS_COLOR_MAP).find(([key]) => key === status)?.[1] ?? "gray";
+}

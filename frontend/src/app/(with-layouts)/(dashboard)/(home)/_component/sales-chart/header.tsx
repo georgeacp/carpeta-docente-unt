@@ -82,7 +82,9 @@ export default function HeaderSection({
       {/* Dropdown */}
       <div>
         <Select
-          onChange={(value) => setTimeRange(value as Granularity)}
+          onChange={(value) => {
+            if (value === "monthly" || value === "yearly") setTimeRange(value);
+          }}
           value={timeRange}
           defaultValue="monthly"
           aria-label="Select time range"

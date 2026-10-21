@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { cn } from "@/utils/cn";
@@ -10,6 +9,7 @@ import {
   Select as AriaSelect,
   type SelectProps as AriaSelectProps,
   Button,
+  composeRenderProps,
   DialogTrigger,
   FieldError,
   Header,
@@ -28,13 +28,14 @@ import {
   Separator,
   Text,
   type TextProps,
+  type ValidationResult,
 } from "react-aria-components";
 import { ButtonProps, buttonStyles } from "./button";
 
 interface SelectContextValue {
-  selectionMode?: "single" | "multiple";
-  value?: Key | Iterable<Key>;
-  onChange?: (value: any) => void;
+  selectionMode: "multiple";
+  value?: Iterable<Key>;
+  onChange?: (value: Key[]) => void;
   isRequired?: boolean;
   isInvalid?: boolean;
   name?: string;
@@ -44,12 +45,10 @@ const SelectContext = createContext<SelectContextValue | null>(null);
 
 // Select (Root)
 
-export interface SelectProps<T extends object> extends Omit<
+interface BaseSelectProps<T extends object> extends Omit<
   AriaSelectProps<T>,
   | "children"
   | "selectionMode"
-  | "selectedKeys"
-  | "defaultSelectedKeys"
   | "selectedKeys"
   | "defaultSelectedKeys"
   | "onSelectionChange"
@@ -58,45 +57,57 @@ export interface SelectProps<T extends object> extends Omit<
 > {
   label?: string;
   description?: string;
-  errorMessage?: string | ((validation: any) => string);
+  errorMessage?: string | ((validation: ValidationResult) => string);
   items?: Iterable<T>;
-  children?: React.ReactNode | ((item: T) => React.ReactNode);
-  selectionMode?: "single" | "multiple";
-  value?: Key | Iterable<Key>;
-  onChange?: (value: any) => void;
 }
 
-export function Select<T extends object>({ className, children, ...props }: SelectProps<T>) {
+export type SelectProps<T extends object> = BaseSelectProps<T> &
+  (
+    | {
+        selectionMode: "multiple";
+        value?: Iterable<Key>;
+        onChange?: (value: Key[]) => void;
+        children?: React.ReactNode;
+      }
+    | {
+        selectionMode?: "single";
+        value?: Key | null;
+        onChange?: (value: Key | null) => void;
+        children?: AriaSelectProps<T>["children"];
+      }
+  );
+
+export function Select<T extends object>({ className, ...props }: SelectProps<T>) {
   if (props.selectionMode === "multiple") {
-    const childrenArray = React.Children.toArray(children as any);
+    const childrenArray = React.Children.toArray(props.children);
+
     const label = childrenArray.find(
-      (child) => (child as any)?.type?.displayName === "SelectLabel",
-    );
-    const description = childrenArray.find(
-      (child) => (child as any)?.type?.displayName === "SelectDescription",
-    );
-    const trigger = childrenArray.find(
-      (child) => (child as any)?.type?.displayName === "SelectTrigger",
-    );
-    const content = childrenArray.find(
-      (child) => (child as any)?.type?.displayName === "SelectContent",
-    );
-    const errorMessage = childrenArray.find(
-      (child) => (child as any)?.type?.displayName === "SelectErrorMessage",
+      (child) => React.isValidElement(child) && child.type === SelectLabel,
     );
 
-    const isValueEmpty =
-      !props.value ||
-      (Array.isArray(props.value) && props.value.length === 0) ||
-      (props.value instanceof Set && props.value.size === 0) ||
-      (typeof props.value === "object" &&
-        Symbol.iterator in props.value &&
-        Array.from(props.value as Iterable<any>).length === 0);
+    const description = childrenArray.find(
+      (child) => React.isValidElement(child) && child.type === SelectDescription,
+    );
+
+    const trigger = childrenArray.find(
+      (child) => React.isValidElement(child) && child.type === SelectTrigger,
+    );
+
+    const content = childrenArray.find(
+      (child) => React.isValidElement(child) && child.type === SelectContent,
+    );
+
+    const errorMessage = childrenArray.find(
+      (child) => React.isValidElement(child) && child.type === SelectErrorMessage,
+    );
+
+    const selectedKeys = Array.from(props.value ?? []);
+    const isValueEmpty = selectedKeys.length === 0;
 
     const isInvalid = props.isInvalid || (props.isRequired && isValueEmpty);
 
     return (
-      <SelectContext.Provider value={{ ...props, isInvalid }}>
+      <SelectContext.Provider value={{ ...props, value: selectedKeys, isInvalid }}>
         <div
           className={cn("group inline-flex flex-col gap-2", className)}
           data-required={props.isRequired || undefined}
@@ -114,13 +125,13 @@ export function Select<T extends object>({ className, children, ...props }: Sele
               name={props.name}
               multiple
               required={props.isRequired}
-              value={Array.from((props.value as Iterable<Key>) || []) as string[]}
+              value={selectedKeys.map(String)}
               onChange={() => {}}
               className="sr-only"
               aria-hidden="true"
               tabIndex={-1}
             >
-              {Array.from((props.value as Iterable<Key>) || []).map((key) => (
+              {selectedKeys.map((key) => (
                 <option key={key.toString()} value={key.toString()}>
                   {key}
                 </option>
@@ -134,12 +145,12 @@ export function Select<T extends object>({ className, children, ...props }: Sele
 
   return (
     <AriaSelect
-      {...(props as any)}
+      {...props}
       className={cn("group flex w-full flex-col gap-2", className)}
-      selectedKey={props.value as Key}
+      selectedKey={props.value}
       onSelectionChange={props.onChange}
     >
-      {children}
+      {props.children}
     </AriaSelect>
   );
 }
@@ -182,6 +193,7 @@ function SelectTrigger({
     </Button>
   );
 }
+
 SelectTrigger.displayName = "SelectTrigger";
 
 // SelectDisplayValue
@@ -235,11 +247,7 @@ function SelectContent({ children, className, ...props }: SelectContentProps) {
         <ListBox
           className="bg-background-white-secondary p-1.5 outline-none"
           selectionMode={context.selectionMode}
-          selectedKeys={
-            context.value instanceof Set
-              ? context.value
-              : new Set((context.value as Iterable<Key>) || [])
-          }
+          selectedKeys={new Set(context.value ?? [])}
           onSelectionChange={(keys) => {
             if (context.onChange) {
               context.onChange(Array.from(keys));
@@ -267,6 +275,7 @@ function SelectContent({ children, className, ...props }: SelectContentProps) {
     </Popover>
   );
 }
+
 SelectContent.displayName = "SelectContent";
 
 // Select Item
@@ -281,16 +290,16 @@ function SelectItem({ className, children, ...props }: ListBoxItemProps) {
       )}
       {...props}
     >
-      {(renderProps) => (
+      {composeRenderProps(children, (content, renderProps) => (
         <>
-          {typeof children === "function" ? children(renderProps) : children}
+          {content}
           {renderProps.isSelected && (
             <span className="absolute right-1 flex size-5 items-center justify-center">
               <Check className="size-5" />
             </span>
           )}
         </>
-      )}
+      ))}
     </ListBoxItem>
   );
 }
@@ -333,6 +342,7 @@ function SelectLabel({ className, ...props }: LabelProps) {
     />
   );
 }
+
 SelectLabel.displayName = "SelectLabel";
 
 // Select Description
@@ -346,6 +356,7 @@ function SelectDescription({ className, ...props }: TextProps) {
     />
   );
 }
+
 SelectDescription.displayName = "SelectDescription";
 
 // Select Error Message
@@ -357,6 +368,7 @@ function SelectErrorMessage({ className, ...props }: TextProps) {
     if (!context.isInvalid) {
       return null;
     }
+
     return <Text {...props} className={cn("text-sm font-normal text-input-error", className)} />;
   }
 
@@ -364,6 +376,7 @@ function SelectErrorMessage({ className, ...props }: TextProps) {
     <FieldError className={cn("text-sm font-normal text-input-error", className)} {...props} />
   );
 }
+
 SelectErrorMessage.displayName = "SelectErrorMessage";
 
 export {

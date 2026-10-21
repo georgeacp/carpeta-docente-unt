@@ -6,6 +6,7 @@ import { createContext, type HTMLAttributes, useContext, useId, useState } from 
 import { Badge } from "./badge";
 
 type StyleVariant = "default" | "minimal";
+
 type TabDirection = "vertical" | "horizontal";
 
 type TabsContextType = {

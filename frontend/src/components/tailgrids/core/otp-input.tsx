@@ -4,13 +4,19 @@ import { cn } from "@/utils/cn";
 import React, { useEffect, useId, useRef, useState, type ComponentProps } from "react";
 import { Group, Input, Label, Text } from "react-aria-components";
 
-type PropsType = Omit<ComponentProps<"input">, "value"> & {
+export interface OtpValueChange {
+  target: { value: string };
+}
+
+type PropsType = Omit<ComponentProps<"input">, "value" | "onChange"> & {
   digitLength?: 4 | 6;
   label?: string;
   hint?: string;
   errorMessage?: string;
   isInvalid?: boolean;
   value?: string;
+  /** Receives the combined code in target.value. */
+  onChange?: (event: OtpValueChange) => void;
 };
 
 export default function OtpInput({
@@ -44,6 +50,7 @@ export default function OtpInput({
         if (prev.join("") === paddedDigits.join("")) {
           return prev;
         }
+
         return paddedDigits;
       });
     }
@@ -53,13 +60,12 @@ export default function OtpInput({
   useEffect(() => {
     if (onChange) {
       const otpValue = otp.join("");
+
       if (value !== undefined && otpValue === value) {
         return;
       }
-      const event = {
-        target: { value: otpValue },
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(event);
+
+      onChange({ target: { value: otpValue } });
     }
   }, [otp, onChange, value]);
 
@@ -78,6 +84,7 @@ export default function OtpInput({
 
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
+
       if (otp[index]) {
         setOtp((prevOtp) => [...prevOtp.slice(0, index), "", ...prevOtp.slice(index + 1)]);
       } else if (index > 0) {
@@ -113,7 +120,12 @@ export default function OtpInput({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const text = e.clipboardData.getData("text").trim().replace(/[^0-9]/g, "");
+
+    const text = e.clipboardData
+      .getData("text")
+      .trim()
+      .replace(/[^0-9]/g, "");
+
     if (text.length === digitLength) {
       const digits = text.split("");
       setOtp(digits);

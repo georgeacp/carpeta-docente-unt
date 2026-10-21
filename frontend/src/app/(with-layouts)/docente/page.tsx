@@ -38,6 +38,7 @@ export default function DocenteDashboardPage() {
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -46,11 +47,12 @@ export default function DocenteDashboardPage() {
   const totalObservadas = carpetas.reduce((acc, c) => acc + c.metricas.observadas, 0);
   const totalAprobadas = carpetas.reduce((acc, c) => acc + c.metricas.aprobadas, 0);
   const totalEntregadas = carpetas.reduce((acc, c) => acc + c.metricas.entregadas, 0);
+
   const promedioAvance =
     carpetas.length > 0
       ? Math.round(
-        carpetas.reduce((acc, c) => acc + c.metricas.porcentaje_avance, 0) / carpetas.length,
-      )
+          carpetas.reduce((acc, c) => acc + c.metricas.porcentaje_avance, 0) / carpetas.length,
+        )
       : 0;
 
   return (
@@ -61,9 +63,7 @@ export default function DocenteDashboardPage() {
           <h1 className="text-[26px] leading-8 font-semibold text-text-primary">
             {t("docente.title")}
           </h1>
-          <p className="text-sm leading-5 text-text-tertiary">
-            {t("docente.desc")}
-          </p>
+          <p className="text-sm leading-5 text-text-tertiary">{t("docente.desc")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge color="gray" size="sm">
@@ -83,9 +83,7 @@ export default function DocenteDashboardPage() {
               {t("docente.actionRequired")}
             </Badge>
           </div>
-          <p className="mt-1 text-xs text-text-secondary">
-            {t("docente.alertHint")}
-          </p>
+          <p className="mt-1 text-xs text-text-secondary">{t("docente.alertHint")}</p>
         </div>
       )}
 
@@ -154,17 +152,16 @@ export default function DocenteDashboardPage() {
             </CardHeader>
             <CardContent className="mt-4 p-0">
               <div
-                className={`text-3xl font-bold ${totalObservadas > 0 ? "text-amber-600" : "text-text-primary"
-                  }`}
+                className={`text-3xl font-bold ${
+                  totalObservadas > 0 ? "text-amber-600" : "text-text-primary"
+                }`}
               >
                 {totalObservadas}
               </div>
             </CardContent>
             <CardFooter className="mt-3 flex items-center justify-between p-0">
               <span className="text-xs text-text-tertiary">
-                {totalObservadas > 0
-                  ? t("docente.kpiNewVersion")
-                  : t("docente.kpiNoObs")}
+                {totalObservadas > 0 ? t("docente.kpiNewVersion") : t("docente.kpiNoObs")}
               </span>
               <Badge color={totalObservadas > 0 ? "warning" : "success"} size="sm">
                 {totalObservadas > 0 ? t("docente.kpiAlert") : t("docente.kpiUpToDate")}
@@ -176,9 +173,7 @@ export default function DocenteDashboardPage() {
         {/* Course Folder Cards Grid */}
         {loading ? (
           <Card className="py-12 text-center">
-            <p className="text-sm text-text-tertiary">
-              {t("docente.syncing")}
-            </p>
+            <p className="text-sm text-text-tertiary">{t("docente.syncing")}</p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -189,9 +184,7 @@ export default function DocenteDashboardPage() {
               return (
                 <Card
                   key={c.id}
-                  className={
-                    hasObs ? "border-amber-500/60 ring-1 ring-amber-500/20" : undefined
-                  }
+                  className={hasObs ? "border-amber-500/60 ring-1 ring-amber-500/20" : undefined}
                 >
                   <CardHeader className="border-b border-card-border pb-4">
                     <div className="space-y-1">
@@ -208,7 +201,8 @@ export default function DocenteDashboardPage() {
                       </div>
                       <CardTitle className="text-lg">{curso.nombre}</CardTitle>
                       <CardDescription className="text-xs">
-                        {t("docente.teacherLabel")} <strong>{c.docente.nombre}</strong> ({c.docente.email})
+                        {t("docente.teacherLabel")} <strong>{c.docente.nombre}</strong> (
+                        {c.docente.email})
                       </CardDescription>
                     </div>
 
@@ -258,41 +252,43 @@ export default function DocenteDashboardPage() {
                         <div className="text-lg font-bold text-emerald-600">
                           {metricas.aprobadas}
                         </div>
-                        <div className="text-[11px] font-medium text-text-tertiary">{t("docente.approved")}</div>
+                        <div className="text-[11px] font-medium text-text-tertiary">
+                          {t("docente.approved")}
+                        </div>
                       </div>
                       <div className="rounded-xl border border-card-border bg-background-gray-primary p-3">
-                        <div className="text-lg font-bold text-blue-600">
-                          {metricas.entregadas}
+                        <div className="text-lg font-bold text-blue-600">{metricas.entregadas}</div>
+                        <div className="text-[11px] font-medium text-text-tertiary">
+                          {t("docente.delivered")}
                         </div>
-                        <div className="text-[11px] font-medium text-text-tertiary">{t("docente.delivered")}</div>
                       </div>
                       <div className="rounded-xl border border-card-border bg-background-gray-primary p-3">
                         <div className="text-lg font-bold text-amber-600">
                           {metricas.observadas}
                         </div>
-                        <div className="text-[11px] font-medium text-text-tertiary">{t("docente.observed")}</div>
+                        <div className="text-[11px] font-medium text-text-tertiary">
+                          {t("docente.observed")}
+                        </div>
                       </div>
                       <div className="rounded-xl border border-card-border bg-background-gray-primary p-3">
                         <div className="text-lg font-bold text-text-secondary">
                           {metricas.pendientes}
                         </div>
-                        <div className="text-[11px] font-medium text-text-tertiary">{t("docente.pending")}</div>
+                        <div className="text-[11px] font-medium text-text-tertiary">
+                          {t("docente.pending")}
+                        </div>
                       </div>
                     </div>
                   </CardContent>
 
                   <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t border-card-border px-0 pt-4 pb-0">
-                    <span className="text-xs text-text-tertiary">
-                      {t("docente.structure")}
-                    </span>
+                    <span className="text-xs text-text-tertiary">{t("docente.structure")}</span>
                     <Button
                       variant={hasObs ? "danger" : "primary"}
                       size="md"
                       onPress={() => router.push(`/docente/carpeta/${c.id}`)}
                     >
-                      {hasObs
-                        ? t("docente.btnResolve")
-                        : t("docente.btnOpen")}
+                      {hasObs ? t("docente.btnResolve") : t("docente.btnOpen")}
                     </Button>
                   </CardFooter>
                 </Card>

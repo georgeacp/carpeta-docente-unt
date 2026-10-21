@@ -36,6 +36,7 @@ export default function SearchBar() {
         };
 
         window.addEventListener('keydown', handleKeyDown);
+
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
@@ -51,6 +52,7 @@ export default function SearchBar() {
                     if (!sectionsMap[sectionLabel]) {
                         sectionsMap[sectionLabel] = [];
                     }
+
                     sectionsMap[sectionLabel].push({
                         id: item.url,
                         title: item.title,
@@ -66,6 +68,7 @@ export default function SearchBar() {
                             if (!sectionsMap[sectionLabel]) {
                                 sectionsMap[sectionLabel] = [];
                             }
+
                             sectionsMap[sectionLabel].push({
                                 id: subItem.url,
                                 title: subItem.title,
@@ -107,10 +110,7 @@ export default function SearchBar() {
                     type='button'
                 >
                     <InputGroup className='h-10 cursor-pointer'>
-                        <InputGroupAddon
-                            align='inline-start'
-                            className='pr-0 text-icon-tertiary'
-                        >
+                        <InputGroupAddon align='inline-start' className='pr-0 text-icon-tertiary'>
                             <SearchIcon />
                         </InputGroupAddon>
                         <InputGroupInput
@@ -138,10 +138,7 @@ export default function SearchBar() {
                 {/* Search Header Input */}
                 <div className='border-b border-card-border p-3.5'>
                     <InputGroup className='h-10'>
-                        <InputGroupAddon
-                            align='inline-start'
-                            className='pr-0 text-icon-tertiary'
-                        >
+                        <InputGroupAddon align='inline-start' className='pr-0 text-icon-tertiary'>
                             <SearchIcon />
                         </InputGroupAddon>
                         <Command.Input
@@ -162,52 +159,49 @@ export default function SearchBar() {
                         {t('common.noResults')}
                     </Command.Empty>
 
-                    {Object.entries(itemsBySection).map(
-                        ([sectionLabel, sectionItems]) => {
-                            if (sectionItems.length === 0) return null;
-                            return (
-                                <Command.Group
-                                    key={sectionLabel}
-                                    heading={sectionLabel}
-                                    className='py-1.5 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:tracking-wider **:[[cmdk-group-heading]]:text-text-tertiary **:[[cmdk-group-heading]]:uppercase'
-                                >
-                                    {sectionItems.map((item) => (
-                                        <Command.Item
-                                            key={item.id}
-                                            value={`${item.section} ${item.parentTitle || ''} ${item.title} ${item.url}`}
-                                            onSelect={() =>
-                                                handleSelect(item.url)
-                                            }
-                                            className='flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm text-text-secondary transition-colors hover:bg-background-gray-primary data-[selected=true]:bg-background-gray-primary data-[selected=true]:text-text-primary'
-                                        >
-                                            <div className='flex min-w-0 items-center gap-3'>
-                                                {item.icon && (
-                                                    <span className='flex size-5 shrink-0 items-center justify-center text-icon-secondary'>
-                                                        {item.icon}
+                    {Object.entries(itemsBySection).map(([sectionLabel, sectionItems]) => {
+                        if (sectionItems.length === 0) return null;
+
+                        return (
+                            <Command.Group
+                                key={sectionLabel}
+                                heading={sectionLabel}
+                                className='py-1.5 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:tracking-wider **:[[cmdk-group-heading]]:text-text-tertiary **:[[cmdk-group-heading]]:uppercase'
+                            >
+                                {sectionItems.map((item) => (
+                                    <Command.Item
+                                        key={item.id}
+                                        value={`${item.section} ${item.parentTitle || ''} ${item.title} ${item.url}`}
+                                        onSelect={() => handleSelect(item.url)}
+                                        className='flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm text-text-secondary transition-colors hover:bg-background-gray-primary data-[selected=true]:bg-background-gray-primary data-[selected=true]:text-text-primary'
+                                    >
+                                        <div className='flex min-w-0 items-center gap-3'>
+                                            {item.icon && (
+                                                <span className='flex size-5 shrink-0 items-center justify-center text-icon-secondary'>
+                                                    {item.icon}
+                                                </span>
+                                            )}
+                                            <div className='flex items-center gap-1.5 truncate'>
+                                                {item.parentTitle && (
+                                                    <span className='truncate font-normal text-text-tertiary'>
+                                                        {item.parentTitle} /
                                                     </span>
                                                 )}
-                                                <div className='flex items-center gap-1.5 truncate'>
-                                                    {item.parentTitle && (
-                                                        <span className='truncate font-normal text-text-tertiary'>
-                                                            {item.parentTitle} /
-                                                        </span>
-                                                    )}
-                                                    <span className='truncate text-text-primary'>
-                                                        {item.title}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className='flex shrink-0 items-center gap-2'>
-                                                <span className='hidden text-xs text-text-tertiary sm:inline'>
-                                                    {item.url}
+                                                <span className='truncate text-text-primary'>
+                                                    {item.title}
                                                 </span>
                                             </div>
-                                        </Command.Item>
-                                    ))}
-                                </Command.Group>
-                            );
-                        },
-                    )}
+                                        </div>
+                                        <div className='flex shrink-0 items-center gap-2'>
+                                            <span className='hidden text-xs text-text-tertiary sm:inline'>
+                                                {item.url}
+                                            </span>
+                                        </div>
+                                    </Command.Item>
+                                ))}
+                            </Command.Group>
+                        );
+                    })}
                 </Command.List>
 
                 {/* Modal Footer with navigation shortcuts */}

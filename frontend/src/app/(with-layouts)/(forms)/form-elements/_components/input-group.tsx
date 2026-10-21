@@ -49,7 +49,6 @@ export default function InputGroupComponents() {
   const [phone, setPhone] = useState<string>("");
   const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
   const [copied, setCopied] = useState(false);
-  const [counterValue, setCounterValue] = useState<number>(1000);
 
   const handleCopy = () => {
     navigator.clipboard.writeText("www.unitru.edu.pe");
@@ -74,7 +73,7 @@ export default function InputGroupComponents() {
           <Select
             name="countryCode"
             value={phoneCode}
-            onChange={(val) => setPhoneCode(val as string)}
+            onChange={(val) => setPhoneCode(val === null ? "" : String(val))}
             isRequired
             className="w-24 shrink-0"
           >
@@ -165,6 +164,7 @@ export default function InputGroupComponents() {
             value={selectedCurrency.code}
             onChange={(key) => {
               const currency = currencies.find((c) => c.code === key);
+
               if (currency) setSelectedCurrency(currency);
             }}
             aria-label="Currency"

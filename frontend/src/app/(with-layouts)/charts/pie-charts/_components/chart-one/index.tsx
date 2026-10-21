@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/tailgrids/core/card";
 import { ChartContainer, ChartTooltip } from "@/components/tailgrids/core/chart";
-import { Label, Pie, PieChart, PieSectorShapeProps, Sector } from "recharts";
+import { Label, Pie, PieChart, type PieSectorShapeProps as PieSectorProps, Sector } from "recharts";
 import { mockPieChartOneData } from "./data";
 import PieChartOneTooltip from "./tooltip";
 
@@ -61,6 +61,7 @@ export default function PieChartOne() {
                           </text>
                         );
                       }
+
                       return null;
                     }}
                   />
@@ -84,9 +85,11 @@ export default function PieChartOne() {
   );
 }
 
-function CustomPieCell(props: PieSectorShapeProps) {
+function CustomPieCell(props: PieSectorProps) {
+  // SAFETY: this chart's segments come from mockPieChartOneData, whose entries have name, value and color.
   const payload = props.payload as { name: string; value: number; color: string } | undefined;
   const isGroupA = payload?.name === "Group A";
+
   return (
     <Sector
       {...props}

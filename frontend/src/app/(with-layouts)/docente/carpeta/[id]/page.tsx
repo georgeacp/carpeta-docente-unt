@@ -2,13 +2,7 @@
 
 import { Badge } from "@/components/tailgrids/core/badge";
 import { Button } from "@/components/tailgrids/core/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/tailgrids/core/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/tailgrids/core/card";
 import { Progress } from "@/components/tailgrids/core/progress";
 import { SheetContent, SheetOverlay, SheetTitle } from "@/components/tailgrids/core/sheet";
 import {
@@ -38,9 +32,11 @@ export default function DocenteCarpetaDetallePage() {
 
   const [carpeta, setCarpeta] = useState<CarpetaDetail | null>(null);
   const [selectedSeccionId, setSelectedSeccionId] = useState<number | null>(null);
-  const [filtroLista, setFiltroLista] = useState<
-    "todas" | "observado" | "pendiente" | "aprobado"
-  >("todas");
+
+  const [filtroLista, setFiltroLista] = useState<"todas" | "observado" | "pendiente" | "aprobado">(
+    "todas",
+  );
+
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -52,11 +48,9 @@ export default function DocenteCarpetaDetallePage() {
       .then((data) => {
         setCarpeta(data);
         const obsSec = data.secciones.find((s) => s.estado === "observado");
-        setSelectedSeccionId(obsSec ? obsSec.id : data.secciones[0]?.id ?? null);
+        setSelectedSeccionId(obsSec ? obsSec.id : (data.secciones[0]?.id ?? null));
       })
-      .catch((err) =>
-        toast.error(err instanceof Error ? err.message : "Error al obtener carpeta"),
-      )
+      .catch((err) => toast.error(err instanceof Error ? err.message : "Error al obtener carpeta"))
       .finally(() => setLoading(false));
   }, [carpetaId]);
 
@@ -65,10 +59,12 @@ export default function DocenteCarpetaDetallePage() {
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
     e.target.value = "";
 
     setUploading(true);
+
     try {
       const updated = await apiSubirDocumento(seccion.id, file);
       setCarpeta(updated);
@@ -105,10 +101,12 @@ export default function DocenteCarpetaDetallePage() {
   }
 
   const { curso, semestre, metricas, secciones, historial } = carpeta;
-  const seccionActiva =
-    secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+
+  const seccionActiva = secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+
   const seccionesFiltradas = secciones.filter((s) => {
     if (filtroLista === "todas") return true;
+
     return s.estado === filtroLista;
   });
 
@@ -147,9 +145,7 @@ export default function DocenteCarpetaDetallePage() {
                 Sección {carpeta.seccion} · {semestre.nombre}
               </Badge>
             </div>
-            <h1 className="text-xl font-semibold text-text-primary md:text-2xl">
-              {curso.nombre}
-            </h1>
+            <h1 className="text-xl font-semibold text-text-primary md:text-2xl">{curso.nombre}</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -192,15 +188,17 @@ export default function DocenteCarpetaDetallePage() {
 
             {/* Filtros rápidos */}
             <div className="flex flex-wrap gap-1.5 border-b border-card-border px-4 py-2.5">
-              {[
-                { key: "todas", label: `Todas (${secciones.length})` },
-                { key: "observado", label: `Obs (${metricas.observadas})` },
-                { key: "pendiente", label: `Pend (${metricas.pendientes})` },
-                { key: "aprobado", label: `Aprob (${metricas.aprobadas})` },
-              ].map((f) => (
+              {(
+                [
+                  { key: "todas", label: `Todas (${secciones.length})` },
+                  { key: "observado", label: `Obs (${metricas.observadas})` },
+                  { key: "pendiente", label: `Pend (${metricas.pendientes})` },
+                  { key: "aprobado", label: `Aprob (${metricas.aprobadas})` },
+                ] as const
+              ).map((f) => (
                 <button
                   key={f.key}
-                  onClick={() => setFiltroLista(f.key as typeof filtroLista)}
+                  onClick={() => setFiltroLista(f.key)}
                   className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-medium transition",
                     filtroLista === f.key
@@ -267,10 +265,7 @@ export default function DocenteCarpetaDetallePage() {
                   <Badge color="primary" size="sm">
                     SECCIÓN #{seccionActiva.plantilla.orden}
                   </Badge>
-                  <Badge
-                    color={seccionActiva.plantilla.obligatoria ? "blue" : "gray"}
-                    size="sm"
-                  >
+                  <Badge color={seccionActiva.plantilla.obligatoria ? "blue" : "gray"} size="sm">
                     {seccionActiva.plantilla.obligatoria ? "OBLIGATORIA" : "OPCIONAL"}
                   </Badge>
                   <Badge color="gray" size="sm">
@@ -308,7 +303,8 @@ export default function DocenteCarpetaDetallePage() {
                     </div>
                     <p className="mt-1.5 text-sm text-text-primary">{obs.texto}</p>
                     <p className="mt-2 text-xs font-medium text-amber-600">
-                      Instrucción: Suba una nueva versión corregida en el recuadro inferior para subsanar la observación automáticamente.
+                      Instrucción: Suba una nueva versión corregida en el recuadro inferior para
+                      subsanar la observación automáticamente.
                     </p>
                   </div>
                 ))}
@@ -390,9 +386,7 @@ export default function DocenteCarpetaDetallePage() {
                           <TableCell className="font-medium text-text-primary">
                             {doc.nombre}
                           </TableCell>
-                          <TableCell className="text-text-secondary">
-                            {doc.tamano_mb} MB
-                          </TableCell>
+                          <TableCell className="text-text-secondary">{doc.tamano_mb} MB</TableCell>
                           <TableCell className="text-text-secondary">
                             {new Date(doc.fecha).toLocaleString("es-PE")}
                           </TableCell>

@@ -1,3 +1,5 @@
+import type { Placement } from "@floating-ui/react";
+
 export const tooltipPositionsData = [
   {
     id: 1,
@@ -19,4 +21,4 @@ export const tooltipPositionsData = [
     position: "right",
     title: "Right Tooltip",
   },
-];
+] satisfies Array<{ id: number; position: Placement; title: string }>;

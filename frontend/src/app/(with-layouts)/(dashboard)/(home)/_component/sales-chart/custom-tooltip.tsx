@@ -27,5 +27,6 @@ export default function SalesChartTooltip({
       </div>
     );
   }
+
   return null;
 }

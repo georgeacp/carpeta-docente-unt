@@ -123,6 +123,7 @@ export function CalendarYearPicker({ className }: YearPickerProps) {
 
   const years = useMemo(() => {
     const yearStart = currentYear - 20;
+
     return Array.from({ length: 40 }, (_, index) => yearStart + index);
   }, [currentYear]);
 
@@ -163,9 +164,11 @@ export function CalendarYearPicker({ className }: YearPickerProps) {
 
   const focusedDate = state.focusedDate;
   const currentDay = focusedDate.day;
+
   const clampFocusedDateToYear = (year: number) => {
     const safeDate = focusedDate.set({ day: 1, year });
     const maxDay = safeDate.calendar.getDaysInMonth(safeDate);
+
     return safeDate.set({ day: Math.min(currentDay, maxDay) });
   };
 
@@ -218,6 +221,7 @@ export function CalendarYearPicker({ className }: YearPickerProps) {
             }
 
             const selectedYear = Number([...keys][0]);
+
             if (Number.isNaN(selectedYear)) {
               return;
             }
