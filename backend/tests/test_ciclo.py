@@ -194,3 +194,20 @@ class CicloTest(unittest.TestCase):
         nuevo = self.cargar(seccion)
         self.assertEqual(seccion.estado, "observado")
         self.assertEqual(nuevo.version, 3)
+
+    def test_submission_snapshots_latest_version_after_a_cached_read(self):
+        self.completar(self.hitos[0])
+        seccion = self.carpeta.secciones[0]
+        self.assertEqual(seccion.documentos[0].version, 1)
+        control = self.db.get(ciclo.CicloCarpeta, self.carpeta.id)
+        (self.root / "reciente.pdf").write_bytes(b"%PDF-1.4\nreciente\n%%EOF")
+        with Session(self.engine) as concurrente:
+            reciente = Documento(carpeta_seccion_id=seccion.id, nombre="reciente.pdf", ruta="reciente.pdf", version=2, subido_por=self.docente.id)
+            concurrente.add(reciente)
+            concurrente.get(ciclo.CicloCarpeta, self.carpeta.id).version += 1
+            concurrente.commit()
+        self.db.refresh(control)
+        entrega = self.enviar()
+        detalle = next(d for d in entrega.detalles if d.seccion_id == seccion.id)
+        self.assertEqual(detalle.version, 2)
+        self.assertEqual(detalle.nombre, "reciente.pdf")

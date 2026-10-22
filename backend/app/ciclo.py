@@ -181,6 +181,8 @@ def enviar(db, carpeta_id, hito_id, usuario, storage):
             raise ErrorCiclo("Reenvíe el hito observado o presente el cierre integral.")
         item_ids = {r.plantilla_id for r in hito.requisitos}
         secciones = [s for s in carpeta.secciones if s.plantilla_id in item_ids or hito.codigo == "cierre"]
+        for seccion in secciones:
+            db.expire(seccion, ["documentos"])
         if not secciones:
             raise ErrorCiclo("El hito no tiene requisitos configurados.", 400)
         faltantes = [s.plantilla.nombre for s in secciones if s.plantilla.obligatoria and not s.documentos]
