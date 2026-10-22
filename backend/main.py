@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from app import ciclo
 
 from app.core.config import settings
 from app.db.database import ACTIVE_DB_ENGINE, Base, SessionLocal, engine
@@ -15,6 +17,7 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_initial_data(db)
+        ciclo.inicializar(db)
     finally:
         db.close()
     yield
@@ -39,6 +42,11 @@ app.include_router(auth.router)
 app.include_router(carpetas.router)
 app.include_router(revision.router)
 app.include_router(admin.router)
+
+
+@app.exception_handler(ciclo.ErrorCiclo)
+async def error_ciclo(request, error):
+    return JSONResponse(status_code=error.status_code, content={"detail": str(error)})
 
 
 @app.get("/api/health")

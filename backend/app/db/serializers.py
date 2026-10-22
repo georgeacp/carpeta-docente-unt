@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 from app.db.models import Carpeta
+from app.db.ciclo import CicloCarpeta
+from sqlalchemy.orm import object_session
 
 
 def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
@@ -10,19 +12,19 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
 
     secciones_ordenadas = sorted(carpeta.secciones, key=lambda s: s.plantilla.orden)
     obligatorias = [s for s in secciones_ordenadas if s.plantilla.obligatoria]
-    total_obligatorias = len(obligatorias) or 1
+    total_obligatorias = len(obligatorias)
 
     # RF8: Avance porcentual de la carpeta (secciones obligatorias con documento entregado/aprobado)
     completadas = [
-        s for s in obligatorias if s.estado in ("entregado", "aprobado") and len(s.documentos) > 0
+        s for s in obligatorias if len(s.documentos) > 0
     ]
     aprobadas = [s for s in obligatorias if s.estado == "aprobado"]
     observadas = [s for s in secciones_ordenadas if s.estado == "observado"]
     entregadas = [s for s in secciones_ordenadas if s.estado == "entregado"]
     pendientes = [s for s in secciones_ordenadas if s.estado == "pendiente"]
 
-    porcentaje_entrega = round((len(completadas) / total_obligatorias) * 100)
-    porcentaje_aprobacion = round((len(aprobadas) / total_obligatorias) * 100)
+    porcentaje_entrega = round((len(completadas) / total_obligatorias) * 100) if total_obligatorias else 0
+    porcentaje_aprobacion = round((len(aprobadas) / total_obligatorias) * 100) if total_obligatorias else 0
 
     now = datetime.now(timezone.utc)
     fecha_limite = semestre.fecha_limite
@@ -30,19 +32,22 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
         fecha_limite = fecha_limite.replace(tzinfo=timezone.utc)
     vencida = bool(fecha_limite and now > fecha_limite and porcentaje_entrega < 100)
 
-    if len(observadas) > 0:
+    db = object_session(carpeta)
+    control = db.get(CicloCarpeta, carpeta.id) if db else None
+    estado_ciclo = control.estado if control else "borrador"
+    if estado_ciclo == "observada":
         estado_global = "observada"
-    elif porcentaje_aprobacion == 100:
+    elif estado_ciclo == "aprobada":
         estado_global = "aprobada"
-    elif porcentaje_entrega == 100:
+    elif estado_ciclo in ("enviada", "reenviada"):
         estado_global = "completa_en_revision"
-    elif vencida:
-        estado_global = "vencida"
     else:
         estado_global = "en_progreso"
 
     return {
         "id": carpeta.id,
+        "estado_ciclo": estado_ciclo,
+        "bloqueada": estado_ciclo in ("enviada", "reenviada", "aprobada"),
         "asignacion_id": asignacion.id,
         "seccion": asignacion.seccion,
         "fecha_actualizacion": carpeta.ultima_actualizacion.isoformat() if carpeta.ultima_actualizacion else None,
@@ -85,7 +90,10 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
 
 
 def serialize_carpeta_detail(carpeta: Carpeta) -> dict:
+    from app.ciclo import consultar
+
     summary = serialize_carpeta_summary(carpeta)
+    summary["ciclo"] = consultar(object_session(carpeta), carpeta)
     secciones_ordenadas = sorted(carpeta.secciones, key=lambda s: s.plantilla.orden)
 
     secciones_data = []

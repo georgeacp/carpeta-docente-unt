@@ -177,3 +177,20 @@ class CicloTest(unittest.TestCase):
             self.enviar()
         self.assertEqual(self.db.query(ciclo.Entrega).count(), 0)
         self.assertFalse(ciclo.consultar(self.db, self.carpeta)["bloqueada"])
+
+    def test_upload_refreshes_item_after_another_session_observes_it(self):
+        seccion = self.carpeta.secciones[0]
+        self.cargar(seccion)
+        self.assertEqual(seccion.estado, "entregado")
+        seccion_id = seccion.id
+        self.assertEqual([d.version for d in seccion.documentos], [1])
+        control = self.db.get(ciclo.CicloCarpeta, self.carpeta.id)
+        with Session(self.engine) as concurrente:
+            concurrente.get(CarpetaSeccion, seccion_id).estado = "observado"
+            concurrente.add(Documento(carpeta_seccion_id=seccion_id, nombre="intermedia.pdf", ruta="intermedia.pdf", version=2, subido_por=self.docente.id))
+            concurrente.get(ciclo.CicloCarpeta, self.carpeta.id).estado = "observada"
+            concurrente.commit()
+        self.db.refresh(control)
+        nuevo = self.cargar(seccion)
+        self.assertEqual(seccion.estado, "observado")
+        self.assertEqual(nuevo.version, 3)

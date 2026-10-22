@@ -2,6 +2,7 @@
   "name": "carpeta-docente",
   "private": true,
   "scripts": {
+    "test:backend": "cd backend && .venv\\Scripts\\python.exe -m unittest discover -s tests -v",
     "lint": "npm run lint:anti-slop && npm --prefix frontend run lint",
     "lint:anti-slop": "oxlint frontend",
     "test:anti-slop": "node --test tools/oxlint/tests/borrowed-symbols.test.mjs",

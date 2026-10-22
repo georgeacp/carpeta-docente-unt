@@ -140,6 +140,8 @@ def cargar(db, seccion_id, usuario, nombre, contenido, storage):
     creado = False
     try:
         with _cambio(db, carpeta.id) as control:
+            db.refresh(seccion)
+            db.expire(seccion, ["documentos"])
             if control.estado in ("enviada", "reenviada", "aprobada"):
                 raise ErrorCiclo("La carpeta está bloqueada durante la revisión o después de su aprobación final.")
             version = max((d.version for d in seccion.documentos), default=0) + 1
@@ -164,6 +166,7 @@ def enviar(db, carpeta_id, hito_id, usuario, storage):
     carpeta = _carpeta(db, carpeta_id)
     autorizar(carpeta, usuario, propietario=True)
     with _cambio(db, carpeta_id) as control:
+        db.expire(carpeta, ["secciones"])
         if control.estado in ("enviada", "reenviada", "aprobada"):
             raise ErrorCiclo("La carpeta tiene una revisión pendiente o ya está aprobada.")
         hito = db.get(HitoEntrega, hito_id)
