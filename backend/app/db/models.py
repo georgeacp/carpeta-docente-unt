@@ -11,7 +11,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import relationship
-from app.db.database import Base
+from app.db.base import Base
 
 
 def utc_now():

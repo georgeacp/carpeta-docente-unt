@@ -1,12 +1,11 @@
 import logging
 from urllib.parse import urlparse
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
+from app.db.base import Base
 
 logger = logging.getLogger("uvicorn.error")
-
-Base = declarative_base()
 
 ACTIVE_DB_ENGINE = "postgresql"
 ACTIVE_DB_URL = settings.DATABASE_URL
