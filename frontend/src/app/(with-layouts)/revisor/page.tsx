@@ -1,15 +1,9 @@
 "use client";
 
 import { SearchIcon } from "@/components/common/header/icons";
-import { Badge } from "@/components/tailgrids/core/badge";
-import { Button } from "@/components/tailgrids/core/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/tailgrids/core/card";
+import { FolderListState } from "@/components/carpetas/folder-list-state";
+import { FolderStatus } from "@/components/carpetas/folder-status";
+import { SummaryStrip } from "@/components/carpetas/summary-strip";
 import {
   InputGroup,
   InputGroupAddon,
@@ -24,27 +18,29 @@ import {
   TableRoot,
   TableRow,
 } from "@/components/tailgrids/core/table";
-import { apiFetchCarpetasRevisor, CarpetaSummary, ResumenRevisor } from "@/lib/api";
-import { useAuth } from "@/context/auth-context";
+import {
+  apiFetchCarpetasRevisor,
+  CarpetaSummary,
+  ResumenRevisor,
+} from "@/lib/api";
 import { useI18n } from "@/context/i18n-context";
+import Link from "next/link";
 import { cn } from "@/utils/cn";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function RevisorDashboardPage() {
-  const { usuario } = useAuth();
   const { t } = useI18n();
-  const router = useRouter();
   const [resumen, setResumen] = useState<ResumenRevisor | null>(null);
   const [carpetas, setCarpetas] = useState<CarpetaSummary[]>([]);
-  const [filtroEstado, setFiltroEstado] = useState<string>("todos");
-  const [busqueda, setBusqueda] = useState<string>("");
+  const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
     apiFetchCarpetasRevisor(filtroEstado)
       .then((data) => {
         if (active) {
@@ -53,8 +49,14 @@ export default function RevisorDashboardPage() {
         }
       })
       .catch((err) => {
-        if (active)
-          toast.error(err instanceof Error ? err.message : "Error al cargar panel de revisor");
+        if (active) {
+          setError(true);
+          toast.error(
+            err instanceof Error
+              ? err.message
+              : "Error al cargar panel de revisor",
+          );
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -63,279 +65,253 @@ export default function RevisorDashboardPage() {
     return () => {
       active = false;
     };
-  }, [filtroEstado]);
+  }, [filtroEstado, retry]);
+
+  const changeFilter = (key: string) => {
+    if (key === filtroEstado) return;
+    setLoading(true);
+    setError(false);
+    setFiltroEstado(key);
+  };
 
   const carpetasFiltradas = carpetas.filter((c) => {
-    if (!busqueda.trim()) return true;
-    const q = busqueda.toLowerCase();
+    const q = busqueda.trim().toLowerCase();
 
     return (
+      !q ||
       c.docente.nombre.toLowerCase().includes(q) ||
       c.curso.nombre.toLowerCase().includes(q) ||
       c.curso.codigo.toLowerCase().includes(q)
     );
   });
 
-  const renderEstadoGlobalBadge = (estado: string) => {
-    switch (estado) {
-      case "aprobada":
-        return (
-          <Badge color="success" size="sm">
-            100% APROBADA
-          </Badge>
-        );
-      case "observada":
-        return (
-          <Badge color="warning" size="sm">
-            CON OBSERVACIONES
-          </Badge>
-        );
-      case "completa_en_revision":
-        return (
-          <Badge color="blue" size="sm">
-            ENTREGA EN REVISIÓN
-          </Badge>
-        );
-      default:
-        return (
-          <Badge color="gray" size="sm">
-            EN PROGRESO
-          </Badge>
-        );
-    }
-  };
-
   return (
-    <div className="mt-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-2 lg:px-6">
+    <div className="space-y-8 px-4 py-7 sm:px-7 lg:px-10 lg:py-9">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <Badge color="warning" size="sm">
-              {t("revisor.stationBadge")}
-            </Badge>
-            <Badge color="gray" size="sm">
-              SEMESTRE 2026-II
-            </Badge>
-            {usuario && (
-              <Badge color="cyan" size="sm">
-                {usuario.nombre} · Revisor Autorizado
-              </Badge>
-            )}
-          </div>
-          <h1 className="text-[26px] leading-8 font-semibold text-text-primary">
+          <h1 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-[28px]">
             {t("revisor.title")}
           </h1>
-          <p className="text-sm leading-5 text-text-tertiary">{t("revisor.desc")}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
+            {t("revisor.desc")}
+          </p>
         </div>
+        <Link
+          href="/docente"
+          className="rounded-lg border border-card-border px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-background-gray-primary hover:text-text-primary"
+        >
+          {t("revisor.ownFolders")}
+        </Link>
       </div>
 
-      <div className="space-y-5 px-2 lg:px-5">
-        {/* 4 KPI Cards (RF9) */}
-        {resumen && (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader>
-                <Badge color="primary" size="sm">
-                  TOTAL CARPETAS ASIGNADAS
-                </Badge>
-              </CardHeader>
-              <CardContent className="mt-4 p-0">
-                <div className="text-3xl font-bold text-text-primary">{resumen.total_carpetas}</div>
-              </CardContent>
-              <CardFooter className="mt-3 flex items-center justify-between p-0">
-                <span className="text-xs text-text-tertiary">
-                  Avance promedio escuela: <strong>{resumen.promedio_avance}%</strong>
-                </span>
-                <Badge color="blue" size="sm">
-                  {resumen.promedio_avance}%
-                </Badge>
-              </CardFooter>
-            </Card>
+      <SummaryStrip
+        loading={loading}
+        items={[
+          {
+            label: t("revisor.kpiTotal"),
+            value: error ? "—" : (resumen?.total_carpetas ?? 0),
+            hint: t("revisor.average", {
+              count: resumen?.promedio_avance ?? 0,
+            }),
+          },
+          {
+            label: t("revisor.kpiApproved"),
+            value: error ? "—" : (resumen?.aprobadas ?? 0),
+            hint: t("revisor.approvedHint"),
+          },
+          {
+            label: t("revisor.kpiObs"),
+            value: error ? "—" : (resumen?.observadas ?? 0),
+            hint: t("revisor.observedHint"),
+            attention: !!resumen?.observadas,
+          },
+          {
+            label: t("revisor.kpiInReview"),
+            value: error
+              ? "—"
+              : (resumen?.en_progreso ?? 0) +
+                (resumen?.completas_en_revision ?? 0),
+            hint: t("revisor.lateHint", { count: resumen?.vencidas ?? 0 }),
+          },
+        ]}
+      />
 
-            <Card>
-              <CardHeader>
-                <Badge color="success" size="sm">
-                  CARPETAS 100% APROBADAS
-                </Badge>
-              </CardHeader>
-              <CardContent className="mt-4 p-0">
-                <div className="text-3xl font-bold text-emerald-600">{resumen.aprobadas}</div>
-              </CardContent>
-              <CardFooter className="mt-3 flex items-center justify-between p-0">
-                <span className="text-xs text-text-tertiary">
-                  Validadas por Dirección de Escuela
-                </span>
-                <Badge color="success" size="sm">
-                  Conformes
-                </Badge>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Badge color="warning" size="sm">
-                  CON OBSERVACIONES ACTIVAS
-                </Badge>
-              </CardHeader>
-              <CardContent className="mt-4 p-0">
-                <div className="text-3xl font-bold text-amber-600">{resumen.observadas}</div>
-              </CardContent>
-              <CardFooter className="mt-3 flex items-center justify-between p-0">
-                <span className="text-xs text-text-tertiary">
-                  Esperando subsanación del docente
-                </span>
-                <Badge color="warning" size="sm">
-                  RF7
-                </Badge>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Badge color="blue" size="sm">
-                  EN PROGRESO / REVISIÓN
-                </Badge>
-              </CardHeader>
-              <CardContent className="mt-4 p-0">
-                <div className="text-3xl font-bold text-blue-600">
-                  {resumen.en_progreso + resumen.completas_en_revision}
-                </div>
-              </CardContent>
-              <CardFooter className="mt-3 flex items-center justify-between p-0">
-                <span className="text-xs text-text-tertiary">
-                  {resumen.vencidas} carpeta(s) fuera de plazo
-                </span>
-                <Badge color="cyan" size="sm">
-                  Activas
-                </Badge>
-              </CardFooter>
-            </Card>
+      <section aria-labelledby="review-list-title" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h2
+            id="review-list-title"
+            className="text-base font-semibold text-text-primary"
+          >
+            {t("revisor.listTitle")}
+          </h2>
+          <div className="w-full sm:w-72">
+            <InputGroup>
+              <InputGroupAddon
+                align="inline-start"
+                className="text-icon-tertiary"
+              >
+                <SearchIcon className="size-4" />
+              </InputGroupAddon>
+              <InputGroupInput
+                aria-label={t("revisor.searchPlaceholder")}
+                placeholder={t("revisor.searchPlaceholder")}
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="min-h-11 text-base sm:text-sm"
+              />
+            </InputGroup>
           </div>
-        )}
-
-        {/* Tabla de Supervisión con Filtros y Buscador */}
-        <Card>
-          <CardHeader className="mb-6 flex-wrap gap-4">
-            <div>
-              <CardTitle>Listado de Carpetas Docentes de la Escuela</CardTitle>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {[
-                  { key: "todos", label: t("revisor.filterAll") },
-                  { key: "observada", label: t("revisor.filterObserved") },
-                  { key: "en_progreso", label: t("revisor.filterInReview") },
-                  { key: "aprobada", label: t("revisor.filterApproved") },
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setFiltroEstado(tab.key)}
-                    className={cn(
-                      "rounded-lg px-3 py-1.5 text-xs font-medium transition",
-                      filtroEstado === tab.key
-                        ? "bg-brand-500 text-white"
-                        : "bg-background-gray-primary text-text-secondary hover:text-text-primary",
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="w-full sm:w-72">
-              <InputGroup className="py-1.5">
-                <InputGroupAddon align="inline-start" className="pr-0 text-icon-tertiary">
-                  <SearchIcon className="size-4" />
-                </InputGroupAddon>
-                <InputGroupInput
-                  placeholder={t("revisor.searchPlaceholder")}
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  className="py-0 pl-2 text-sm"
-                />
-              </InputGroup>
-            </div>
-          </CardHeader>
-
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div
+            role="group"
+            aria-label={t("revisor.colStatus")}
+            className="flex flex-wrap gap-1"
+          >
+            {[
+              { key: "todos", label: t("revisor.filterAll") },
+              { key: "observada", label: t("revisor.filterObserved") },
+              { key: "en_progreso", label: t("revisor.filterInReview") },
+              { key: "aprobada", label: t("revisor.filterApproved") },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                aria-pressed={filtroEstado === tab.key}
+                onClick={() => changeFilter(tab.key)}
+                className={cn(
+                  "min-h-11 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150",
+                  filtroEstado === tab.key
+                    ? "bg-brand-100 text-brand-600"
+                    : "text-text-secondary hover:bg-background-gray-secondary hover:text-text-primary",
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <p role="status" className="text-xs tabular-nums text-text-tertiary">
+            {!loading &&
+              !error &&
+              t("revisor.results", { count: carpetasFiltradas.length })}
+          </p>
+        </div>
+        <div
+          aria-busy={loading}
+          className="min-w-0 overflow-hidden rounded-xl border border-card-border bg-card-background"
+        >
           {loading ? (
-            <div className="py-10 text-center text-sm text-text-tertiary">
-              Cargando carpetas para dictamen...
+            <div role="status" className="space-y-5 p-6">
+              <span className="sr-only">{t("common.loading")}</span>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  aria-hidden="true"
+                  className="h-16 rounded-lg bg-background-gray-primary motion-safe:animate-pulse"
+                />
+              ))}
             </div>
+          ) : error ? (
+            <FolderListState
+              title={t("folders.errorTitle")}
+              description={t("folders.errorHint")}
+              retryLabel={t("common.retry")}
+              onRetry={() => {
+                setLoading(true);
+                setError(false);
+                setRetry((value) => value + 1);
+              }}
+            />
+          ) : carpetasFiltradas.length === 0 ? (
+            <FolderListState
+              title={t("revisor.emptyTitle")}
+              description={t("revisor.emptyHint")}
+              retryLabel={t("revisor.clear")}
+              onRetry={() => {
+                setBusqueda("");
+                changeFilter("todos");
+              }}
+            />
           ) : (
-            <TableRoot>
+            <TableRoot className="min-w-240">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Docente Responsable</TableHead>
-                  <TableHead>Asignatura / Sección</TableHead>
-                  <TableHead>Avance Obligatorio (RF8)</TableHead>
-                  <TableHead className="text-center">Aprob. / Entreg. / Obs.</TableHead>
-                  <TableHead>Estado Global</TableHead>
-                  <TableHead className="text-right">Dictamen</TableHead>
+                  <TableHead>{t("revisor.colCourse")}</TableHead>
+                  <TableHead>{t("revisor.colTeacher")}</TableHead>
+                  <TableHead>{t("revisor.colProgress")}</TableHead>
+                  <TableHead>{t("revisor.colStatus")}</TableHead>
+                  <TableHead className="text-right">{t("revisor.colActions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {carpetasFiltradas.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell>
-                      <div className="font-semibold text-text-primary">{c.docente.nombre}</div>
-                      <div className="text-xs text-text-tertiary">
-                        {c.docente.email} · {c.docente.categoria}
-                      </div>
+                  <TableRow
+                    key={c.id}
+                    className="transition-colors hover:bg-background-gray-primary"
+                  >
+                    <TableCell className="max-w-80 whitespace-normal py-5">
+                      <p className="font-medium leading-6 text-text-primary">
+                        {c.curso.nombre}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-text-tertiary">
+                        {c.curso.codigo} · {t("docente.section")} {c.seccion} ·{" "}
+                        {c.semestre.nombre}
+                      </p>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Badge color="primary" size="sm">
-                          {c.curso.codigo}
-                        </Badge>
-                        <span className="font-medium text-text-primary">{c.curso.nombre}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-text-tertiary">
-                        Sección {c.seccion} · Ciclo {c.curso.ciclo}° · Semestre {c.semestre.nombre}
-                      </div>
+                    <TableCell className="max-w-60 whitespace-normal">
+                      <p className="font-medium text-text-primary">
+                        {c.docente.nombre}
+                      </p>
+                      <p className="mt-1 break-all text-xs text-text-tertiary">
+                        {c.docente.email}
+                      </p>
                     </TableCell>
-                    <TableCell className="min-w-48">
-                      <div className="mb-1.5 flex items-center justify-between text-xs font-medium">
-                        <span className="text-text-secondary">
-                          {c.metricas.completadas_obligatorias}/{c.metricas.total_obligatorias}{" "}
-                          obligatorias
+                    <TableCell className="min-w-44">
+                      <div className="mb-2 flex items-center justify-between gap-4 text-xs tabular-nums text-text-secondary">
+                        <span>
+                          {c.metricas.completadas_obligatorias}/
+                          {c.metricas.total_obligatorias}
                         </span>
-                        <span className="font-semibold text-text-primary">
+                        <span className="font-medium text-text-primary">
                           {c.metricas.porcentaje_avance}%
                         </span>
                       </div>
-                      <Progress progress={c.metricas.porcentaje_avance} className="max-w-full" />
+                      <Progress
+                        progress={c.metricas.porcentaje_avance}
+                        className="max-w-full"
+                      />
+                      <p className="mt-2 text-xs leading-5 text-text-tertiary">
+                        {t("docente.reviewBreakdown", {
+                          approved: c.metricas.aprobadas,
+                          review: c.metricas.entregadas,
+                        })}
+                      </p>
+                      {c.metricas.observadas > 0 && (
+                        <p className="text-xs leading-5 text-badge-warning-text">
+                          {t("docente.observedCount", {
+                            count: c.metricas.observadas,
+                          })}
+                        </p>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-center gap-1.5">
-                        <Badge color="success" size="sm">
-                          {c.metricas.aprobadas} Apr
-                        </Badge>
-                        <Badge color="blue" size="sm">
-                          {c.metricas.entregadas} Rev
-                        </Badge>
-                        <Badge color={c.metricas.observadas > 0 ? "warning" : "gray"} size="sm">
-                          {c.metricas.observadas} Obs
-                        </Badge>
-                      </div>
+                      <FolderStatus carpeta={c} />
                     </TableCell>
-                    <TableCell>{renderEstadoGlobalBadge(c.metricas.estado_global)}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onPress={() => router.push(`/revisor/carpeta/${c.id}`)}
+                      <Link
+                        href={`/revisor/carpeta/${c.id}`}
+                        className="inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-brand-600 transition-colors hover:bg-brand-100"
                       >
-                        Revisar Carpeta
-                      </Button>
+                        {t("revisor.btnInspect")}
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </TableRoot>
           )}
-        </Card>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
