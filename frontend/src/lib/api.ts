@@ -19,11 +19,24 @@ export interface MetricasCarpeta {
   porcentaje_avance: number;
   porcentaje_aprobacion: number;
   vencida: boolean;
-  estado_global: "aprobada" | "completa_en_revision" | "observada" | "en_progreso" | "vencida";
+  estado_global:
+    | "aprobada"
+    | "completa_en_revision"
+    | "observada"
+    | "en_progreso"
+    | "vencida";
 }
 
 export interface CarpetaSummary {
   id: number;
+  estado_ciclo:
+    | "borrador"
+    | "en_progreso"
+    | "enviada"
+    | "reenviada"
+    | "observada"
+    | "aprobada";
+  bloqueada: boolean;
   asignacion_id: number;
   seccion: string;
   fecha_actualizacion: string | null;
@@ -96,6 +109,49 @@ export interface HistorialItem {
 export interface CarpetaDetail extends CarpetaSummary {
   secciones: SeccionCarpeta[];
   historial: HistorialItem[];
+  ciclo: CicloCarpeta;
+}
+
+export interface HitoEntrega {
+  id: number;
+  codigo: "inicio" | "seguimiento" | "cierre";
+  nombre: string;
+  fecha_limite: string;
+  item_ids: number[];
+}
+
+export interface DocumentoEntrega {
+  id: number;
+  seccion_id: number;
+  documento_id: number;
+  titulo: string;
+  nombre: string;
+  version: number;
+  obligatorio: boolean;
+  dictamen: "pendiente" | "aprobado" | "observado";
+  comentario: string | null;
+  subsanada_en_entrega_id: number | null;
+}
+
+export interface EntregaCarpeta {
+  id: number;
+  hito_id: number;
+  hito: string;
+  numero: number;
+  estado: "pendiente" | "aprobada" | "observada";
+  enviada_en: string;
+  fecha_limite: string;
+  tardia: boolean;
+  director_id: number | null;
+  dictaminada_en: string | null;
+  detalles: DocumentoEntrega[];
+}
+
+export interface CicloCarpeta {
+  estado: CarpetaSummary["estado_ciclo"];
+  bloqueada: boolean;
+  hitos: HitoEntrega[];
+  entregas: EntregaCarpeta[];
 }
 
 export interface ResumenRevisor {
@@ -188,7 +244,9 @@ export async function apiFetchMisCarpetas(): Promise<CarpetaSummary[]> {
   return handleResponse<CarpetaSummary[]>(res);
 }
 
-export async function apiFetchCarpetaDetalle(id: number): Promise<CarpetaDetail> {
+export async function apiFetchCarpetaDetalle(
+  id: number,
+): Promise<CarpetaDetail> {
   const res = await fetch(`/api/carpetas/${id}`, {
     headers: { ...getAuthHeaders() },
   });
@@ -196,7 +254,10 @@ export async function apiFetchCarpetaDetalle(id: number): Promise<CarpetaDetail>
   return handleResponse<CarpetaDetail>(res);
 }
 
-export async function apiSubirDocumento(seccionId: number, archivo: File): Promise<CarpetaDetail> {
+export async function apiSubirDocumento(
+  seccionId: number,
+  archivo: File,
+): Promise<CarpetaDetail> {
   const formData = new FormData();
   formData.append("archivo", archivo);
 
@@ -220,24 +281,10 @@ export async function apiFetchCarpetasRevisor(estadoGlobal = "todos"): Promise<{
     },
   );
 
-  return handleResponse<{ resumen: ResumenRevisor; carpetas: CarpetaSummary[] }>(res);
-}
-
-export async function apiDictaminarSeccion(
-  seccionId: number,
-  estado: "aprobado" | "observado" | "entregado" | "pendiente",
-  comentario?: string,
-): Promise<CarpetaDetail> {
-  const res = await fetch(`/api/revision/secciones/${seccionId}/estado`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify({ estado, comentario }),
-  });
-
-  return handleResponse<CarpetaDetail>(res);
+  return handleResponse<{
+    resumen: ResumenRevisor;
+    carpetas: CarpetaSummary[];
+  }>(res);
 }
 
 export async function apiFetchCatalogoAdmin(): Promise<CatalogoAdmin> {
@@ -246,6 +293,67 @@ export async function apiFetchCatalogoAdmin(): Promise<CatalogoAdmin> {
   });
 
   return handleResponse<CatalogoAdmin>(res);
+}
+
+export async function apiEnviarEntrega(
+  carpetaId: number,
+  hitoId: number,
+): Promise<CarpetaDetail> {
+  const res = await fetch(`/api/carpetas/${carpetaId}/entregas`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+    body: JSON.stringify({ hito_id: hitoId }),
+  });
+
+  return handleResponse<CarpetaDetail>(res);
+}
+
+export async function apiEvaluarDocumento(
+  entregaId: number,
+  detalleId: number,
+  dictamen: "aprobado" | "observado",
+  comentario: string,
+): Promise<CarpetaDetail> {
+  const res = await fetch(
+    `/api/revision/entregas/${entregaId}/documentos/${detalleId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      body: JSON.stringify({ dictamen, comentario }),
+    },
+  );
+
+  return handleResponse<CarpetaDetail>(res);
+}
+
+export async function apiConcluirEntrega(
+  entregaId: number,
+): Promise<CarpetaDetail> {
+  const res = await fetch(`/api/revision/entregas/${entregaId}/dictamen`, {
+    method: "POST",
+    headers: { ...getAuthHeaders() },
+  });
+
+  return handleResponse<CarpetaDetail>(res);
+}
+
+export async function apiDescargarDocumento(
+  documentoId: number,
+  nombre: string,
+): Promise<void> {
+  const res = await fetch(`/api/carpetas/documentos/${documentoId}/descargar`, {
+    headers: { ...getAuthHeaders() },
+  });
+
+  if (!res.ok) await handleResponse(res);
+  const url = URL.createObjectURL(await res.blob());
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = nombre;
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export async function apiCrearSemestre(payload: {

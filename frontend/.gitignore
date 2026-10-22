@@ -13,6 +13,9 @@
 
 # next.js
 /.next/
+/.next-ciclo-qa/
+/.next-ciclo-build/
+/tsconfig.ciclo-qa.json
 /out/
 
 # production

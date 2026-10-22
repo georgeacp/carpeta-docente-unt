@@ -93,7 +93,7 @@ export default function RevisorDashboardPage() {
       case "completa_en_revision":
         return (
           <Badge color="blue" size="sm">
-            LISTA PARA APROBAR
+            ENTREGA EN REVISIÓN
           </Badge>
         );
       default:
