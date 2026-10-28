@@ -16,6 +16,20 @@ export const SUPPORTED_LOCALES: LocaleOption[] = [
 
 export const translations: Record<Locale, Record<string, string>> = {
   es: {
+    "profile.institutionalTitle": "Perfil institucional",
+    "profile.loading": "Consultando datos institucionales…",
+    "profile.loadError": "No se pudo consultar el perfil. Comprueba tu conexión y vuelve a intentarlo.",
+    "profile.institutionalFullName": "Nombre completo",
+    "profile.institutionalEmail": "Correo institucional",
+    "profile.institutionalRole": "Rol",
+    "profile.school": "Escuela",
+    "profile.category": "Categoría",
+    "profile.readOnly": "Datos institucionales de consulta. Para solicitar una corrección, contacta con la administración de tu escuela.",
+    "profile.notRecorded": "Sin registrar",
+    "profile.signOutHere": "Cerrar sesión en este navegador",
+    "profile.role.docente": "Docente",
+    "profile.role.revisor": "Director de Escuela",
+    "profile.role.admin": "Administrador",
     // Branding & Header
     "app.name": "Carpeta Docente UNT",
     "app.institution": "Universidad Nacional de Trujillo",
@@ -231,6 +245,20 @@ export const translations: Record<Locale, Record<string, string>> = {
       "Puede consultar las observaciones y entregas desde sus carpetas.",
   },
   en: {
+    "profile.institutionalTitle": "Institutional profile",
+    "profile.loading": "Loading institutional details…",
+    "profile.loadError": "Unable to load your profile. Check your connection and try again.",
+    "profile.institutionalFullName": "Full name",
+    "profile.institutionalEmail": "Institutional email",
+    "profile.institutionalRole": "Role",
+    "profile.school": "School",
+    "profile.category": "Category",
+    "profile.readOnly": "Institutional details are read-only. Contact your school administration to request a correction.",
+    "profile.notRecorded": "Not recorded",
+    "profile.signOutHere": "Sign out of this browser",
+    "profile.role.docente": "Teacher",
+    "profile.role.revisor": "School Director",
+    "profile.role.admin": "Administrator",
     // Branding & Header
     "app.name": "UNT Teaching Portfolio",
     "app.institution": "National University of Trujillo",
