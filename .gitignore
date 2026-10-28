@@ -1,5 +1,14 @@
-/node_modules/
-/npm-debug.log*
+# Dependencies, logs and local QA output
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+/artifacts/
+test-results/
+playwright-report/
+blob-report/
 
 # Python: bytecode, virtual environments and tool caches
 __pycache__/
@@ -23,6 +32,12 @@ htmlcov/
 !.env.sample
 *.pem
 *.key
+
+# Local editor files
+.idea/
+*.swp
+*.swo
+*~
 
 # Temporary files from backend tests
 /backend/tests/.ciclo-*/

@@ -13,8 +13,7 @@
 
 # next.js
 /.next/
-/.next-ciclo-qa/
-/.next-ciclo-build/
+/.next-*/
 /tsconfig.ciclo-qa.json
 /out/
 
@@ -33,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.sample
 
 # vercel
 .vercel
@@ -42,5 +43,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Isolated interface preview
-/.next-ui-qa/
 /tsconfig.ui-qa.json
