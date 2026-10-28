@@ -179,7 +179,7 @@ export default function DocenteDashboardPage() {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {carpetas.map((c) => {
               const { metricas, curso, semestre } = c;
-              const hasObs = metricas.observadas > 0;
+              const hasObs = c.estado_ciclo === "observada";
 
               return (
                 <Card
@@ -210,7 +210,7 @@ export default function DocenteDashboardPage() {
                       <Badge color="warning" size="md">
                         {t("docente.obsBadge", { count: metricas.observadas })}
                       </Badge>
-                    ) : metricas.porcentaje_aprobacion === 100 ? (
+                    ) : c.estado_ciclo === "aprobada" ? (
                       <Badge color="success" size="md">
                         {t("docente.approvedBadge")}
                       </Badge>

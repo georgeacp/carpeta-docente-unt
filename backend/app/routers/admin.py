@@ -15,6 +15,7 @@ from app.db.models import (
 )
 from app.db.seed import crear_carpeta_para_asignacion
 from app.db.serializers import serialize_carpeta_summary
+from app.ciclo import inicializar
 
 router = APIRouter(prefix="/api/admin", tags=["Administración Académica"])
 
@@ -219,5 +220,6 @@ def crear_asignacion_con_carpeta(
     # RF4: Generar carpeta y secciones automáticamente
     carpeta = crear_carpeta_para_asignacion(db, nueva_asig, current_user.id)
     db.commit()
+    inicializar(db)
     db.refresh(carpeta)
     return serialize_carpeta_summary(carpeta)

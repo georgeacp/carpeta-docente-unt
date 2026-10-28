@@ -1,5 +1,15 @@
 # Carpeta Docente UNT
 
+## Entregas y revisión
+
+El ciclo formal incluye hitos de inicio, seguimiento y cierre integral, revisión
+conjunta de cada entrega y conservación de las versiones presentadas. Una carga
+no resuelve automáticamente las observaciones del Director. La configuración
+demostrativa, el arranque aditivo y las pruebas se describen en
+`docs/ciclo-carpeta.md`.
+
+Las pruebas del backend se ejecutan desde la raíz con `npm run test:backend`.
+
 ## Desarrollo local (Windows)
 
 El frontend usa Next.js y el backend usa FastAPI. Para ejecutar ambos desde una sola terminal, instala las dependencias desde la raíz del proyecto:

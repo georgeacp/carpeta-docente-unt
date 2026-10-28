@@ -1,10 +1,22 @@
 "use client";
 
+import { CicloCarpeta } from "@/components/carpetas/ciclo-carpeta";
+import { DescargaDocumento } from "@/components/carpetas/descarga-documento";
+
 import { Badge } from "@/components/tailgrids/core/badge";
 import { Button } from "@/components/tailgrids/core/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/tailgrids/core/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/tailgrids/core/card";
 import { Progress } from "@/components/tailgrids/core/progress";
-import { SheetContent, SheetOverlay, SheetTitle } from "@/components/tailgrids/core/sheet";
+import {
+  SheetContent,
+  SheetOverlay,
+  SheetTitle,
+} from "@/components/tailgrids/core/sheet";
 import {
   TableBody,
   TableCell,
@@ -31,11 +43,14 @@ export default function DocenteCarpetaDetallePage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [carpeta, setCarpeta] = useState<CarpetaDetail | null>(null);
-  const [selectedSeccionId, setSelectedSeccionId] = useState<number | null>(null);
 
-  const [filtroLista, setFiltroLista] = useState<"todas" | "observado" | "pendiente" | "aprobado">(
-    "todas",
+  const [selectedSeccionId, setSelectedSeccionId] = useState<number | null>(
+    null,
   );
+
+  const [filtroLista, setFiltroLista] = useState<
+    "todas" | "observado" | "pendiente" | "aprobado"
+  >("todas");
 
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -48,9 +63,15 @@ export default function DocenteCarpetaDetallePage() {
       .then((data) => {
         setCarpeta(data);
         const obsSec = data.secciones.find((s) => s.estado === "observado");
-        setSelectedSeccionId(obsSec ? obsSec.id : (data.secciones[0]?.id ?? null));
+        setSelectedSeccionId(
+          obsSec ? obsSec.id : (data.secciones[0]?.id ?? null),
+        );
       })
-      .catch((err) => toast.error(err instanceof Error ? err.message : "Error al obtener carpeta"))
+      .catch((err) =>
+        toast.error(
+          err instanceof Error ? err.message : "Error al obtener carpeta",
+        ),
+      )
       .finally(() => setLoading(false));
   }, [carpetaId]);
 
@@ -60,7 +81,7 @@ export default function DocenteCarpetaDetallePage() {
   ) => {
     const file = e.target.files?.[0];
 
-    if (!file) return;
+    if (!file || carpeta?.bloqueada) return;
     e.target.value = "";
 
     setUploading(true);
@@ -72,7 +93,9 @@ export default function DocenteCarpetaDetallePage() {
         `Nueva versión subida exitosamente ("${file.name}") en ${seccion.plantilla.nombre}.`,
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al subir el documento");
+      toast.error(
+        err instanceof Error ? err.message : "Error al subir el documento",
+      );
     } finally {
       setUploading(false);
     }
@@ -94,7 +117,9 @@ export default function DocenteCarpetaDetallePage() {
     return (
       <div className="mt-6 px-2 lg:px-5">
         <Card className="py-8 text-center">
-          <p className="text-sm text-red-500">No se pudo encontrar la carpeta solicitada.</p>
+          <p className="text-sm text-red-500">
+            No se pudo encontrar la carpeta solicitada.
+          </p>
         </Card>
       </div>
     );
@@ -102,7 +127,13 @@ export default function DocenteCarpetaDetallePage() {
 
   const { curso, semestre, metricas, secciones, historial } = carpeta;
 
-  const seccionActiva = secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+  const seccionActiva =
+    secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+
+  const formatosPermitidos =
+    (seccionActiva?.plantilla.tipos_permitidos ?? "pdf,docx,xlsx")
+      .toLowerCase()
+      .match(/\b(?:pdf|docx|xlsx)\b/g) ?? [];
 
   const seccionesFiltradas = secciones.filter((s) => {
     if (filtroLista === "todas") return true;
@@ -145,19 +176,27 @@ export default function DocenteCarpetaDetallePage() {
                 Sección {carpeta.seccion} · {semestre.nombre}
               </Badge>
             </div>
-            <h1 className="text-xl font-semibold text-text-primary md:text-2xl">{curso.nombre}</h1>
+            <h1 className="text-xl font-semibold text-text-primary md:text-2xl">
+              {curso.nombre}
+            </h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
             <div className="min-w-56">
               <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
-                <span className="text-text-secondary">AVANCE OBLIGATORIO (RF8)</span>
+                <span className="text-text-secondary">
+                  AVANCE OBLIGATORIO (RF8)
+                </span>
                 <span className="text-text-primary">
-                  {metricas.porcentaje_avance}% ({metricas.completadas_obligatorias}/
+                  {metricas.porcentaje_avance}% (
+                  {metricas.completadas_obligatorias}/
                   {metricas.total_obligatorias})
                 </span>
               </div>
-              <Progress progress={metricas.porcentaje_avance} className="max-w-full" />
+              <Progress
+                progress={metricas.porcentaje_avance}
+                className="max-w-full"
+              />
             </div>
 
             <Button
@@ -172,6 +211,8 @@ export default function DocenteCarpetaDetallePage() {
         </div>
       </Card>
 
+      <CicloCarpeta carpeta={carpeta} onUpdated={setCarpeta} />
+
       {/* Cockpit Master-Detail (2 Columnas) */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
         {/* Columna Izquierda (4/12): Índice Maestro Navegable de las 10 Secciones UNT */}
@@ -179,7 +220,7 @@ export default function DocenteCarpetaDetallePage() {
           <Card className="p-0 overflow-hidden">
             <div className="border-b border-card-border bg-background-gray-primary px-4 py-3.5">
               <h2 className="text-sm font-semibold text-text-primary uppercase">
-                Estructura Reglamentaria UNT (10 Secciones)
+                Ítems de la plantilla propuesta
               </h2>
               <p className="text-xs text-text-tertiary">
                 Seleccione una sección para subir o descargar versiones
@@ -265,11 +306,18 @@ export default function DocenteCarpetaDetallePage() {
                   <Badge color="primary" size="sm">
                     SECCIÓN #{seccionActiva.plantilla.orden}
                   </Badge>
-                  <Badge color={seccionActiva.plantilla.obligatoria ? "blue" : "gray"} size="sm">
-                    {seccionActiva.plantilla.obligatoria ? "OBLIGATORIA" : "OPCIONAL"}
+                  <Badge
+                    color={
+                      seccionActiva.plantilla.obligatoria ? "blue" : "gray"
+                    }
+                    size="sm"
+                  >
+                    {seccionActiva.plantilla.obligatoria
+                      ? "OBLIGATORIA"
+                      : "OPCIONAL"}
                   </Badge>
                   <Badge color="gray" size="sm">
-                    Formatos: {seccionActiva.plantilla.tipos_permitidos.toUpperCase()}
+                    Formatos: {formatosPermitidos.join(", ").toUpperCase()}
                   </Badge>
                 </div>
 
@@ -279,7 +327,9 @@ export default function DocenteCarpetaDetallePage() {
               </CardHeader>
 
               <div>
-                <CardTitle className="text-xl">{seccionActiva.plantilla.nombre}</CardTitle>
+                <CardTitle className="text-xl">
+                  {seccionActiva.plantilla.nombre}
+                </CardTitle>
                 <CardDescription className="mt-1 text-sm">
                   {seccionActiva.plantilla.descripcion}
                 </CardDescription>
@@ -295,16 +345,20 @@ export default function DocenteCarpetaDetallePage() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-amber-600">
-                        Observación Emitida por Dirección de Escuela ({obs.revisor_nombre})
+                        Observación Emitida por Dirección de Escuela (
+                        {obs.revisor_nombre})
                       </span>
                       <Badge color="warning" size="sm">
                         PENDIENTE DE SUBSANAR
                       </Badge>
                     </div>
-                    <p className="mt-1.5 text-sm text-text-primary">{obs.texto}</p>
+                    <p className="mt-1.5 text-sm text-text-primary">
+                      {obs.texto}
+                    </p>
                     <p className="mt-2 text-xs font-medium text-amber-600">
-                      Instrucción: Suba una nueva versión corregida en el recuadro inferior para
-                      subsanar la observación automáticamente.
+                      Instrucción: Suba una nueva versión corregida en el
+                      recuadro inferior para presentar la corrección. Reenvíe el
+                      hito para que el Director confirme la subsanación.
                     </p>
                   </div>
                 ))}
@@ -320,16 +374,17 @@ export default function DocenteCarpetaDetallePage() {
                 </h3>
                 <p className="mt-1 text-xs text-text-tertiary">
                   Extensiones aceptadas:{" "}
-                  <strong>{seccionActiva.plantilla.tipos_permitidos.toUpperCase()}</strong> · Tamaño
-                  máximo: 20 MB · Almacenamiento con control de versiones (RF5)
+                  <strong>{formatosPermitidos.join(", ").toUpperCase()}</strong>{" "}
+                  · Tamaño máximo: 20 MB · Almacenamiento con control de
+                  versiones (RF5)
                 </p>
 
                 <input
                   ref={fileInputRef}
                   type="file"
+                  disabled={carpeta.bloqueada || uploading}
                   className="hidden"
-                  accept={seccionActiva.plantilla.tipos_permitidos
-                    .split(",")
+                  accept={formatosPermitidos
                     .map((ext) => `.${ext.trim()}`)
                     .join(",")}
                   onChange={(e) => handleFileChange(seccionActiva, e)}
@@ -339,7 +394,7 @@ export default function DocenteCarpetaDetallePage() {
                   <Button
                     variant="primary"
                     size="lg"
-                    isDisabled={uploading}
+                    isDisabled={uploading || carpeta.bloqueada}
                     onPress={() => fileInputRef.current?.click()}
                   >
                     {uploading
@@ -356,7 +411,8 @@ export default function DocenteCarpetaDetallePage() {
               {/* Tabla de Control de Versiones del Documento (RF5) */}
               <div>
                 <h4 className="mb-3 text-xs font-semibold tracking-wider text-text-secondary uppercase">
-                  Historial de Versiones en esta Sección ({seccionActiva.documentos.length})
+                  Historial de Versiones en esta Sección (
+                  {seccionActiva.documentos.length})
                 </h4>
 
                 {seccionActiva.documentos.length === 0 ? (
@@ -378,7 +434,10 @@ export default function DocenteCarpetaDetallePage() {
                       {seccionActiva.documentos.map((doc, idx) => (
                         <TableRow key={doc.id}>
                           <TableCell>
-                            <Badge color={idx === 0 ? "primary" : "gray"} size="sm">
+                            <Badge
+                              color={idx === 0 ? "primary" : "gray"}
+                              size="sm"
+                            >
                               v{doc.version}
                               {idx === 0 ? " · ACTUAL" : ""}
                             </Badge>
@@ -386,19 +445,17 @@ export default function DocenteCarpetaDetallePage() {
                           <TableCell className="font-medium text-text-primary">
                             {doc.nombre}
                           </TableCell>
-                          <TableCell className="text-text-secondary">{doc.tamano_mb} MB</TableCell>
+                          <TableCell className="text-text-secondary">
+                            {doc.tamano_mb} MB
+                          </TableCell>
                           <TableCell className="text-text-secondary">
                             {new Date(doc.fecha).toLocaleString("es-PE")}
                           </TableCell>
                           <TableCell className="text-right">
-                            <a
-                              href={`/api/carpetas/documentos/${doc.id}/descargar`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center rounded-lg border border-card-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-background-gray-primary"
-                            >
-                              Descargar
-                            </a>
+                            <DescargaDocumento
+                              documentoId={doc.id}
+                              nombre={doc.nombre}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
