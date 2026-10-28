@@ -93,9 +93,43 @@ async function semesterDeadline(browser) {
   await context.close();
 }
 
+
+const folder = require('./fixtures/folder.json');
+async function recovery(browser) {
+  for (const role of ['docente','revisor']) {
+    const context = await browser.newContext();await seed(context,{...user,rol:role});
+    let code=500;
+    await context.route('**/api/carpetas/*',r => code === 0 ? r.abort('failed') : r.fulfill({status:code,json:code===200?folder:{detail:'QA fallo'}}));
+    const page=await context.newPage();page.setDefaultNavigationTimeout(120000);
+    for (const [status,title] of [[401,'Tu sesión ha caducado'],[403,'No tienes acceso'],[404,'No se encontró el recurso'],[500,'No se pudo cargar la información'],[0,'No se pudo cargar la información']]) {
+      code=status;await page.goto(`${base}/${role}/carpeta/1`);
+      await page.getByRole('alert').getByText(title,{exact:true}).waitFor();
+      assert.equal(await page.getByRole('button',{name:'Volver a intentar',exact:true}).count(),status===500||status===0?1:0);
+    }
+    code=200;await page.getByRole('button',{name:'Volver a intentar',exact:true}).click();
+    await page.getByRole('button',{name:'Actualizar carpeta',exact:true}).waitFor();
+    code=500;await page.getByRole('button',{name:'Actualizar carpeta',exact:true}).click();
+    await page.getByText('Se muestran los últimos datos disponibles; no se pudieron actualizar.',{exact:true}).waitFor();
+    assert.ok(await page.getByText(folder.curso.nombre,{exact:false}).count());
+    code=200;await page.getByRole('button',{name:'Volver a intentar',exact:true}).click();
+    await page.getByRole('alert').filter({hasText:'No se pudo cargar la información'}).waitFor({state:'detached'});
+    await context.close();
+  }
+  const context=await browser.newContext();await seed(context,{...user,rol:'admin'});
+  let code=500;
+  await context.route('**/api/admin/catalogo',r=>r.fulfill({status:code,json:code===200?catalogo:{detail:'QA catálogo'}}));
+  const page=await context.newPage();await page.goto(`${base}/admin`);
+  await page.getByRole('alert').getByText('No se pudo cargar la información',{exact:true}).waitFor();
+  assert.equal(await page.locator('form').count(),0);
+  code=200;await page.getByRole('button',{name:'Volver a intentar',exact:true}).click();
+  await page.locator('#asignacion').waitFor();
+  await context.close();
+}
+
 async function main() {
   const browser = await chromium.launch({channel:'chrome',headless:true});
   try {
+    if (!process.argv[2] || process.argv[2] === 'recovery') { await recovery(browser); console.log('PASS recuperación: red, 401/403/404/500, datos previos y catálogo'); }
     if (!process.argv[2] || process.argv[2] === 'profile') { await profile(browser); console.log('PASS perfil: roles, recuperación, rutas antiguas y cierre de sesión'); }
     if (!process.argv[2] || process.argv[2] === 'semester') { await semesterDeadline(browser); console.log('PASS semestre: año nuevo, zona de navegador independiente y UTC correcto'); }
     if (!process.argv[2] || process.argv[2] === 'admin') { await adminForms(browser); console.log('PASS administración: etiquetas, bloqueo de envío, error y reintento'); }
@@ -103,5 +137,5 @@ async function main() {
   finally { await browser.close(); }
 }
 if (require.main === module) main().catch(e => {console.error(e);process.exitCode=1;});
-module.exports = {base,user,seed,profile,catalogo,adminForms};
+module.exports = {base,user,seed,profile,catalogo,adminForms,folder};
 

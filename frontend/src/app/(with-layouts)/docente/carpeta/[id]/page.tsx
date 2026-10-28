@@ -1,5 +1,8 @@
 "use client";
 
+import { RequestError } from "@/components/common/request-error";
+import { useRemoteData } from "@/hooks/use-remote-data";
+import { ApiError } from "@/lib/api-error";
 import { CicloCarpeta } from "@/components/carpetas/ciclo-carpeta";
 import { DescargaDocumento } from "@/components/carpetas/descarga-documento";
 
@@ -33,7 +36,7 @@ import {
 } from "@/lib/api";
 import { cn } from "@/utils/cn";
 import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export default function DocenteCarpetaDetallePage() {
@@ -47,7 +50,13 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [carpeta, setCarpeta] = useState<CarpetaDetail | null>(null);
+  const load = useCallback((signal: AbortSignal) => {
+    if (!Number.isInteger(carpetaId) || carpetaId <= 0) return Promise.reject(new ApiError(404, "Carpeta no encontrada."));
+
+    return apiFetchCarpetaDetalle(carpetaId, signal);
+  }, [carpetaId]);
+
+  const { data: carpeta, setData: setCarpeta, error, loading, reload } = useRemoteData<CarpetaDetail>(load);
 
   const [selectedSeccionId, setSelectedSeccionId] = useState<number | null>(
     null,
@@ -57,27 +66,10 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
     "todas" | "observado" | "pendiente" | "aprobado"
   >("todas");
 
-  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  useEffect(() => {
-    if (!carpetaId) return;
-    apiFetchCarpetaDetalle(carpetaId)
-      .then((data) => {
-        setCarpeta(data);
-        const obsSec = data.secciones.find((s) => s.estado === "observado");
-        setSelectedSeccionId(
-          obsSec ? obsSec.id : (data.secciones[0]?.id ?? null),
-        );
-      })
-      .catch((err) =>
-        toast.error(
-          err instanceof Error ? err.message : "Error al obtener carpeta",
-        ),
-      )
-      .finally(() => setLoading(false));
-  }, [carpetaId]);
+
 
   const handleFileChange = async (
     seccion: SeccionCarpeta,
@@ -105,7 +97,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
     }
   };
 
-  if (loading) {
+  if (loading && !carpeta) {
     return (
       <div className="px-4 py-7 sm:px-7 lg:px-10">
         <Card className="py-12 text-center">
@@ -118,21 +110,13 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
   }
 
   if (!carpeta) {
-    return (
-      <div className="px-4 py-7 sm:px-7 lg:px-10">
-        <Card className="py-8 text-center">
-          <p className="text-sm text-badge-error-text">
-            No se pudo encontrar la carpeta solicitada.
-          </p>
-        </Card>
-      </div>
-    );
+    return <div className="px-4 py-7 sm:px-7 lg:px-10"><RequestError error={error || new Error("Sin respuesta")} onRetry={reload} backHref="/docente" /></div>;
   }
 
   const { curso, semestre, metricas, secciones, historial } = carpeta;
 
   const seccionActiva =
-    secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+    secciones.find((s) => s.id === selectedSeccionId) || secciones.find((s) => s.estado === "observado") || secciones[0];
 
   const formatosPermitidos =
     (seccionActiva?.plantilla.tipos_permitidos ?? "pdf,docx,xlsx")
@@ -160,6 +144,8 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
 
   return (
     <div className="space-y-6 px-4 py-7 sm:px-7 lg:px-10 lg:py-9">
+      {error && <RequestError error={error} onRetry={reload} stale pending={loading} backHref="/docente" />}
+      <Button appearance="outline" isDisabled={loading} onPress={reload}>{loading ? "Consultando…" : "Actualizar carpeta"}</Button>
       {/* Barra Superior de la Carpeta con KPI Compacto y Botón Auditoría */}
       <div className="border-b border-card-border pb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
