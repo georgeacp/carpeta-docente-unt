@@ -1,0 +1,224 @@
+{
+  "id": 1,
+  "estado_ciclo": "enviada",
+  "bloqueada": true,
+  "asignacion_id": 1,
+  "seccion": "A",
+  "fecha_actualizacion": "2026-10-28T22:53:55.936516",
+  "docente": {
+    "id": 1,
+    "nombre": "Docente",
+    "email": "d@example.test",
+    "escuela": "Sistemas",
+    "categoria": "Docente Ordinario - Principal"
+  },
+  "curso": {
+    "id": 1,
+    "codigo": "SIS-01",
+    "nombre": "Curso ficticio",
+    "escuela": "Sistemas",
+    "ciclo": 1
+  },
+  "semestre": {
+    "id": 1,
+    "nombre": "2026-II",
+    "inicio": "2026-08-01",
+    "fin": "2026-12-01",
+    "fecha_limite": "2026-12-01T00:00:00",
+    "activo": true
+  },
+  "metricas": {
+    "total_secciones": 4,
+    "total_obligatorias": 4,
+    "completadas_obligatorias": 2,
+    "aprobadas": 0,
+    "entregadas": 2,
+    "observadas": 0,
+    "pendientes": 2,
+    "porcentaje_avance": 50,
+    "porcentaje_aprobacion": 0,
+    "vencida": false,
+    "estado_global": "completa_en_revision"
+  },
+  "ciclo": {
+    "estado": "enviada",
+    "bloqueada": true,
+    "hitos": [
+      {
+        "id": 1,
+        "codigo": "inicio",
+        "nombre": "Inicio",
+        "fecha_limite": "2026-08-15T23:59:59+00:00",
+        "item_ids": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": 2,
+        "codigo": "seguimiento",
+        "nombre": "Seguimiento",
+        "fecha_limite": "2026-10-01T23:59:59+00:00",
+        "item_ids": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "id": 3,
+        "codigo": "cierre",
+        "nombre": "Cierre integral",
+        "fecha_limite": "2026-12-01T00:00:00+00:00",
+        "item_ids": [
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    ],
+    "entregas": [
+      {
+        "id": 1,
+        "hito_id": 1,
+        "hito": "Inicio",
+        "numero": 1,
+        "estado": "pendiente",
+        "enviada_en": "2026-10-28T22:53:55.935302+00:00",
+        "fecha_limite": "2026-08-15T23:59:59+00:00",
+        "tardia": true,
+        "director_id": null,
+        "dictaminada_en": null,
+        "detalles": [
+          {
+            "id": 1,
+            "seccion_id": 1,
+            "documento_id": 1,
+            "titulo": "Sílabo",
+            "nombre": "evidencia.pdf",
+            "version": 1,
+            "obligatorio": true,
+            "dictamen": "pendiente",
+            "comentario": null,
+            "subsanada_en_entrega_id": null
+          },
+          {
+            "id": 2,
+            "seccion_id": 2,
+            "documento_id": 2,
+            "titulo": "Plan de sesiones",
+            "nombre": "evidencia.pdf",
+            "version": 1,
+            "obligatorio": true,
+            "dictamen": "pendiente",
+            "comentario": null,
+            "subsanada_en_entrega_id": null
+          }
+        ]
+      }
+    ]
+  },
+  "secciones": [
+    {
+      "id": 1,
+      "estado": "entregado",
+      "plantilla": {
+        "id": 1,
+        "orden": 1,
+        "nombre": "Sílabo",
+        "descripcion": null,
+        "obligatoria": true,
+        "tipos_permitidos": "pdf,docx,xlsx"
+      },
+      "documentos": [
+        {
+          "id": 1,
+          "nombre": "evidencia.pdf",
+          "tamano_mb": 1.811981201171875e-05,
+          "version": 1,
+          "subido_por": "Docente",
+          "fecha": "2026-10-28T22:53:55.921325"
+        }
+      ],
+      "observaciones": []
+    },
+    {
+      "id": 2,
+      "estado": "entregado",
+      "plantilla": {
+        "id": 2,
+        "orden": 3,
+        "nombre": "Plan de sesiones",
+        "descripcion": null,
+        "obligatoria": true,
+        "tipos_permitidos": "pdf,docx,xlsx"
+      },
+      "documentos": [
+        {
+          "id": 2,
+          "nombre": "evidencia.pdf",
+          "tamano_mb": 1.811981201171875e-05,
+          "version": 1,
+          "subido_por": "Docente",
+          "fecha": "2026-10-28T22:53:55.928390"
+        }
+      ],
+      "observaciones": []
+    },
+    {
+      "id": 3,
+      "estado": "pendiente",
+      "plantilla": {
+        "id": 3,
+        "orden": 4,
+        "nombre": "Asistencia",
+        "descripcion": null,
+        "obligatoria": true,
+        "tipos_permitidos": "pdf,docx,xlsx"
+      },
+      "documentos": [],
+      "observaciones": []
+    },
+    {
+      "id": 4,
+      "estado": "pendiente",
+      "plantilla": {
+        "id": 4,
+        "orden": 9,
+        "nombre": "Informe final",
+        "descripcion": null,
+        "obligatoria": true,
+        "tipos_permitidos": "pdf,docx,xlsx"
+      },
+      "documentos": [],
+      "observaciones": []
+    }
+  ],
+  "historial": [
+    {
+      "id": 3,
+      "accion": "ENTREGA_ENVIADA",
+      "detalle": "Inicio, intento 1. Fuera de plazo.",
+      "usuario_nombre": "Docente",
+      "usuario_rol": "docente",
+      "fecha": "2026-10-28T22:53:55.940277"
+    },
+    {
+      "id": 2,
+      "accion": "DOCUMENTO_SUBIDO",
+      "detalle": "Cargó evidencia.pdf, versión 1. No constituye un envío formal.",
+      "usuario_nombre": "Docente",
+      "usuario_rol": "docente",
+      "fecha": "2026-10-28T22:53:55.928176"
+    },
+    {
+      "id": 1,
+      "accion": "DOCUMENTO_SUBIDO",
+      "detalle": "Cargó evidencia.pdf, versión 1. No constituye un envío formal.",
+      "usuario_nombre": "Docente",
+      "usuario_rol": "docente",
+      "fecha": "2026-10-28T22:53:55.920522"
+    }
+  ]
+}

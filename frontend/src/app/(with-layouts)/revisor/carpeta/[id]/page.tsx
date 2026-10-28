@@ -1,5 +1,8 @@
 "use client";
 
+import { RequestError } from "@/components/common/request-error";
+import { useRemoteData } from "@/hooks/use-remote-data";
+import { ApiError } from "@/lib/api-error";
 import { CicloCarpeta } from "@/components/carpetas/ciclo-carpeta";
 import { DescargaDocumento } from "@/components/carpetas/descarga-documento";
 
@@ -32,8 +35,7 @@ import {
 } from "@/lib/api";
 import { cn } from "@/utils/cn";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useCallback, useState } from "react";
 
 export default function RevisorCarpetaDetallePage() {
   const params = useParams();
@@ -45,38 +47,23 @@ export default function RevisorCarpetaDetallePage() {
 function CarpetaContent({ carpetaId }: { carpetaId: number }) {
   const router = useRouter();
 
-  const [carpeta, setCarpeta] = useState<CarpetaDetail | null>(null);
+  const load = useCallback((signal: AbortSignal) => {
+    if (!Number.isInteger(carpetaId) || carpetaId <= 0) return Promise.reject(new ApiError(404, "Carpeta no encontrada."));
+
+    return apiFetchCarpetaDetalle(carpetaId, signal);
+  }, [carpetaId]);
+
+  const { data: carpeta, setData: setCarpeta, error, loading, reload } = useRemoteData<CarpetaDetail>(load);
 
   const [selectedSeccionId, setSelectedSeccionId] = useState<number | null>(
     null,
   );
 
-  const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  useEffect(() => {
-    if (!carpetaId) return;
-    apiFetchCarpetaDetalle(carpetaId)
-      .then((data) => {
-        setCarpeta(data);
 
-        const porRevisar = data.secciones.find(
-          (s) => s.estado === "entregado" || s.estado === "observado",
-        );
 
-        setSelectedSeccionId(
-          porRevisar ? porRevisar.id : (data.secciones[0]?.id ?? null),
-        );
-      })
-      .catch((err) =>
-        toast.error(
-          err instanceof Error ? err.message : "Error al cargar carpeta",
-        ),
-      )
-      .finally(() => setLoading(false));
-  }, [carpetaId]);
-
-  if (loading) {
+  if (loading && !carpeta) {
     return (
       <div className="px-4 py-7 sm:px-7 lg:px-10">
         <Card className="py-12 text-center">
@@ -89,21 +76,13 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
   }
 
   if (!carpeta) {
-    return (
-      <div className="px-4 py-7 sm:px-7 lg:px-10">
-        <Card className="py-8 text-center">
-          <p className="text-sm text-badge-error-text">
-            Carpeta no encontrada.
-          </p>
-        </Card>
-      </div>
-    );
+    return <div className="px-4 py-7 sm:px-7 lg:px-10"><RequestError error={error || new Error("Sin respuesta")} onRetry={reload} backHref="/revisor" /></div>;
   }
 
   const { curso, docente, semestre, metricas, secciones, historial } = carpeta;
 
   const seccionActiva =
-    secciones.find((s) => s.id === selectedSeccionId) || secciones[0];
+    secciones.find((s) => s.id === selectedSeccionId) || secciones.find((s) => s.estado === "observado") || secciones[0];
 
   const getEstadoColor = (estado: SeccionCarpeta["estado"]) => {
     switch (estado) {
@@ -120,6 +99,8 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
 
   return (
     <div className="space-y-6 px-4 py-7 sm:px-7 lg:px-10 lg:py-9">
+      {error && <RequestError error={error} onRetry={reload} stale pending={loading} backHref="/revisor" />}
+      <Button appearance="outline" isDisabled={loading} onPress={reload}>{loading ? "Consultando…" : "Actualizar carpeta"}</Button>
       {/* Cabecera Superior del Dictaminador */}
       <div className="border-b border-card-border pb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">

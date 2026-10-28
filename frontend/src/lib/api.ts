@@ -1,3 +1,4 @@
+import { ApiError } from "./api-error";
 import { apiMessage } from "./api-message";
 
 export interface Usuario {
@@ -201,6 +202,15 @@ function getAuthHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+async function request(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch (cause) {
+    if (init?.signal?.aborted) throw cause;
+    throw new ApiError(null, "No se pudo conectar con el servidor. Comprueba tu conexión y vuelve a intentarlo.");
+  }
+}
+
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let msg = "Error en la solicitud al servidor.";
@@ -212,14 +222,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
       // ignore
     }
 
-    throw new Error(msg);
+    throw new ApiError(res.status, msg);
   }
 
   return res.json();
 }
 
 export async function apiLogin(email: string, password: string) {
-  const res = await fetch("/api/auth/login", {
+  const res = await request("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -229,7 +239,7 @@ export async function apiLogin(email: string, password: string) {
 }
 
 export async function apiDemoLogin(rol: "docente" | "revisor" | "admin") {
-  const res = await fetch("/api/auth/demo-login", {
+  const res = await request("/api/auth/demo-login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ rol }),
@@ -239,7 +249,7 @@ export async function apiDemoLogin(rol: "docente" | "revisor" | "admin") {
 }
 
 export async function apiFetchMisCarpetas(): Promise<CarpetaSummary[]> {
-  const res = await fetch("/api/carpetas/mis-carpetas", {
+  const res = await request("/api/carpetas/mis-carpetas", {
     headers: { ...getAuthHeaders() },
   });
 
@@ -247,7 +257,7 @@ export async function apiFetchMisCarpetas(): Promise<CarpetaSummary[]> {
 }
 
 export async function apiFetchUsuario(signal?: AbortSignal): Promise<Usuario> {
-  const res = await fetch("/api/auth/me", {
+  const res = await request("/api/auth/me", {
     headers: getAuthHeaders(),
     signal,
     cache: "no-store",
@@ -258,8 +268,10 @@ export async function apiFetchUsuario(signal?: AbortSignal): Promise<Usuario> {
 
 export async function apiFetchCarpetaDetalle(
   id: number,
+  signal?: AbortSignal,
 ): Promise<CarpetaDetail> {
-  const res = await fetch(`/api/carpetas/${id}`, {
+  const res = await request(`/api/carpetas/${id}`, {
+    signal,
     headers: { ...getAuthHeaders() },
   });
 
@@ -273,7 +285,7 @@ export async function apiSubirDocumento(
   const formData = new FormData();
   formData.append("archivo", archivo);
 
-  const res = await fetch(`/api/carpetas/secciones/${seccionId}/documentos`, {
+  const res = await request(`/api/carpetas/secciones/${seccionId}/documentos`, {
     method: "POST",
     headers: { ...getAuthHeaders() },
     body: formData,
@@ -286,7 +298,7 @@ export async function apiFetchCarpetasRevisor(estadoGlobal = "todos"): Promise<{
   resumen: ResumenRevisor;
   carpetas: CarpetaSummary[];
 }> {
-  const res = await fetch(
+  const res = await request(
     `/api/revision/carpetas?estado_global=${encodeURIComponent(estadoGlobal)}`,
     {
       headers: { ...getAuthHeaders() },
@@ -299,8 +311,9 @@ export async function apiFetchCarpetasRevisor(estadoGlobal = "todos"): Promise<{
   }>(res);
 }
 
-export async function apiFetchCatalogoAdmin(): Promise<CatalogoAdmin> {
-  const res = await fetch("/api/admin/catalogo", {
+export async function apiFetchCatalogoAdmin(signal?: AbortSignal): Promise<CatalogoAdmin> {
+  const res = await request("/api/admin/catalogo", {
+    signal,
     headers: { ...getAuthHeaders() },
   });
 
@@ -311,7 +324,7 @@ export async function apiEnviarEntrega(
   carpetaId: number,
   hitoId: number,
 ): Promise<CarpetaDetail> {
-  const res = await fetch(`/api/carpetas/${carpetaId}/entregas`, {
+  const res = await request(`/api/carpetas/${carpetaId}/entregas`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify({ hito_id: hitoId }),
@@ -326,7 +339,7 @@ export async function apiEvaluarDocumento(
   dictamen: "aprobado" | "observado",
   comentario: string,
 ): Promise<CarpetaDetail> {
-  const res = await fetch(
+  const res = await request(
     `/api/revision/entregas/${entregaId}/documentos/${detalleId}`,
     {
       method: "PUT",
@@ -341,7 +354,7 @@ export async function apiEvaluarDocumento(
 export async function apiConcluirEntrega(
   entregaId: number,
 ): Promise<CarpetaDetail> {
-  const res = await fetch(`/api/revision/entregas/${entregaId}/dictamen`, {
+  const res = await request(`/api/revision/entregas/${entregaId}/dictamen`, {
     method: "POST",
     headers: { ...getAuthHeaders() },
   });
@@ -353,7 +366,7 @@ export async function apiDescargarDocumento(
   documentoId: number,
   nombre: string,
 ): Promise<void> {
-  const res = await fetch(`/api/carpetas/documentos/${documentoId}/descargar`, {
+  const res = await request(`/api/carpetas/documentos/${documentoId}/descargar`, {
     headers: { ...getAuthHeaders() },
   });
 
@@ -375,7 +388,7 @@ export async function apiCrearSemestre(payload: {
   fecha_limite: string;
   activo: boolean;
 }) {
-  const res = await fetch("/api/admin/semestres", {
+  const res = await request("/api/admin/semestres", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
@@ -390,7 +403,7 @@ export async function apiCrearCurso(payload: {
   escuela: string;
   ciclo: number;
 }) {
-  const res = await fetch("/api/admin/cursos", {
+  const res = await request("/api/admin/cursos", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
@@ -407,7 +420,7 @@ export async function apiCrearUsuario(payload: {
   escuela: string;
   categoria: string;
 }) {
-  const res = await fetch("/api/admin/usuarios", {
+  const res = await request("/api/admin/usuarios", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),
@@ -422,7 +435,7 @@ export async function apiCrearAsignacion(payload: {
   semestre_id: number;
   seccion: string;
 }) {
-  const res = await fetch("/api/admin/asignaciones", {
+  const res = await request("/api/admin/asignaciones", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(payload),

@@ -1,5 +1,7 @@
 "use client";
 
+import { RequestError } from "@/components/common/request-error";
+import { useRemoteData } from "@/hooks/use-remote-data";
 import { AdminForm } from "@/components/admin/admin-form";
 import { useSubmission } from "@/hooks/use-submission";
 import { Badge } from "@/components/tailgrids/core/badge";
@@ -28,13 +30,11 @@ import {
 } from "@/lib/api";
 import { academicDeadline, formatAcademicDeadline, validateSemester } from "@/lib/academic-dates";
 import { cn } from "@/utils/cn";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 export default function AdminDashboardPage() {
-  const [catalogo, setCatalogo] = useState<CatalogoAdmin | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   const asignacion = useSubmission();
   const curso = useSubmission();
@@ -69,34 +69,19 @@ export default function AdminDashboardPage() {
   const [semLimiteHora, setSemLimiteHora] = useState("23:59");
   const semLimite = semLimiteFecha || semFin;
 
-  const cargarDatos = () => {
-    apiFetchCatalogoAdmin()
-      .then((data) => {
-        setCatalogo(data);
-        const docs = data.usuarios.filter((u) => u.rol === "docente");
+  const load = useCallback(async (signal: AbortSignal) => {
+    const data = await apiFetchCatalogoAdmin(signal);
 
-        if (docs.length > 0 && !asigDocenteId) setAsigDocenteId(docs[0].id);
+    if (!signal.aborted) {
+      setAsigDocenteId(previous => previous || data.usuarios.find(u => u.rol === "docente")?.id || "");
+      setAsigCursoId(previous => previous || data.cursos[0]?.id || "");
+      setAsigSemestreId(previous => previous || data.semestres[0]?.id || "");
+    }
 
-        if (data.cursos.length > 0 && !asigCursoId)
-          setAsigCursoId(data.cursos[0].id);
-
-        if (data.semestres.length > 0 && !asigSemestreId)
-          setAsigSemestreId(data.semestres[0].id);
-      })
-      .catch((err) =>
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : "Error al cargar catálogo administrativo",
-        ),
-      )
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    cargarDatos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return data;
   }, []);
+
+  const { data: catalogo, error, loading, reload: cargarDatos } = useRemoteData<CatalogoAdmin>(load);
 
   const handleCrearAsignacion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,13 +197,14 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
+        {error && <RequestError error={error} onRetry={cargarDatos} stale={!!catalogo} pending={loading} />}
         {loading && !catalogo ? (
           <Card className="py-12 text-center">
             <p className="text-sm text-text-tertiary">
               Cargando catálogo administrativo UNT...
             </p>
           </Card>
-        ) : (
+        ) : catalogo ? (
           <>
             {/* TAB 0: ASIGNACIONES Y GENERACIÓN AUTOMÁTICA DE CARPETAS */}
             {tabIndex === 0 && (
@@ -746,7 +732,7 @@ export default function AdminDashboardPage() {
               </Card>
             )}
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
