@@ -64,12 +64,16 @@ class CicloHttpTest(unittest.TestCase):
         reenviada = self.enviar()
         self.assertEqual(reenviada.json()["estado_ciclo"], "reenviada")
         siguiente = reenviada.json()["ciclo"]["entregas"][0]
+        self.assertIsNone(siguiente["director_nombre"])
         self.usuario = self.fixture.director
         for detalle in siguiente["detalles"]:
             self.client.put(f'/api/revision/entregas/{siguiente["id"]}/documentos/{detalle["id"]}', json={"dictamen": "aprobado"})
         aprobada = self.client.post(f'/api/revision/entregas/{siguiente["id"]}/dictamen')
         self.assertEqual(aprobada.json()["estado_ciclo"], "en_progreso")
         self.assertFalse(aprobada.json()["bloqueada"])
+        result = aprobada.json()["ciclo"]["entregas"][0]
+        self.assertEqual(result["director_id"], self.fixture.director.id)
+        self.assertEqual(result["director_nombre"], self.fixture.director.nombre)
 
     def test_download_requires_identity_and_does_not_fabricate_missing_file(self):
         self.fixture.cargar(self.fixture.carpeta.secciones[0])

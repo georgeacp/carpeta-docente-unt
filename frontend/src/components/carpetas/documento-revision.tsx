@@ -54,7 +54,7 @@ export function DocumentoRevision({
   };
 
   return (
-    <div className="space-y-3 border-t border-card-border py-4">
+    <div id={`review-document-${documento.id}`} role="region" aria-label={documento.titulo} tabIndex={-1} className="space-y-3 border-t border-card-border py-4 focus-visible:outline-2 focus-visible:outline-brand-500">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <h3 className="text-sm font-semibold text-text-primary">
