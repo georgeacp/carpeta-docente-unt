@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Profile Page",
+  title: "Perfil institucional",
 };
 
 export default function AccountPageLayout({ children }: { children: React.ReactNode }) {

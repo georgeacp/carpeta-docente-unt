@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiDemoLogin, apiLogin, Usuario } from "@/lib/api";
+import { apiDemoLogin, apiFetchUsuario, apiLogin, Usuario } from "@/lib/api";
 
 interface AuthContextType {
   usuario: Usuario | null;
@@ -10,6 +10,7 @@ interface AuthContextType {
   loginWithCredentials: (email: string, password: string) => Promise<void>;
   loginWithDemoAccount: (rol: "docente" | "revisor" | "admin") => Promise<void>;
   logout: () => void;
+  refreshUsuario: (signal?: AbortSignal) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
+  const refreshUsuario = useCallback(async (signal?: AbortSignal) => {
+    const token = localStorage.getItem("unt_jwt_token");
+    const actual = await apiFetchUsuario(signal);
+
+    if (!signal?.aborted && token && token === localStorage.getItem("unt_jwt_token")) {
+      localStorage.setItem("unt_user", JSON.stringify(actual));
+      setUsuario(actual);
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -76,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithCredentials,
         loginWithDemoAccount,
         logout,
+        refreshUsuario,
       }}
     >
       {children}

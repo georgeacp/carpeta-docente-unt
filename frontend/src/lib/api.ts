@@ -244,6 +244,16 @@ export async function apiFetchMisCarpetas(): Promise<CarpetaSummary[]> {
   return handleResponse<CarpetaSummary[]>(res);
 }
 
+export async function apiFetchUsuario(signal?: AbortSignal): Promise<Usuario> {
+  const res = await fetch("/api/auth/me", {
+    headers: getAuthHeaders(),
+    signal,
+    cache: "no-store",
+  });
+
+  return handleResponse<Usuario>(res);
+}
+
 export async function apiFetchCarpetaDetalle(
   id: number,
 ): Promise<CarpetaDetail> {
