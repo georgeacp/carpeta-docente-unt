@@ -65,8 +65,6 @@ de APIs externas, la restricción de nombres locales y los colores de estados.
 La regla de nombres conserva los identificadores que exige una librería externa;
 los nombres locales siguen sujetos a la política de Anti Slop.
 
-La skill para instalar o actualizar el plugin está en
-`.agents/skills/install-anti-slop/`, con alcance limitado a este repositorio.
 La revisión de origen y las decisiones de configuración se registran en
 `tools/oxlint/anti-slop/UPSTREAM.md`.
 
@@ -75,12 +73,15 @@ versionarse para reproducir las mismas reglas al clonar el proyecto. No deben
 añadirse a `.gitignore`; las dependencias descargadas en `/node_modules/` ya
 están excluidas.
 
-## Thermos: revisión de código con Codex
+## Skills del proyecto
 
-Las tres skills de Thermos están instaladas para este proyecto en `.agents/skills/`.
-Para combinar la revisión de errores y seguridad con la de mantenibilidad, escribe
-en el chat: `Usa $thermos para revisar mis cambios sin commit, sin modificar archivos`.
+Las skills compartidas se versionan en `.agents/skills/` y sus fuentes se
+registran en `skills-lock.json`:
 
-También puedes invocar `$thermo-nuclear-review` o
-`$thermo-nuclear-code-quality-review` por separado. No requieren conectar GitHub.
-Consulta la [guía de uso y configuración](.agents/THERMOS.md).
+- `git-workflow-and-versioning`: commits atómicos, ramas y pull requests.
+- `impeccable`: diseño y revisión de interfaces; utiliza `PRODUCT.md`,
+  `DESIGN.md` y `.impeccable/config.json` como contexto del proyecto.
+- `web-design-guidelines`: revisión de accesibilidad y buenas prácticas de UI.
+
+La configuración de agentes y su integración con GitHub Issues se describen
+en `AGENTS.md` y `docs/agents/`.
