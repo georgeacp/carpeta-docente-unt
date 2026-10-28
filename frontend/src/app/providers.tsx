@@ -1,5 +1,6 @@
 "use client";
 
+import { NavigationGuardProvider } from "@/context/navigation-guard";
 import { AuthProvider } from "@/context/auth-context";
 import { I18nProvider } from "@/context/i18n-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <AuthProvider>{children}</AuthProvider>
+        <NavigationGuardProvider><AuthProvider>{children}</AuthProvider></NavigationGuardProvider>
       </I18nProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

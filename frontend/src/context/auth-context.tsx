@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useNavigationGuard } from "@/context/navigation-guard";
 import { useRouter } from "next/navigation";
 import { apiDemoLogin, apiFetchUsuario, apiLogin, Usuario } from "@/lib/api";
 
@@ -19,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [cargando, setCargando] = useState(true);
   const router = useRouter();
+  const { navigate } = useNavigationGuard();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("unt_user");
@@ -62,12 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     redirectByRole(res.usuario.rol);
   };
 
-  const logout = () => {
+  const logout = () => navigate(() => {
     localStorage.removeItem("unt_jwt_token");
     localStorage.removeItem("unt_user");
     setUsuario(null);
     router.push("/login");
-  };
+  });
 
   const refreshUsuario = useCallback(async (signal?: AbortSignal) => {
     const token = localStorage.getItem("unt_jwt_token");

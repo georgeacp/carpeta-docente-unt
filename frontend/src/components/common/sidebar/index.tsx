@@ -6,7 +6,7 @@ import { CollapsibleGroup } from "@/components/tailgrids/core/collapsible";
 import { useAuth } from "@/context/auth-context";
 import { useI18n } from "@/context/i18n-context";
 import { cn } from "@/utils/cn";
-import Link from "next/link";
+import Link from "@/components/common/guarded-link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { Key } from "react-aria-components";

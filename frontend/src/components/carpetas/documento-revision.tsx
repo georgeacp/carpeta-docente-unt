@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/tailgrids/core/button";
 import { Badge } from "@/components/tailgrids/core/badge";
@@ -15,6 +15,10 @@ interface DocumentoRevisionProps {
   documento: DocumentoEntrega;
   entregaId: number;
   editable: boolean;
+  comment?: string;
+  onCommentChange?: (value: string) => void;
+  onSavingChange?: (value: boolean) => void;
+  onSaved?: () => void;
   onUpdated: (carpeta: CarpetaDetail) => void;
 }
 
@@ -23,12 +27,20 @@ export function DocumentoRevision({
   entregaId,
   editable,
   onUpdated,
+  comment, onCommentChange, onSavingChange, onSaved,
 }: DocumentoRevisionProps) {
-  const [comentario, setComentario] = useState(documento.comentario ?? "");
+  const [localComment, setLocalComment] = useState(documento.comentario ?? "");
+  const comentario = comment ?? localComment;
+  const locked = useRef(false);
+  const [saveError, setSaveError] = useState("");
   const [guardando, setGuardando] = useState(false);
 
   const guardar = async (dictamen: "aprobado" | "observado") => {
+    if (locked.current) return;
+    locked.current = true;
     setGuardando(true);
+    setSaveError("");
+    onSavingChange?.(true);
 
     try {
       onUpdated(
@@ -39,17 +51,21 @@ export function DocumentoRevision({
           comentario,
         ),
       );
+      onSaved?.();
       toast.success(
         "Evaluación guardada. Falta concluir el dictamen de la entrega.",
       );
     } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "No se pudo guardar la evaluación.");
       toast.error(
         error instanceof Error
           ? error.message
           : "No se pudo guardar la evaluación.",
       );
     } finally {
+      locked.current = false;
       setGuardando(false);
+      onSavingChange?.(false);
     }
   };
 
@@ -108,12 +124,14 @@ export function DocumentoRevision({
           <textarea
             id={`comentario-${documento.id}`}
             value={comentario}
-            onChange={(event) => setComentario(event.target.value)}
+            onChange={(event) => onCommentChange ? onCommentChange(event.target.value) : setLocalComment(event.target.value)}
             maxLength={5000}
             rows={2}
             disabled={guardando}
+            aria-describedby={saveError ? `review-error-${documento.id}` : undefined}
             className="w-full rounded-lg border border-card-border bg-card-surface-area p-3 text-sm text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           />
+          {saveError && <p id={`review-error-${documento.id}`} role="alert" className="text-sm text-badge-warning-text">{saveError}</p>}
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"

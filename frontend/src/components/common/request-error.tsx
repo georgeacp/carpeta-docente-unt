@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/common/guarded-link";
 import { Button } from "@/components/tailgrids/core/button";
 import { useAuth } from "@/context/auth-context";
 import { ApiError, apiProblem } from "@/lib/api-error";
