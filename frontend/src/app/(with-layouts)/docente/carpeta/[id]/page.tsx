@@ -34,6 +34,8 @@ import {
   CarpetaDetail,
   SeccionCarpeta,
 } from "@/lib/api";
+import { formatAcademicDeadline } from "@/lib/academic-dates";
+import { formatFileSize } from "@/utils/format-file-size";
 import { cn } from "@/utils/cn";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useRef, useState } from "react";
@@ -155,6 +157,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                 variant="ghost"
                 appearance="outline"
                 size="xs"
+                className="min-h-11"
                 onPress={() => router.push("/docente")}
               >
                 Volver a mis carpetas
@@ -398,7 +401,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
 
                 {seccionActiva.documentos.length === 0 ? (
                   <div className="rounded-xl border border-card-border bg-background-gray-primary p-5 text-center text-sm text-text-tertiary">
-                    Aún no se ha subido ningún documento a esta sección.
+                    Aún no se ha subido ningún documento a este ítem documental.
                   </div>
                 ) : (
                   <TableRoot>
@@ -407,7 +410,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                         <TableHead>Versión</TableHead>
                         <TableHead>Nombre del Documento</TableHead>
                         <TableHead>Tamaño</TableHead>
-                        <TableHead>Fecha de Subida</TableHead>
+                        <TableHead>Fecha de carga</TableHead>
                         <TableHead className="text-right">Descargar</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -427,10 +430,10 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                             {doc.nombre}
                           </TableCell>
                           <TableCell className="text-text-secondary">
-                            {doc.tamano_mb} MB
+                            {formatFileSize(doc.tamano_mb)}
                           </TableCell>
                           <TableCell className="text-text-secondary">
-                            {new Date(doc.fecha).toLocaleString("es-PE")}
+                            {formatAcademicDeadline(doc.fecha) + " (Perú)"}
                           </TableCell>
                           <TableCell className="text-right">
                             <DescargaDocumento
@@ -459,7 +462,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
             Historial de carpeta
           </SheetTitle>
           <p className="mt-1 text-xs text-text-tertiary">
-            Trazabilidad institucional de subidas, reemplazos y dictámenes.
+            Historial de cargas, versiones y dictámenes de esta carpeta.
           </p>
           <div className="mt-4 divide-y divide-card-border">
             {historial.map((h) => (
@@ -469,7 +472,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                     {h.accion}
                   </Badge>
                   <span className="text-[11px] text-text-tertiary">
-                    {new Date(h.fecha).toLocaleString("es-PE")}
+                    {formatAcademicDeadline(h.fecha) + " (Perú)"}
                   </span>
                 </div>
                 <p className="mt-1.5 text-sm text-text-primary">{h.detalle}</p>

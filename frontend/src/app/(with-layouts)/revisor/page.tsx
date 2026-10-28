@@ -233,7 +233,7 @@ export default function RevisorDashboardPage() {
               }}
             />
           ) : (
-            <TableRoot className="min-w-240">
+            <TableRoot className="min-w-220">
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("revisor.colCourse")}</TableHead>

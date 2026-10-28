@@ -16,8 +16,8 @@ export function RequestError({ error, onRetry, backHref, stale = false, pending 
     <p className="text-sm text-text-secondary">{problem.message}</p>
     {stale && <p className="text-sm text-text-secondary">Se muestran los últimos datos disponibles; no se pudieron actualizar.</p>}
     <div className="flex flex-wrap items-center gap-4">
-      {problem.retry && <Button appearance="outline" isDisabled={pending} onPress={onRetry}>{pending ? "Consultando…" : "Volver a intentar"}</Button>}
-      {error instanceof ApiError && error.status === 401 && <Button onPress={logout}>Volver a iniciar sesión</Button>}
+      {problem.retry && <Button className="min-h-11" appearance="outline" isDisabled={pending} onPress={onRetry}>{pending ? "Consultando…" : "Volver a intentar"}</Button>}
+      {error instanceof ApiError && error.status === 401 && <Button className="min-h-11" onPress={logout}>Volver a iniciar sesión</Button>}
       {backHref && <Link href={backHref} className="rounded text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-brand-500">Volver al tablero</Link>}
     </div>
   </div>;

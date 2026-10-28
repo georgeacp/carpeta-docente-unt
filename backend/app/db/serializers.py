@@ -4,6 +4,13 @@ from app.db.ciclo import CicloCarpeta
 from sqlalchemy.orm import object_session
 
 
+def iso_utc(value):
+    if value is None:
+        return None
+    aware = value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+    return aware.astimezone(timezone.utc).isoformat()
+
+
 def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
     asignacion = carpeta.asignacion
     docente = asignacion.docente
@@ -50,7 +57,7 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
         "bloqueada": estado_ciclo in ("enviada", "reenviada", "aprobada"),
         "asignacion_id": asignacion.id,
         "seccion": asignacion.seccion,
-        "fecha_actualizacion": carpeta.ultima_actualizacion.isoformat() if carpeta.ultima_actualizacion else None,
+        "fecha_actualizacion": iso_utc(carpeta.ultima_actualizacion),
         "docente": {
             "id": docente.id,
             "nombre": docente.nombre,
@@ -70,7 +77,7 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
             "nombre": semestre.nombre,
             "inicio": semestre.inicio.isoformat(),
             "fin": semestre.fin.isoformat(),
-            "fecha_limite": semestre.fecha_limite.isoformat(),
+            "fecha_limite": iso_utc(semestre.fecha_limite),
             "activo": semestre.activo,
         },
         "metricas": {
@@ -105,7 +112,7 @@ def serialize_carpeta_detail(carpeta: Carpeta) -> dict:
                 "tamano_mb": d.tamano_mb,
                 "version": d.version,
                 "subido_por": d.autor.nombre if d.autor else "Docente",
-                "fecha": d.fecha.isoformat() if d.fecha else None,
+                "fecha": iso_utc(d.fecha),
             }
             for d in sec.documentos
         ]
@@ -115,7 +122,7 @@ def serialize_carpeta_detail(carpeta: Carpeta) -> dict:
                 "texto": o.texto,
                 "resuelta": o.resuelta,
                 "revisor_nombre": o.revisor.nombre if o.revisor else "Revisor",
-                "fecha": o.fecha.isoformat() if o.fecha else None,
+                "fecha": iso_utc(o.fecha),
             }
             for o in sec.observaciones
         ]
@@ -143,7 +150,7 @@ def serialize_carpeta_detail(carpeta: Carpeta) -> dict:
             "detalle": h.detalle,
             "usuario_nombre": h.usuario.nombre if h.usuario else "Sistema",
             "usuario_rol": h.usuario.rol if h.usuario else "sistema",
-            "fecha": h.fecha.isoformat() if h.fecha else None,
+            "fecha": iso_utc(h.fecha),
         }
         for h in carpeta.historial
     ]

@@ -226,7 +226,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-asigDocenteId" className="mb-1 block text-sm font-medium text-text-secondary">
                           Docente
                         </label>
-                        <select id="admin-asigDocenteId"
+                        <select id="admin-asigDocenteId" aria-describedby="asignacion-feedback"
                           value={asigDocenteId}
                           onChange={(e) =>
                             setAsigDocenteId(Number(e.target.value))
@@ -246,7 +246,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-asigCursoId" className="mb-1 block text-sm font-medium text-text-secondary">
                           Curso / Asignatura
                         </label>
-                        <select id="admin-asigCursoId"
+                        <select id="admin-asigCursoId" aria-describedby="asignacion-feedback"
                           value={asigCursoId}
                           onChange={(e) =>
                             setAsigCursoId(Number(e.target.value))
@@ -266,7 +266,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-asigSemestreId" className="mb-1 block text-sm font-medium text-text-secondary">
                           Semestre Académico
                         </label>
-                        <select id="admin-asigSemestreId"
+                        <select id="admin-asigSemestreId" aria-describedby="asignacion-feedback"
                           value={asigSemestreId}
                           onChange={(e) =>
                             setAsigSemestreId(Number(e.target.value))
@@ -286,7 +286,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-asigSeccion" className="mb-1 block text-sm font-medium text-text-secondary">
                           Sección (Ej. A, B, Única)
                         </label>
-                        <input id="admin-asigSeccion"
+                        <input id="admin-asigSeccion" aria-describedby="asignacion-feedback"
                           type="text"
                           value={asigSeccion}
                           onChange={(e) => setAsigSeccion(e.target.value)}
@@ -299,7 +299,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         variant="primary"
                         size="md"
-                        className="w-full"
+                        className="min-h-11 w-full"
                       >
                         Asignar y generar carpeta
                       </Button>
@@ -323,7 +323,7 @@ export default function AdminDashboardPage() {
                           <TableHead>Curso y Sección</TableHead>
                           <TableHead>Docente Asignado</TableHead>
                           <TableHead className="text-center">
-                            Secciones
+                            Ítems documentales
                           </TableHead>
                           <TableHead className="text-right">Avance</TableHead>
                         </TableRow>
@@ -349,7 +349,7 @@ export default function AdminDashboardPage() {
                             </TableCell>
                             <TableCell className="text-center">
                               <Badge color="gray" size="sm">
-                                {a.metricas.total_secciones} secciones
+                                {a.metricas.total_secciones} ítems documentales
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right font-semibold text-text-primary">
@@ -378,7 +378,7 @@ export default function AdminDashboardPage() {
                           <label htmlFor="admin-curCodigo" className="mb-1 block text-sm font-medium text-text-secondary">
                             Código (Ej. ING-601)
                           </label>
-                          <input id="admin-curCodigo"
+                          <input id="admin-curCodigo" aria-describedby="curso-feedback"
                             type="text"
                             value={curCodigo}
                             onChange={(e) => setCurCodigo(e.target.value)}
@@ -390,7 +390,7 @@ export default function AdminDashboardPage() {
                           <label htmlFor="admin-curCiclo" className="mb-1 block text-sm font-medium text-text-secondary">
                             Ciclo
                           </label>
-                          <input id="admin-curCiclo"
+                          <input id="admin-curCiclo" aria-describedby="curso-feedback"
                             type="number"
                             value={curCiclo}
                             onChange={(e) =>
@@ -405,7 +405,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-curNombre" className="mb-1 block text-sm font-medium text-text-secondary">
                           Nombre de la Asignatura
                         </label>
-                        <input id="admin-curNombre"
+                        <input id="admin-curNombre" aria-describedby="curso-feedback"
                           type="text"
                           value={curNombre}
                           onChange={(e) => setCurNombre(e.target.value)}
@@ -417,7 +417,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         variant="primary"
                         size="md"
-                        className="w-full"
+                        className="min-h-11 w-full"
                       >
                         Guardar Curso
                       </Button>
@@ -469,7 +469,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-usrNombre" className="mb-1 block text-sm font-medium text-text-secondary">
                           Grado y Apellidos/Nombres
                         </label>
-                        <input id="admin-usrNombre"
+                        <input id="admin-usrNombre" aria-describedby="usuario-feedback"
                           type="text"
                           value={usrNombre}
                           onChange={(e) => setUsrNombre(e.target.value)}
@@ -482,7 +482,7 @@ export default function AdminDashboardPage() {
                           <label htmlFor="admin-usrEmail" className="mb-1 block text-sm font-medium text-text-secondary">
                             Correo @unitru.edu.pe
                           </label>
-                          <input id="admin-usrEmail"
+                          <input id="admin-usrEmail" aria-describedby="usuario-feedback"
                             type="email"
                             value={usrEmail}
                             onChange={(e) => setUsrEmail(e.target.value)}
@@ -494,7 +494,7 @@ export default function AdminDashboardPage() {
                           <label htmlFor="admin-usrRol" className="mb-1 block text-sm font-medium text-text-secondary">
                             Rol
                           </label>
-                          <select id="admin-usrRol"
+                          <select id="admin-usrRol" aria-describedby="usuario-feedback"
                             value={usrRol}
                             onChange={(e) => setUsrRol(e.target.value)}
                             className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
@@ -509,7 +509,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-usrCategoria" className="mb-1 block text-sm font-medium text-text-secondary">
                           Categoría Docente
                         </label>
-                        <input id="admin-usrCategoria"
+                        <input id="admin-usrCategoria" aria-describedby="usuario-feedback"
                           type="text"
                           value={usrCategoria}
                           onChange={(e) => setUsrCategoria(e.target.value)}
@@ -520,7 +520,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         variant="primary"
                         size="md"
-                        className="w-full"
+                        className="min-h-11 w-full"
                       >
                         Registrar Usuario
                       </Button>
@@ -567,8 +567,8 @@ export default function AdminDashboardPage() {
 
             {/* TAB 2: SEMESTRES ACADÉMICOS (RF2) */}
             {tabIndex === 2 && (
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-                <div className="lg:col-span-5">
+              <div className="grid grid-cols-1 gap-5 2xl:grid-cols-12">
+                <div className="2xl:col-span-5">
                   <Card>
                     <CardHeader className="mb-4">
                       <CardTitle>Abrir semestre académico</CardTitle>
@@ -578,7 +578,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-semNombre" className="mb-1 block text-sm font-medium text-text-secondary">
                           Denominación (Ej. 2027-I)
                         </label>
-                        <input id="admin-semNombre"
+                        <input id="admin-semNombre" aria-describedby="semestre-feedback"
                           type="text"
                           value={semNombre}
                           onChange={(e) => setSemNombre(e.target.value)}
@@ -590,7 +590,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-semInicio" className="mb-1 block text-sm font-medium text-text-secondary">
                           Fecha de Inicio
                         </label>
-                        <input id="admin-semInicio"
+                        <input id="admin-semInicio" aria-describedby="semestre-feedback"
                           type="date"
                           value={semInicio}
                           onChange={(e) => setSemInicio(e.target.value)}
@@ -602,7 +602,7 @@ export default function AdminDashboardPage() {
                         <label htmlFor="admin-semFin" className="mb-1 block text-sm font-medium text-text-secondary">
                           Fecha de Término
                         </label>
-                        <input id="admin-semFin"
+                        <input id="admin-semFin" aria-describedby="semestre-feedback"
                           type="date"
                           value={semFin}
                           min={semInicio}
@@ -613,11 +613,11 @@ export default function AdminDashboardPage() {
                       </div>
                       <div>
                         <label htmlFor="semester-deadline-date" className="mb-1 block text-sm font-medium text-text-secondary">Fecha límite de cierre (hora de Perú)</label>
-                        <input id="semester-deadline-date" type="date" required min={semFin} value={semLimite} onChange={(event) => setSemLimiteFecha(event.target.value)} aria-describedby="semester-deadline-help" className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-brand-500" />
+                        <input id="semester-deadline-date" type="date" required min={semFin} value={semLimite} onChange={(event) => setSemLimiteFecha(event.target.value)} aria-describedby="semester-deadline-help semestre-feedback" className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-brand-500" />
                       </div>
                       <div>
                         <label htmlFor="semester-deadline-time" className="mb-1 block text-sm font-medium text-text-secondary">Hora límite (hora de Perú)</label>
-                        <input id="semester-deadline-time" type="time" required value={semLimiteHora} onChange={(event) => setSemLimiteHora(event.target.value)} aria-describedby="semester-deadline-help" className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-brand-500" />
+                        <input id="semester-deadline-time" type="time" required value={semLimiteHora} onChange={(event) => setSemLimiteHora(event.target.value)} aria-describedby="semester-deadline-help semestre-feedback" className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-brand-500" />
                       </div>
                       <p id="semester-deadline-help" className="text-sm text-text-secondary">America/Lima (UTC−05). Se sugiere el día de término a las 23:59; puedes cambiarlo.</p>
                       <div role="status" className="space-y-2 text-sm text-text-secondary">
@@ -628,7 +628,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         variant="primary"
                         size="md"
-                        className="w-full"
+                        className="min-h-11 w-full"
                       >
                         Crear y Activar Semestre
                       </Button>
@@ -636,12 +636,12 @@ export default function AdminDashboardPage() {
                   </Card>
                 </div>
 
-                <div className="lg:col-span-7">
+                <div className="2xl:col-span-7">
                   <Card>
                     <CardHeader className="mb-4">
-                      <CardTitle>Semestres Registrados</CardTitle>
+                      <CardTitle>Semestres registrados</CardTitle>
                     </CardHeader>
-                    <TableRoot>
+                    <TableRoot className="whitespace-nowrap">
                       <TableHeader>
                         <TableRow>
                           <TableHead>Semestre</TableHead>
@@ -686,7 +686,7 @@ export default function AdminDashboardPage() {
                   <div>
                     <CardTitle>Plantilla de carpeta docente</CardTitle>
                     <CardDescription className="text-xs">
-                      Secciones creadas automáticamente cada vez que se asigna
+                      Ítems documentales creados automáticamente cada vez que se asigna
                       carga lectiva a un docente.
                     </CardDescription>
                   </div>

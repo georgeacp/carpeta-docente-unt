@@ -34,6 +34,8 @@ import {
   CarpetaDetail,
   SeccionCarpeta,
 } from "@/lib/api";
+import { formatAcademicDeadline } from "@/lib/academic-dates";
+import { formatFileSize } from "@/utils/format-file-size";
 import { cn } from "@/utils/cn";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -113,6 +115,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                 variant="ghost"
                 appearance="outline"
                 size="xs"
+                className="min-h-11"
                 onPress={() => navigate(() => router.push("/revisor"))}
               >
                 Volver a revisión
@@ -215,7 +218,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                             sec.estado.slice(1)}
                         </Badge>
                         <span className="text-xs text-text-tertiary">
-                          {sec.documentos.length} archivo(s)
+                          {sec.documentos.length} {sec.documentos.length === 1 ? "archivo" : "archivos"}
                         </span>
                       </div>
                     </div>
@@ -288,7 +291,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
 
                 {seccionActiva.documentos.length === 0 ? (
                   <div className="rounded-xl border border-card-border bg-background-gray-primary p-6 text-center text-sm text-text-tertiary">
-                    El docente aún no ha cargado documentos en esta sección.
+                    El docente aún no ha cargado documentos en este ítem documental.
                   </div>
                 ) : (
                   <TableRoot>
@@ -296,10 +299,10 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                       <TableRow>
                         <TableHead>Versión</TableHead>
                         <TableHead>Documento</TableHead>
-                        <TableHead>Peso</TableHead>
-                        <TableHead>Fecha de Entrega</TableHead>
+                        <TableHead>Tamaño</TableHead>
+                        <TableHead>Fecha de carga</TableHead>
                         <TableHead className="text-right">
-                          Inspeccionar
+                          Descargar
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -319,10 +322,10 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                             {d.nombre}
                           </TableCell>
                           <TableCell className="text-text-secondary">
-                            {d.tamano_mb} MB
+                            {formatFileSize(d.tamano_mb)}
                           </TableCell>
                           <TableCell className="text-text-secondary">
-                            {new Date(d.fecha).toLocaleString("es-PE")}
+                            {formatAcademicDeadline(d.fecha) + " (Perú)"}
                           </TableCell>
                           <TableCell className="text-right">
                             <DescargaDocumento
@@ -351,7 +354,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
             Historial de carpeta
           </SheetTitle>
           <p className="mt-1 text-xs text-text-tertiary">
-            Registro cronológico de auditoría de esta carpeta.
+            Registro de acciones y decisiones de esta carpeta.
           </p>
           <div className="mt-4 divide-y divide-card-border">
             {historial.map((h) => (
@@ -361,7 +364,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                     {h.accion}
                   </Badge>
                   <span className="text-[11px] text-text-tertiary">
-                    {new Date(h.fecha).toLocaleString("es-PE")}
+                    {formatAcademicDeadline(h.fecha) + " (Perú)"}
                   </span>
                 </div>
                 <p className="mt-1.5 text-sm text-text-primary">{h.detalle}</p>

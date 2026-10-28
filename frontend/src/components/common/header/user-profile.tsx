@@ -21,8 +21,8 @@ export function UserProfileButton() {
   const { usuario, logout } = useAuth();
   const { t } = useI18n();
 
-  const displayName = usuario?.nombre || "Dr. Carlos Alcántara";
-  const displayEmail = usuario?.email || "docente@unitru.edu.pe";
+  const displayName = usuario?.nombre || t("common.institutionalUser");
+  const displayEmail = usuario?.email || "";
 
   const displayRole = (
     usuario?.rol ? t(`roles.${usuario.rol}`) : "Docente"
@@ -73,7 +73,7 @@ export function UserProfileButton() {
             <span className="truncate text-sm font-medium text-text-primary">
               {displayName}
             </span>
-            <span className="truncate text-xs text-gray-500">
+            <span className="truncate text-xs text-text-secondary">
               {displayEmail}
             </span>
           </span>

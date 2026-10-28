@@ -1,4 +1,4 @@
-// Verificación contra una instancia aislada; nunca usar la base de desarrollo.
+// Verificación en la instancia principal con backend ficticio en memoria; nunca usar registros reales.
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const fs = require("node:fs/promises");
@@ -8,14 +8,16 @@ async function main() {
   const backend = process.env.CICLO_QA_BACKEND;
   const frontend = process.env.CICLO_QA_FRONTEND;
   const artifacts = process.env.CICLO_QA_ARTIFACTS;
-  assert(backend && frontend && artifacts, "Defina CICLO_QA_BACKEND, CICLO_QA_FRONTEND y CICLO_QA_ARTIFACTS para una instancia aislada.");
-  assert.equal(new URL(backend).port, "8100", "La prueba solo escribe en el puerto aislado 8100.");
-  assert.equal(new URL(frontend).port, "3100", "La prueba solo navega por el puerto aislado 3100.");
+  assert(backend && frontend && artifacts, "Defina CICLO_QA_BACKEND, CICLO_QA_FRONTEND y CICLO_QA_ARTIFACTS para la instancia principal ficticia.");
+  assert.equal(new URL(backend).port, "8000", "La prueba solo escribe en el puerto principal 8000.");
+  assert.equal(new URL(frontend).port, "3000", "La prueba solo navega por el puerto principal 3000.");
   const http = await request.newContext({ baseURL: backend });
   const json = async (response) => {
     assert(response.ok(), `${response.status()}: ${await response.text()}`);
     return response.json();
   };
+  const health = await json(await http.get("/api/health"));
+  assert.equal(health.mode, "fictitious-visual-qa", "Esta prueba requiere el backend ficticio visual_app; no escribe en bases reales.");
   const admin = await json(await http.post("/api/auth/demo-login", { data: { rol: "admin" } }));
   const adminHeaders = { Authorization: `Bearer ${admin.access_token}` };
   const catalog = await json(await http.get("/api/admin/catalogo", { headers: adminHeaders }));
@@ -50,13 +52,26 @@ async function main() {
     await target.locator('button[type="submit"]').waitFor();
     await target.getByText("Entorno de demostración", { exact: true }).click();
     await target.locator("#demo-role-select").selectOption(role);
-    await target.getByRole("button", { name: "Iniciar sesión", exact: true }).click();
+    await target.getByRole("button", { name: "Acceso de demostración", exact: true }).click();
     await target.waitForURL(`**/${role === "revisor" ? "revisor" : "docente"}`);
   };
   const waitForCycle = (target, state) => target.locator('[aria-label="Ciclo de entregas"]').getByText(state, { exact: true }).waitFor();
   const submit = async (name) => {
     await page.getByRole("button", { name, exact: true }).click();
     await page.getByRole("button", { name: "Confirmar envío", exact: true }).click();
+  };
+  const evaluateRemaining = async () => {
+    const items = director.getByRole("navigation", { name: "Documentos de la entrega", exact: true }).getByRole("button");
+    for (let index = 0; index < await items.count(); index++) {
+      await items.nth(index).click();
+      const panel = director.locator('[id^="review-document-"]');
+      if (!await panel.getByText("Pendiente de evaluación", { exact: true }).count()) continue;
+      await Promise.all([
+        director.waitForResponse(response => response.request().method() === "PUT" && response.url().includes("/api/revision/entregas/")),
+        panel.getByRole("button", { name: "Marcar conforme", exact: true }).click(),
+      ]);
+      await panel.getByText("Conforme", { exact: true }).waitFor();
+    }
   };
   const conclude = async () => {
     await director.getByRole("button", { name: "Concluir dictamen de la entrega", exact: true }).click();
@@ -74,10 +89,7 @@ async function main() {
     await director.locator("textarea").first().fill("Precisar el contenido del sílabo.");
     await director.getByRole("button", { name: "Guardar observación" }).first().click();
     await director.getByText("Evaluación guardada. Falta concluir el dictamen de la entrega.", { exact: true }).first().waitFor();
-    const conformes = director.getByRole("button", { name: "Marcar conforme", exact: true });
-    for (let i = 1; i < await conformes.count(); i++) {
-      await Promise.all([director.waitForResponse((response) => response.request().method() === "PUT" && response.url().includes("/api/revision/entregas/")), conformes.nth(i).click()]);
-    }
+    await evaluateRemaining();
     await conclude();
     await waitForCycle(director, "observada");
     await page.reload();
@@ -88,10 +100,7 @@ async function main() {
     await waitForCycle(page, "reenviada");
     await director.reload();
     await director.getByRole("button", { name: "Marcar conforme" }).first().waitFor();
-    const reenvio = director.getByRole("button", { name: "Marcar conforme", exact: true });
-    for (let i = 0; i < await reenvio.count(); i++) {
-      await Promise.all([director.waitForResponse((response) => response.request().method() === "PUT" && response.url().includes("/api/revision/entregas/")), reenvio.nth(i).click()]);
-    }
+    await evaluateRemaining();
     await conclude();
     await waitForCycle(director, "en progreso");
     snapshot = await detail();
@@ -105,10 +114,7 @@ async function main() {
     await waitForCycle(page, "enviada");
     await director.reload();
     await director.getByRole("button", { name: "Marcar conforme" }).first().waitFor();
-    const cierre = director.getByRole("button", { name: "Marcar conforme", exact: true });
-    for (let i = 0; i < await cierre.count(); i++) {
-      await Promise.all([director.waitForResponse((response) => response.request().method() === "PUT" && response.url().includes("/api/revision/entregas/")), cierre.nth(i).click()]);
-    }
+    await evaluateRemaining();
     await conclude();
     await director.getByText("Carpeta aprobada definitivamente", { exact: true }).waitFor();
     await page.reload();

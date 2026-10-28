@@ -72,8 +72,8 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
       <DialogTitle>Comentarios sin guardar</DialogTitle>
       <p className="my-5 text-sm text-text-secondary">{busy ? "Espera a que termine el guardado antes de salir." : "Hay comentarios modificados que aún no se han guardado. Puedes permanecer o descartarlos para continuar."}</p>
       <div className="flex flex-wrap justify-end gap-3">
-        <Button appearance="outline" autoFocus onPress={() => setPending(null)}>Permanecer</Button>
-        <Button variant="danger" isDisabled={busy} onPress={() => {
+        <Button className="min-h-11" appearance="outline" autoFocus onPress={() => setPending(null)}>Permanecer</Button>
+        <Button className="min-h-11" variant="danger" isDisabled={busy} onPress={() => {
           const action = pending;
           blocked.current = false;
           discard.current();

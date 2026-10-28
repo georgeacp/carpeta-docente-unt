@@ -3,11 +3,11 @@
 import { useNavigationGuard } from "@/context/navigation-guard";
 
 import { SearchIcon } from '@/components/common/header/icons';
-import { NAV_DATA } from '@/components/common/sidebar/data';
+import { getNavDataByRole } from '@/components/common/sidebar/data';
+import { useAuth } from '@/context/auth-context';
 import {
     InputGroup,
     InputGroupAddon,
-    InputGroupInput,
 } from '@/components/tailgrids/core/input-group';
 import { useI18n } from '@/context/i18n-context';
 import { Command } from 'cmdk';
@@ -25,6 +25,7 @@ interface SearchItem {
 
 export default function SearchBar() {
     const { t } = useI18n();
+    const { usuario } = useAuth();
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const { navigate } = useNavigationGuard();
@@ -47,7 +48,7 @@ export default function SearchBar() {
     const { itemsBySection } = useMemo(() => {
         const sectionsMap: Record<string, SearchItem[]> = {};
 
-        NAV_DATA.forEach((section) => {
+        getNavDataByRole(usuario?.rol, t).forEach((section) => {
             const sectionLabel = section.label || 'PAGES';
 
             section.items.forEach((item) => {
@@ -87,7 +88,7 @@ export default function SearchBar() {
         });
 
         return { itemsBySection: sectionsMap };
-    }, []);
+    }, [usuario?.rol, t]);
 
     const handleSelect = (url: string) => {
         setOpen(false);
@@ -100,7 +101,9 @@ export default function SearchBar() {
             <button
                 onClick={() => setOpen(true)}
                 className='flex size-10 items-center justify-center rounded-lg border border-card-border bg-card-background text-icon-primary shadow-xs transition-colors outline-none hover:bg-background-gray-primary focus-visible:border-input-primary-focus-border focus-visible:ring-4 focus-visible:ring-input-primary-focus-border/20 xl:hidden'
-                aria-label='Open search modal'
+                aria-label={t('common.searchPlaceholder')}
+                aria-haspopup='dialog'
+                aria-expanded={open}
             >
                 <SearchIcon />
             </button>
@@ -109,18 +112,17 @@ export default function SearchBar() {
             <div className='hidden xl:block'>
                 <button
                     onClick={() => setOpen(true)}
-                    className='w-full text-left outline-none focus:outline-none'
+                    className='w-full rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500'
+                    aria-label={t('common.searchPlaceholder')}
+                    aria-haspopup='dialog'
+                    aria-expanded={open}
                     type='button'
                 >
                     <InputGroup className='h-10 cursor-pointer'>
                         <InputGroupAddon align='inline-start' className='pr-0 text-icon-tertiary'>
                             <SearchIcon />
                         </InputGroupAddon>
-                        <InputGroupInput
-                            placeholder={t('common.searchPlaceholder')}
-                            className='pointer-events-none cursor-pointer pl-2 text-sm select-none'
-                            readOnly
-                        />
+                        <span className='min-w-0 flex-1 truncate pl-2 text-sm text-text-secondary'>{t('common.searchPlaceholder')}</span>
                         <InputGroupAddon align='inline-end'>
                             <div className='rounded-md border border-card-border bg-background-gray-primary/50 px-2 py-0.75 text-xs text-text-tertiary'>
                                 <span className='font-medium'>⌘</span> K
@@ -145,6 +147,7 @@ export default function SearchBar() {
                             <SearchIcon />
                         </InputGroupAddon>
                         <Command.Input
+                            aria-label={t('common.search')}
                             placeholder={t('common.searchPlaceholder')}
                             className='w-full min-w-0 flex-1 border-none bg-transparent pl-2 text-sm text-text-primary outline-none placeholder:text-text-tertiary focus:ring-0 focus:outline-none'
                         />
