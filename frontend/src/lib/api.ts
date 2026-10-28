@@ -146,6 +146,7 @@ export interface EntregaCarpeta {
   fecha_limite: string;
   tardia: boolean;
   director_id: number | null;
+  director_nombre: string | null;
   dictaminada_en: string | null;
   detalles: DocumentoEntrega[];
 }

@@ -8,6 +8,7 @@ import { Button } from "@/components/tailgrids/core/button";
 import { Card } from "@/components/tailgrids/core/card";
 import { Dialog, DialogTitle } from "@/components/tailgrids/core/dialog";
 import { apiConcluirEntrega, apiEnviarEntrega, CarpetaDetail } from "@/lib/api";
+import { ReviewProgress } from "./review-progress";
 import { DocumentoRevision } from "./documento-revision";
 
 interface CicloCarpetaProps {
@@ -68,9 +69,17 @@ export function CicloCarpeta({
     (entrega) => entrega.estado === "pendiente",
   );
 
-  const evaluada =
-    pendiente?.detalles.every((detalle) => detalle.dictamen !== "pendiente") ??
-    false;
+  const [lastFocused, setLastFocused] = useState<number | null>(null);
+
+  const nextPending = () => {
+    const items = pendiente?.detalles.filter(item => item.dictamen === "pendiente") || [];
+    const index = items.findIndex(item => item.id === lastFocused);
+    const next = items[(index + 1) % items.length];
+
+    if (!next) return;
+    setLastFocused(next.id);
+    document.getElementById(`review-document-${next.id}`)?.focus();
+  };
 
   const resultado = pendiente?.detalles.some(
     (detalle) => detalle.dictamen === "observado",
@@ -198,20 +207,7 @@ export function CicloCarpeta({
             </Button>
           </div>
         )}
-        {director && pendiente && (
-          <div className="space-y-2 border-t border-card-border pt-4">
-            <p className="text-sm text-text-secondary">
-              Evalúe cada documento del envío. Guardar una evaluación no emite
-              todavía el dictamen.
-            </p>
-            <Button
-              isDisabled={procesando || !evaluada}
-              onPress={() => setConfirmar("dictaminar")}
-            >
-              Concluir dictamen de la entrega
-            </Button>
-          </div>
-        )}
+        {director && pendiente && <ReviewProgress entrega={pendiente} processing={procesando} onNext={nextPending} onConclude={() => setConfirmar("dictaminar")} />}
         <div className="space-y-3">
           {ciclo.entregas.length === 0 && (
             <p className="text-sm text-text-tertiary">
@@ -238,7 +234,7 @@ export function CicloCarpeta({
               </p>
               {entrega.director_id && (
                 <p className="text-xs text-text-secondary">
-                  Director responsable: usuario #{entrega.director_id}
+                  Director responsable: {entrega.director_nombre || "Nombre no disponible"}
                   {entrega.director_id === carpeta.docente.id
                     ? " · Autorrevisión"
                     : ""}

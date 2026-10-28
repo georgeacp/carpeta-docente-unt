@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import StaleDataError
 
 from app.db.ciclo import CicloCarpeta, DetalleEntrega, Entrega, HitoEntrega, RequisitoHito
-from app.db.models import Carpeta, CarpetaSeccion, Documento, HistorialAccion, PlantillaSeccion
+from app.db.models import Carpeta, CarpetaSeccion, Documento, HistorialAccion, PlantillaSeccion, Usuario
 
 
 class ErrorCiclo(ValueError):
@@ -112,6 +112,8 @@ def consultar(db, carpeta):
     estado = control.estado if control else "borrador"
     hitos = db.query(HitoEntrega).filter_by(curso_id=carpeta.asignacion.curso_id, semestre_id=carpeta.asignacion.semestre_id).order_by(HitoEntrega.orden).all()
     entregas = db.query(Entrega).filter_by(carpeta_id=carpeta.id).order_by(Entrega.id.desc()).all()
+    director_ids = {e.director_id for e in entregas if e.director_id is not None}
+    directores = {u.id: u.nombre for u in db.query(Usuario).filter(Usuario.id.in_(director_ids)).all()}
     return {
         "estado": estado,
         "bloqueada": estado in ("enviada", "reenviada", "aprobada"),
@@ -119,7 +121,7 @@ def consultar(db, carpeta):
         "entregas": [{
             "id": e.id, "hito_id": e.hito_id, "hito": e.hito.nombre, "numero": e.numero, "estado": e.estado,
             "enviada_en": _utc(e.enviada_en).isoformat(), "fecha_limite": _utc(e.fecha_limite).isoformat(), "tardia": e.tardia,
-            "director_id": e.director_id, "dictaminada_en": _utc(e.dictaminada_en).isoformat() if e.dictaminada_en else None,
+            "director_id": e.director_id, "director_nombre": directores.get(e.director_id), "dictaminada_en": _utc(e.dictaminada_en).isoformat() if e.dictaminada_en else None,
             "detalles": [{"id": d.id, "seccion_id": d.seccion_id, "documento_id": d.documento_id, "titulo": d.titulo, "nombre": d.nombre, "version": d.version, "obligatorio": d.obligatorio, "dictamen": d.dictamen, "comentario": d.comentario, "subsanada_en_entrega_id": d.subsanada_en_entrega_id} for d in e.detalles],
         } for e in entregas],
     }

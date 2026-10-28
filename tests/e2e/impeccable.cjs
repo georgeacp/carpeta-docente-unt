@@ -126,10 +126,49 @@ async function recovery(browser) {
   await context.close();
 }
 
+
+async function reviewProgress(browser) {
+  const context=await browser.newContext(); await seed(context,{...user,rol:'revisor'});
+  const data=structuredClone(folder); const delivery=data.ciclo.entregas[0];
+  await context.route('**/api/carpetas/*',r=>r.fulfill({json:data}));
+  let fail=true;
+  await context.route('**/api/revision/entregas/*/documentos/*',r=>{
+    if(fail) return r.fulfill({status:500,json:{detail:'QA evaluación fallida'}});
+    const id=Number(r.request().url().split('/').pop());
+    Object.assign(delivery.detalles.find(d=>d.id===id),r.request().postDataJSON());
+    return r.fulfill({json:data});
+  });
+  const page=await context.newPage();page.setDefaultNavigationTimeout(120000);
+  await page.goto(`${base}/revisor/carpeta/1`);
+  const count=delivery.detalles.length;
+  const progress=n=>page.getByRole('status').filter({hasText:`${n}/${count} documentos evaluados`});
+  await progress(0).waitFor();
+  await page.getByRole('button',{name:'Siguiente pendiente',exact:true}).click();
+  assert.equal(await page.locator(`#review-document-${delivery.detalles[0].id}`).evaluate(el=>el===document.activeElement),true);
+  const first=page.getByRole('region',{name:delivery.detalles[0].titulo,exact:true});
+  assert.equal(await first.getByRole('button',{name:'Guardar observación',exact:true}).isDisabled(),true);
+  await first.getByRole('textbox').fill('QA observación fundamentada');
+  await first.getByRole('button',{name:'Guardar observación',exact:true}).click();
+  await page.getByText('QA evaluación fallida',{exact:true}).waitFor();
+  await progress(0).waitFor();
+  fail=false;
+  await first.getByRole('button',{name:'Guardar observación',exact:true}).click();
+  await progress(1).waitFor();
+  for(let i=1;i<count;i++) {
+    const item=page.getByRole('region',{name:delivery.detalles[i].titulo,exact:true});
+    await item.getByRole('button',{name:'Marcar conforme',exact:true}).click();
+    await progress(i+1).waitFor();
+  }
+  assert.equal(await page.getByRole('button',{name:'Concluir dictamen de la entrega',exact:true}).isEnabled(),true);
+  assert.equal(await page.getByRole('button',{name:'Siguiente pendiente',exact:true}).isDisabled(),true);
+  await context.close();
+}
+
 async function main() {
   const browser = await chromium.launch({channel:'chrome',headless:true});
   try {
     if (!process.argv[2] || process.argv[2] === 'recovery') { await recovery(browser); console.log('PASS recuperación: red, 401/403/404/500, datos previos y catálogo'); }
+    if (!process.argv[2] || process.argv[2] === 'review') { await reviewProgress(browser); console.log('PASS revisión: avance persistido, siguiente pendiente y bloqueo de dictamen'); }
     if (!process.argv[2] || process.argv[2] === 'profile') { await profile(browser); console.log('PASS perfil: roles, recuperación, rutas antiguas y cierre de sesión'); }
     if (!process.argv[2] || process.argv[2] === 'semester') { await semesterDeadline(browser); console.log('PASS semestre: año nuevo, zona de navegador independiente y UTC correcto'); }
     if (!process.argv[2] || process.argv[2] === 'admin') { await adminForms(browser); console.log('PASS administración: etiquetas, bloqueo de envío, error y reintento'); }
