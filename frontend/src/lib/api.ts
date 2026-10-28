@@ -1,3 +1,5 @@
+import { apiMessage } from "./api-message";
+
 export interface Usuario {
   id: number;
   nombre: string;
@@ -205,7 +207,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
     try {
       const errData = await res.json();
-      msg = errData.detail || msg;
+      msg = apiMessage(errData.detail);
     } catch {
       // ignore
     }
