@@ -1,6 +1,0 @@
-interface:
-  display_name: "Thermo Nuclear Code Quality"
-  short_description: "Revisión estricta de estructura y mantenibilidad"
-  default_prompt: "Usa $thermo-nuclear-code-quality-review para revisar la estructura y mantenibilidad de mis cambios locales."
-policy:
-  allow_implicit_invocation: false
