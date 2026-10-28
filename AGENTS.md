@@ -8,6 +8,13 @@
 - Las pruebas que modifiquen datos deben utilizar datos ficticios identificables y evitar alterar registros existentes del usuario.
 - Al terminar, cerrar los procesos temporales iniciados por el agente y verificar su cierre. Mantener los servicios que el usuario ya tenía activos; dejar un servicio iniciado por el agente funcionando solo cuando el usuario lo haya solicitado.
 
+## Ramas y pull requests
+
+- Usar ramas descriptivas como `feature/<tema>`, `fix/<tema>` o `chore/<tema>`, sin el prefijo `codex/`.
+- Los títulos de las PR deben describir el cambio y no comenzar con `codex`.
+- Publicar las PR contra `main` por defecto. Antes de crearlas, comprobar la base, los commits pendientes y que los cambios previos ya estén integrados en `main`.
+- Dejar el merge al usuario, salvo que solicite explícitamente realizarlo.
+
 ## Agent skills
 
 ### Issue tracker
