@@ -1,5 +1,7 @@
 "use client";
 
+import { AdminForm } from "@/components/admin/admin-form";
+import { useSubmission } from "@/hooks/use-submission";
 import { Badge } from "@/components/tailgrids/core/badge";
 import { Button } from "@/components/tailgrids/core/button";
 import {
@@ -32,6 +34,11 @@ export default function AdminDashboardPage() {
   const [catalogo, setCatalogo] = useState<CatalogoAdmin | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const asignacion = useSubmission();
+  const curso = useSubmission();
+  const usuario = useSubmission();
+  const semestre = useSubmission();
 
   // Formulario Asignación (RF3 + RF4)
   const [asigDocenteId, setAsigDocenteId] = useState<number | "">("");
@@ -93,7 +100,7 @@ export default function AdminDashboardPage() {
 
     if (!asigDocenteId || !asigCursoId || !asigSemestreId) return;
 
-    try {
+    await asignacion.run(async () => {
       await apiCrearAsignacion({
         docente_id: Number(asigDocenteId),
         curso_id: Number(asigCursoId),
@@ -104,17 +111,13 @@ export default function AdminDashboardPage() {
         "Carga lectiva asignada. La carpeta docente está disponible.",
       );
       cargarDatos();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al crear asignación",
-      );
-    }
+    });
   };
 
   const handleCrearCurso = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
+    await curso.run(async () => {
       await apiCrearCurso({
         codigo: curCodigo,
         nombre: curNombre,
@@ -125,17 +128,13 @@ export default function AdminDashboardPage() {
       setCurNombre("");
       toast.success("Curso registrado en el catálogo de la escuela.");
       cargarDatos();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al registrar curso",
-      );
-    }
+    });
   };
 
   const handleCrearUsuario = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
+    await usuario.run(async () => {
       await apiCrearUsuario({
         nombre: usrNombre,
         email: usrEmail,
@@ -147,17 +146,13 @@ export default function AdminDashboardPage() {
       setUsrEmail("");
       toast.success("Usuario institucional creado correctamente.");
       cargarDatos();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al crear usuario",
-      );
-    }
+    });
   };
 
   const handleCrearSemestre = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
+    await semestre.run(async () => {
       await apiCrearSemestre({
         nombre: semNombre,
         inicio: semInicio,
@@ -167,11 +162,7 @@ export default function AdminDashboardPage() {
       });
       toast.success(`Semestre ${semNombre} aperturado exitosamente.`);
       cargarDatos();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Error al crear semestre",
-      );
-    }
+    });
   };
 
   const docentes = catalogo?.usuarios.filter((u) => u.rol === "docente") || [];
@@ -240,21 +231,18 @@ export default function AdminDashboardPage() {
                       </div>
                     </CardHeader>
 
-                    <form
-                      onSubmit={handleCrearAsignacion}
-                      className="space-y-4"
-                    >
+                    <AdminForm id="asignacion" state={asignacion} onSubmit={handleCrearAsignacion} className="space-y-4">
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-asigDocenteId" className="mb-1 block text-sm font-medium text-text-secondary">
                           Docente
                         </label>
-                        <select
+                        <select id="admin-asigDocenteId"
                           value={asigDocenteId}
                           onChange={(e) =>
                             setAsigDocenteId(Number(e.target.value))
                           }
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         >
                           {docentes.map((d) => (
                             <option key={d.id} value={d.id}>
@@ -265,16 +253,16 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-asigCursoId" className="mb-1 block text-sm font-medium text-text-secondary">
                           Curso / Asignatura
                         </label>
-                        <select
+                        <select id="admin-asigCursoId"
                           value={asigCursoId}
                           onChange={(e) =>
                             setAsigCursoId(Number(e.target.value))
                           }
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         >
                           {catalogo?.cursos.map((c) => (
                             <option key={c.id} value={c.id}>
@@ -285,16 +273,16 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-asigSemestreId" className="mb-1 block text-sm font-medium text-text-secondary">
                           Semestre Académico
                         </label>
-                        <select
+                        <select id="admin-asigSemestreId"
                           value={asigSemestreId}
                           onChange={(e) =>
                             setAsigSemestreId(Number(e.target.value))
                           }
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         >
                           {catalogo?.semestres.map((s) => (
                             <option key={s.id} value={s.id}>
@@ -305,15 +293,15 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-asigSeccion" className="mb-1 block text-sm font-medium text-text-secondary">
                           Sección (Ej. A, B, Única)
                         </label>
-                        <input
+                        <input id="admin-asigSeccion"
                           type="text"
                           value={asigSeccion}
                           onChange={(e) => setAsigSeccion(e.target.value)}
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
 
@@ -325,7 +313,7 @@ export default function AdminDashboardPage() {
                       >
                         Asignar y generar carpeta
                       </Button>
-                    </form>
+                    </AdminForm>
                   </Card>
                 </div>
 
@@ -394,45 +382,45 @@ export default function AdminDashboardPage() {
                     <CardHeader className="mb-4">
                       <CardTitle>Registrar Nuevo Curso UNT</CardTitle>
                     </CardHeader>
-                    <form onSubmit={handleCrearCurso} className="space-y-3">
+                    <AdminForm id="curso" state={curso} onSubmit={handleCrearCurso} className="space-y-3">
                       <div className="grid grid-cols-3 gap-3">
                         <div className="col-span-2">
-                          <label className="mb-1 block text-sm font-medium text-text-secondary">
+                          <label htmlFor="admin-curCodigo" className="mb-1 block text-sm font-medium text-text-secondary">
                             Código (Ej. ING-601)
                           </label>
-                          <input
+                          <input id="admin-curCodigo"
                             type="text"
                             value={curCodigo}
                             onChange={(e) => setCurCodigo(e.target.value)}
                             required
-                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-sm font-medium text-text-secondary">
+                          <label htmlFor="admin-curCiclo" className="mb-1 block text-sm font-medium text-text-secondary">
                             Ciclo
                           </label>
-                          <input
+                          <input id="admin-curCiclo"
                             type="number"
                             value={curCiclo}
                             onChange={(e) =>
                               setCurCiclo(Number(e.target.value))
                             }
                             required
-                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-curNombre" className="mb-1 block text-sm font-medium text-text-secondary">
                           Nombre de la Asignatura
                         </label>
-                        <input
+                        <input id="admin-curNombre"
                           type="text"
                           value={curNombre}
                           onChange={(e) => setCurNombre(e.target.value)}
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
                       <Button
@@ -443,7 +431,7 @@ export default function AdminDashboardPage() {
                       >
                         Guardar Curso
                       </Button>
-                    </form>
+                    </AdminForm>
                   </Card>
 
                   <Card>
@@ -486,40 +474,40 @@ export default function AdminDashboardPage() {
                         Registrar Docente / Revisor (@unitru.edu.pe)
                       </CardTitle>
                     </CardHeader>
-                    <form onSubmit={handleCrearUsuario} className="space-y-3">
+                    <AdminForm id="usuario" state={usuario} onSubmit={handleCrearUsuario} className="space-y-3">
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-usrNombre" className="mb-1 block text-sm font-medium text-text-secondary">
                           Grado y Apellidos/Nombres
                         </label>
-                        <input
+                        <input id="admin-usrNombre"
                           type="text"
                           value={usrNombre}
                           onChange={(e) => setUsrNombre(e.target.value)}
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
                       <div className="grid grid-cols-3 gap-3">
                         <div className="col-span-2">
-                          <label className="mb-1 block text-sm font-medium text-text-secondary">
+                          <label htmlFor="admin-usrEmail" className="mb-1 block text-sm font-medium text-text-secondary">
                             Correo @unitru.edu.pe
                           </label>
-                          <input
+                          <input id="admin-usrEmail"
                             type="email"
                             value={usrEmail}
                             onChange={(e) => setUsrEmail(e.target.value)}
                             required
-                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-sm font-medium text-text-secondary">
+                          <label htmlFor="admin-usrRol" className="mb-1 block text-sm font-medium text-text-secondary">
                             Rol
                           </label>
-                          <select
+                          <select id="admin-usrRol"
                             value={usrRol}
                             onChange={(e) => setUsrRol(e.target.value)}
-                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                            className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                           >
                             <option value="docente">Docente</option>
                             <option value="revisor">Revisor</option>
@@ -528,14 +516,14 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-usrCategoria" className="mb-1 block text-sm font-medium text-text-secondary">
                           Categoría Docente
                         </label>
-                        <input
+                        <input id="admin-usrCategoria"
                           type="text"
                           value={usrCategoria}
                           onChange={(e) => setUsrCategoria(e.target.value)}
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
                       <Button
@@ -546,7 +534,7 @@ export default function AdminDashboardPage() {
                       >
                         Registrar Usuario
                       </Button>
-                    </form>
+                    </AdminForm>
                   </Card>
 
                   <Card>
@@ -595,41 +583,41 @@ export default function AdminDashboardPage() {
                     <CardHeader className="mb-4">
                       <CardTitle>Abrir semestre académico</CardTitle>
                     </CardHeader>
-                    <form onSubmit={handleCrearSemestre} className="space-y-4">
+                    <AdminForm id="semestre" state={semestre} onSubmit={handleCrearSemestre} className="space-y-4">
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-semNombre" className="mb-1 block text-sm font-medium text-text-secondary">
                           Denominación (Ej. 2027-I)
                         </label>
-                        <input
+                        <input id="admin-semNombre"
                           type="text"
                           value={semNombre}
                           onChange={(e) => setSemNombre(e.target.value)}
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-semInicio" className="mb-1 block text-sm font-medium text-text-secondary">
                           Fecha de Inicio
                         </label>
-                        <input
+                        <input id="admin-semInicio"
                           type="date"
                           value={semInicio}
                           onChange={(e) => setSemInicio(e.target.value)}
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-text-secondary">
+                        <label htmlFor="admin-semFin" className="mb-1 block text-sm font-medium text-text-secondary">
                           Fecha de Término
                         </label>
-                        <input
+                        <input id="admin-semFin"
                           type="date"
                           value={semFin}
                           onChange={(e) => setSemFin(e.target.value)}
                           required
-                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                          className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
                       </div>
                       <Button
@@ -640,7 +628,7 @@ export default function AdminDashboardPage() {
                       >
                         Crear y Activar Semestre
                       </Button>
-                    </form>
+                    </AdminForm>
                   </Card>
                 </div>
 
