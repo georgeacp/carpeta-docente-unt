@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import AwareDatetime, BaseModel, model_validator
+from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, require_roles
@@ -24,8 +25,17 @@ class CrearSemestreRequest(BaseModel):
     nombre: str
     inicio: date
     fin: date
-    fecha_limite: datetime
+    fecha_limite: AwareDatetime
     activo: bool = True
+
+    @model_validator(mode="after")
+    def validar_fechas(self):
+        if self.inicio > self.fin:
+            raise ValueError("La fecha de inicio no puede ser posterior al término.")
+        if self.fecha_limite.astimezone(ZoneInfo("America/Lima")).date() < self.fin:
+            raise ValueError("La fecha límite no puede ser anterior al término en hora de Perú.")
+        self.fecha_limite = self.fecha_limite.astimezone(timezone.utc)
+        return self
 
 
 class CrearCursoRequest(BaseModel):
@@ -69,7 +79,7 @@ def obtener_catalogo_completo(
                 "nombre": s.nombre,
                 "inicio": s.inicio.isoformat(),
                 "fin": s.fin.isoformat(),
-                "fecha_limite": s.fecha_limite.isoformat(),
+                "fecha_limite": s.fecha_limite.replace(tzinfo=timezone.utc).isoformat(),
                 "activo": s.activo,
             }
             for s in semestres

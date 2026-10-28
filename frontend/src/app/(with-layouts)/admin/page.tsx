@@ -26,6 +26,7 @@ import {
   apiFetchCatalogoAdmin,
   CatalogoAdmin,
 } from "@/lib/api";
+import { academicDeadline, formatAcademicDeadline, validateSemester } from "@/lib/academic-dates";
 import { cn } from "@/utils/cn";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -64,7 +65,9 @@ export default function AdminDashboardPage() {
   const [semNombre, setSemNombre] = useState("2027-I");
   const [semInicio, setSemInicio] = useState("2027-04-01");
   const [semFin, setSemFin] = useState("2027-07-30");
-  const [semLimite] = useState("2027-08-05T23:59:00Z");
+  const [semLimiteFecha, setSemLimiteFecha] = useState("");
+  const [semLimiteHora, setSemLimiteHora] = useState("23:59");
+  const semLimite = semLimiteFecha || semFin;
 
   const cargarDatos = () => {
     apiFetchCatalogoAdmin()
@@ -153,11 +156,12 @@ export default function AdminDashboardPage() {
     e.preventDefault();
 
     await semestre.run(async () => {
+      validateSemester(semInicio, semFin, semLimite);
       await apiCrearSemestre({
         nombre: semNombre,
         inicio: semInicio,
         fin: semFin,
-        fecha_limite: semLimite,
+        fecha_limite: academicDeadline(semLimite, semLimiteHora),
         activo: true,
       });
       toast.success(`Semestre ${semNombre} aperturado exitosamente.`);
@@ -615,10 +619,24 @@ export default function AdminDashboardPage() {
                         <input id="admin-semFin"
                           type="date"
                           value={semFin}
+                          min={semInicio}
                           onChange={(e) => setSemFin(e.target.value)}
                           required
                           className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:text-sm"
                         />
+                      </div>
+                      <div>
+                        <label htmlFor="semester-deadline-date" className="mb-1 block text-sm font-medium text-text-secondary">Fecha límite de cierre (hora de Perú)</label>
+                        <input id="semester-deadline-date" type="date" required min={semFin} value={semLimite} onChange={(event) => setSemLimiteFecha(event.target.value)} aria-describedby="semester-deadline-help" className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-brand-500" />
+                      </div>
+                      <div>
+                        <label htmlFor="semester-deadline-time" className="mb-1 block text-sm font-medium text-text-secondary">Hora límite (hora de Perú)</label>
+                        <input id="semester-deadline-time" type="time" required value={semLimiteHora} onChange={(event) => setSemLimiteHora(event.target.value)} aria-describedby="semester-deadline-help" className="min-h-11 w-full rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary focus-visible:outline-2 focus-visible:outline-brand-500" />
+                      </div>
+                      <p id="semester-deadline-help" className="text-sm text-text-secondary">America/Lima (UTC−05). Se sugiere el día de término a las 23:59; puedes cambiarlo.</p>
+                      <div role="status" className="space-y-2 text-sm text-text-secondary">
+                        <p>Plazo de cierre: {semLimite && semLimiteHora ? formatAcademicDeadline(academicDeadline(semLimite, semLimiteHora)) : "Completa fecha y hora"} (hora de Perú).</p>
+                        <p>Al activar este semestre se desactivará el semestre vigente.</p>
                       </div>
                       <Button
                         type="submit"
@@ -656,9 +674,7 @@ export default function AdminDashboardPage() {
                             <TableCell>{s.inicio}</TableCell>
                             <TableCell>{s.fin}</TableCell>
                             <TableCell>
-                              {new Date(s.fecha_limite).toLocaleDateString(
-                                "es-PE",
-                              )}
+                              {formatAcademicDeadline(s.fecha_limite) + " (Perú)"}
                             </TableCell>
                             <TableCell>
                               <Badge

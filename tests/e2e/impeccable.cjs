@@ -74,10 +74,30 @@ async function adminForms(browser) {
   await context.close();
 }
 
+
+async function semesterDeadline(browser) {
+  const context = await browser.newContext({timezoneId:'Asia/Tokyo'}); await seed(context,{...user,rol:'admin'});
+  await context.route('**/api/admin/catalogo',r => r.fulfill({json:catalogo}));
+  let saved;
+  await context.route('**/api/admin/semestres',async r => {saved = r.request().postDataJSON();await r.fulfill({json:{id:99105}});});
+  const page = await context.newPage();page.setDefaultNavigationTimeout(120000);
+  await page.goto(`${base}/admin`);
+  await page.getByRole('button',{name:'Semestres',exact:true}).click();
+  await page.getByLabel('Fecha de Inicio',{exact:true}).fill('2028-04-01');
+  await page.getByLabel('Fecha de Término',{exact:true}).fill('2028-07-30');
+  assert.equal(await page.getByLabel('Fecha límite de cierre (hora de Perú)',{exact:true}).inputValue(),'2028-07-30');
+  await page.getByLabel('Hora límite (hora de Perú)',{exact:true}).fill('22:30');
+  await page.getByRole('button',{name:'Crear y Activar Semestre',exact:true}).click();
+  await page.locator('#semestre').getByText('Operación completada.',{exact:true}).waitFor();
+  assert.equal(saved.fecha_limite,'2028-07-31T03:30:00.000Z');
+  await context.close();
+}
+
 async function main() {
   const browser = await chromium.launch({channel:'chrome',headless:true});
   try {
     if (!process.argv[2] || process.argv[2] === 'profile') { await profile(browser); console.log('PASS perfil: roles, recuperación, rutas antiguas y cierre de sesión'); }
+    if (!process.argv[2] || process.argv[2] === 'semester') { await semesterDeadline(browser); console.log('PASS semestre: año nuevo, zona de navegador independiente y UTC correcto'); }
     if (!process.argv[2] || process.argv[2] === 'admin') { await adminForms(browser); console.log('PASS administración: etiquetas, bloqueo de envío, error y reintento'); }
   }
   finally { await browser.close(); }
