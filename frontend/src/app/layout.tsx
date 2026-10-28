@@ -34,9 +34,9 @@ export default function RootLayout({
     <html
       suppressHydrationWarning
       lang="es"
-      className={cn("h-full overflow-hidden antialiased", geistInter.className)}
+      className={cn("h-full antialiased", geistInter.className)}
     >
-      <body className="h-full overflow-hidden bg-background-gray-secondary_alt_2">
+      <body className="h-full overflow-x-hidden bg-background-gray-secondary_alt_2">
         <ThemeProvider defaultTheme="light" enableSystem>
           <Providers>{children}</Providers>
         </ThemeProvider>

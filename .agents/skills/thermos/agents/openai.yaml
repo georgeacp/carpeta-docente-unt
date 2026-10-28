@@ -1,6 +1,0 @@
-interface:
-  display_name: "Thermos"
-  short_description: "Revisión doble: errores, seguridad y mantenibilidad"
-  default_prompt: "Usa $thermos para revisar mis cambios locales y entregar un informe priorizado, sin modificar archivos."
-policy:
-  allow_implicit_invocation: false

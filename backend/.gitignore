@@ -1,1 +1,15 @@
 .env
+
+# Local SQLite database and its journal files
+/*.db
+/*.db-journal
+/*.db-wal
+/*.db-shm
+/*.sqlite
+/*.sqlite3
+/*.sqlite*-journal
+/*.sqlite*-wal
+/*.sqlite*-shm
+
+# Uploaded documents and generated demonstration files
+/storage/

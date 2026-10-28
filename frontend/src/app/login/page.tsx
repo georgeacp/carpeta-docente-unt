@@ -1,5 +1,6 @@
 "use client";
 
+import { LoginIntro } from "@/components/common/login-intro";
 import LanguageSwitcher from "@/components/common/header/language-switcher";
 import ThemeToggle from "@/components/common/header/theme-toggle";
 import {
@@ -9,7 +10,6 @@ import {
   AlertIndicator,
 } from "@/components/tailgrids/core/alert";
 import { Button } from "@/components/tailgrids/core/button";
-import { Checkbox } from "@/components/tailgrids/core/checkbox";
 import {
   InputGroup,
   InputGroupAddon,
@@ -21,8 +21,7 @@ import { Spinner } from "@/components/tailgrids/core/spinner";
 import { useAuth } from "@/context/auth-context";
 import { useI18n } from "@/context/i18n-context";
 import type { Usuario } from "@/lib/api";
-import { Logo } from "@/utils/icon";
-import { Envelope1, Eye, Google, Locked3 } from "@tailgrids/icons";
+import { Envelope1, Eye, Locked3 } from "@tailgrids/icons";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { EyeClose } from "../(with-layouts)/(forms)/form-elements/_components/icons";
@@ -61,14 +60,20 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("docente@unitru.edu.pe");
   const [password, setPassword] = useState("unt2026");
-  const [selectedDemoRole, setSelectedDemoRole] = useState<Usuario["rol"] | "">("docente");
+
+  const [selectedDemoRole, setSelectedDemoRole] = useState<Usuario["rol"] | "">(
+    "docente",
+  );
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRoleSelectChange = (roleKey: string) => {
-    const account = Object.values(DEMO_ACCOUNTS).find((account) => account.id === roleKey);
+    const account = Object.values(DEMO_ACCOUNTS).find(
+      (account) => account.id === roleKey,
+    );
+
     setSelectedDemoRole(account?.id ?? "");
     setErrorMessage(null);
 
@@ -118,16 +123,16 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSSO = async () => {
+  const handleDemoAccess = async () => {
     setLoading(true);
     setErrorMessage(null);
 
     try {
       const targetRole = selectedDemoRole || "docente";
       await loginWithDemoAccount(targetRole);
-      toast.success("Autenticado con Google Workspace Institucional (@unitru.edu.pe)");
+      toast.success(t("login.success"));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error al conectar con Google SSO.";
+      const msg = err instanceof Error ? err.message : t("login.failed");
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
@@ -136,121 +141,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-background-gray-secondary_alt_2 p-3 sm:p-5 lg:p-6 text-text-primary transition-colors duration-200">
-      {/* 50/50 Split Container with Compact Height & Zero Cutoff */}
-      <div className="grid w-full max-w-4xl grid-cols-1 overflow-hidden rounded-2xl sm:rounded-3xl border border-card-border bg-card-surface-area shadow-card-2 lg:grid-cols-2">
-        {/* Left Side: Brand Visual & Single Representative Phrase */}
-        <div className="relative flex flex-col justify-between overflow-hidden bg-[#0B1727] p-6 sm:p-8 xl:p-10 text-white">
-          {/* Subtle Geometric Background Contour Lines */}
-          <div className="pointer-events-none absolute inset-0 -z-0 overflow-hidden opacity-15">
-            <svg
-              className="size-full"
-              viewBox="0 0 500 500"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <ellipse cx="120" cy="220" rx="320" ry="240" stroke="white" strokeWidth="1.5" />
-              <ellipse cx="160" cy="230" rx="280" ry="210" stroke="white" strokeWidth="1.2" />
-              <ellipse cx="200" cy="240" rx="240" ry="180" stroke="white" strokeWidth="1" />
-              <ellipse cx="240" cy="250" rx="200" ry="150" stroke="white" strokeWidth="0.8" />
-            </svg>
-          </div>
-
-          {/* Top Brand Mark */}
-          <div className="relative z-10">
-            <div className="flex items-center gap-2.5">
-              <Logo className="size-9 drop-shadow-md sm:size-10" />
-              <div className="flex flex-col">
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                  UNT · 1824
-                </span>
-                <span className="text-[10px] text-white/75 sm:text-[11px]">{t("app.faculty")}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Center: Greeting & Single Representative Phrase */}
-          <div className="relative z-10 my-6 sm:my-8 lg:my-auto">
-            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl xl:text-4xl leading-snug">
-              {t("login.heroTitle")}
-            </h2>
-            <p className="mt-2.5 text-xs font-normal leading-relaxed text-white/80 sm:text-sm max-w-[36ch]">
-              {t("login.heroPhrase")}
-            </p>
-          </div>
-
-          {/* Bottom Copyright */}
-          <div className="relative z-10 border-t border-white/10 pt-3 text-[11px] text-white/50">
-            <p>{t("login.copyright")}</p>
-          </div>
-        </div>
-
-        {/* Right Side: Clean Form with Compact Spacing */}
-        <div className="flex flex-col justify-between bg-card-surface-area p-6 sm:p-8 xl:p-10 text-text-primary">
-          {/* Top Bar: Brand Title + Theme & Language Switchers */}
-          <div className="flex items-center justify-between border-b border-card-border pb-2.5">
-            <span className="text-xs font-bold tracking-tight text-text-primary sm:text-sm">
-              {t("app.institution")}
-            </span>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <LanguageSwitcher />
-              <ThemeToggle />
-            </div>
-          </div>
-
-          {/* Form Section */}
-          <div className="my-auto py-3">
-            <div className="mb-3">
-              <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+    <div className="flex min-h-dvh flex-col bg-background-gray-secondary_alt_2 text-text-primary">
+      <div className="flex items-center justify-end gap-2 px-4 py-3 sm:px-8">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+      <div className="flex flex-1 items-center justify-center px-4 pb-6 sm:px-8">
+        <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl border border-card-border bg-card-surface-area lg:min-h-152 lg:grid-cols-[1fr_1.1fr]">
+          <LoginIntro />
+          <div className="flex flex-col justify-center px-6 py-8 sm:px-10 lg:px-14 lg:py-10">
+            <div className="mb-7">
+              <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
                 {t("login.welcomeBack")}
               </h1>
-              <p className="mt-0.5 text-xs text-text-tertiary">{t("login.welcomeSub")}</p>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
+                {t("login.welcomeSub")}
+              </p>
             </div>
-
-            {/* Subtle Demo Role Selector */}
-            <div className="mb-3">
-              <label
-                htmlFor="demo-role-select"
-                className="mb-1 block text-[11px] font-medium text-text-tertiary"
-              >
-                {t("login.demoLabel")}
-              </label>
-              <select
-                id="demo-role-select"
-                value={selectedDemoRole}
-                onChange={(e) => handleRoleSelectChange(e.target.value)}
-                className="w-full rounded-lg border border-card-border bg-input-background px-2.5 py-1 text-xs text-text-secondary outline-none transition focus:border-input-primary-focus-border focus:ring-2 focus:ring-input-primary-focus-border/20 cursor-pointer"
-              >
-                <option value="">{t("login.demoManual")}</option>
-                <option value="docente">{t("login.demoDocente")}</option>
-                <option value="revisor">{t("login.demoRevisor")}</option>
-                <option value="admin">{t("login.demoAdmin")}</option>
-              </select>
-            </div>
-
-            {/* Error Banner */}
             {errorMessage && (
-              <div className="mb-3">
-                <Alert status="error" className="w-full py-1.5">
+              <div className="mb-5" role="alert">
+                <Alert status="error" className="w-full">
                   <AlertIndicator />
                   <AlertContent>
-                    <AlertDescription className="text-xs leading-normal">
-                      {errorMessage}
-                    </AlertDescription>
+                    <AlertDescription>{errorMessage}</AlertDescription>
                   </AlertContent>
                 </Alert>
               </div>
             )}
-
-            {/* Login Form */}
-            <form onSubmit={handleFormSubmit} className="space-y-3">
-              {/* Email */}
+            <form
+              onSubmit={handleFormSubmit}
+              className="space-y-5"
+              aria-busy={loading}
+            >
               <div>
-                <Label className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
-                  {t("login.emailLabel")} <span className="text-red-500">*</span>
+                <Label
+                  htmlFor="email"
+                  className="mb-2 block text-sm font-medium text-text-primary"
+                >
+                  {t("login.emailLabel")}
                 </Label>
                 <InputGroup className="w-full">
-                  <InputGroupAddon align="inline-start" className="pl-3 pr-2 text-icon-tertiary">
+                  <InputGroupAddon
+                    align="inline-start"
+                    className="text-icon-tertiary"
+                  >
                     <Envelope1 className="size-4" />
                   </InputGroupAddon>
                   <InputGroupInput
@@ -265,20 +199,22 @@ export default function LoginPage() {
                       setSelectedDemoRole("");
                     }}
                     placeholder={t("login.emailPlaceholder")}
-                    className="py-1.5 text-xs sm:text-sm text-text-primary"
+                    className="min-h-12 text-base text-text-primary sm:text-sm"
                   />
                 </InputGroup>
               </div>
-
-              {/* Password */}
               <div>
-                <div className="mb-1 flex items-center justify-between">
-                  <Label className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
-                    {t("login.passwordLabel")} <span className="text-red-500">*</span>
-                  </Label>
-                </div>
+                <Label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-medium text-text-primary"
+                >
+                  {t("login.passwordLabel")}
+                </Label>
                 <InputGroup className="w-full">
-                  <InputGroupAddon align="inline-start" className="pl-3 pr-2 text-icon-tertiary">
+                  <InputGroupAddon
+                    align="inline-start"
+                    className="text-icon-tertiary"
+                  >
                     <Locked3 className="size-4" />
                   </InputGroupAddon>
                   <InputGroupInput
@@ -292,37 +228,33 @@ export default function LoginPage() {
                       setErrorMessage(null);
                     }}
                     placeholder="••••••••"
-                    className="py-1.5 text-xs sm:text-sm text-text-primary"
+                    className="min-h-12 text-base text-text-primary sm:text-sm"
                   />
                   <InputGroupButton
+                    type="button"
                     size="icon-sm"
-                    className="mr-2 text-icon-tertiary hover:text-text-primary"
+                    className="mr-1 min-h-11 min-w-11 text-icon-tertiary hover:text-text-primary"
                     onPress={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
+                    aria-label={
+                      showPassword
+                        ? t("login.hidePassword")
+                        : t("login.showPassword")
+                    }
                   >
-                    {showPassword ? <EyeClose className="size-4" /> : <Eye className="size-4" />}
+                    {showPassword ? (
+                      <EyeClose className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
                   </InputGroupButton>
                 </InputGroup>
               </div>
-
-              {/* Keep session */}
-              <div>
-                <Checkbox
-                  isSelected={rememberMe}
-                  onChange={setRememberMe}
-                  className="text-xs text-text-secondary cursor-pointer"
-                >
-                  {t("login.rememberMe")}
-                </Checkbox>
-              </div>
-
-              {/* Submit Button */}
               <Button
                 type="submit"
                 variant="primary"
                 size="md"
                 isDisabled={loading}
-                className="w-full font-semibold shadow-xs transition active:scale-[0.99] cursor-pointer py-2 text-xs sm:text-sm"
+                className="min-h-12 w-full font-medium shadow-none transition-colors duration-150 motion-safe:active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -333,37 +265,53 @@ export default function LoginPage() {
                   t("login.submit")
                 )}
               </Button>
-
-              {/* Google Workspace SSO Button */}
-              <Button
+              <button
                 type="button"
-                appearance="outline"
-                size="md"
-                isDisabled={loading}
-                onPress={handleGoogleSSO}
-                className="w-full border-card-border text-xs font-medium text-text-secondary transition hover:bg-background-gray-primary hover:text-text-primary cursor-pointer py-1.5"
+                onClick={() => toast.info(t("login.forgotPasswordHint"))}
+                className="block min-h-10 text-sm text-text-secondary underline-offset-4 hover:text-text-primary hover:underline"
               >
-                <Google className="size-4 text-[#4285F4]" />
-                <span>{t("login.googleSSO")}</span>
-              </Button>
-
-              {/* Forgot password subtle link */}
-              <div className="pt-0.5 text-center">
-                <button
-                  type="button"
-                  onClick={() => toast.info(t("login.forgotPasswordHint"))}
-                  className="text-xs text-text-tertiary transition hover:text-text-primary hover:underline cursor-pointer"
-                >
-                  {t("login.forgotPassword")}{" "}
-                  <span className="font-semibold text-text-primary underline">
-                    {t("login.clickHere")}
-                  </span>
-                </button>
-              </div>
+                {t("login.forgotPassword")}
+              </button>
             </form>
+            <details className="group mt-6 border-t border-card-border pt-5">
+              <summary className="cursor-pointer rounded-sm text-sm font-medium text-text-secondary marker:text-icon-tertiary hover:text-text-primary">
+                {t("login.demoNotice")}
+              </summary>
+              <div className="pt-4">
+                <p className="mb-3 text-xs leading-5 text-text-tertiary">
+                  {t("login.demoHint")}
+                </p>
+                <label htmlFor="demo-role-select" className="sr-only">
+                  {t("login.demoLabel")}
+                </label>
+                <select
+                  id="demo-role-select"
+                  value={selectedDemoRole}
+                  onChange={(e) => handleRoleSelectChange(e.target.value)}
+                  className="min-h-11 w-full cursor-pointer rounded-lg border border-input-border bg-input-background px-3 py-2 text-base text-text-primary sm:text-sm"
+                >
+                  <option value="">{t("login.demoManual")}</option>
+                  <option value="docente">{t("login.demoDocente")}</option>
+                  <option value="revisor">{t("login.demoRevisor")}</option>
+                  <option value="admin">{t("login.demoAdmin")}</option>
+                </select>
+                <Button
+                  type="button"
+                  appearance="outline"
+                  isDisabled={loading}
+                  onPress={handleDemoAccess}
+                  className="mt-3 min-h-11 w-full"
+                >
+                  {t("login.googleSSO")}
+                </Button>
+              </div>
+            </details>
           </div>
         </div>
       </div>
+      <p className="px-4 pb-5 text-center text-xs leading-5 text-text-tertiary">
+        {t("login.copyright")}
+      </p>
     </div>
   );
 }
