@@ -48,8 +48,9 @@ async function main() {
     await target.goto(`${frontend}/login`);
     await target.waitForLoadState("networkidle");
     await target.locator('button[type="submit"]').waitFor();
+    await target.getByText("Entorno de demostración", { exact: true }).click();
     await target.locator("#demo-role-select").selectOption(role);
-    await target.getByRole("button", { name: "Iniciar Sesión", exact: true }).click();
+    await target.getByRole("button", { name: "Iniciar sesión", exact: true }).click();
     await target.waitForURL(`**/${role === "revisor" ? "revisor" : "docente"}`);
   };
   const waitForCycle = (target, state) => target.locator('[aria-label="Ciclo de entregas"]').getByText(state, { exact: true }).waitFor();

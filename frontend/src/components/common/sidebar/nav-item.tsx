@@ -3,7 +3,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/tailgrids/core/collapsible";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tailgrids/core/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/tailgrids/core/tooltip";
 import { cn } from "@/utils/cn";
 import { AltArrowUpIcon } from "@/utils/icon";
 import Link from "next/link";
@@ -34,7 +38,9 @@ export default function NavItem({
 
   const isActive = href ? isPathActive(href, pathname) : false;
 
-  const hasActiveChild = items?.some((item) => item.url && isPathActive(item.url, pathname));
+  const hasActiveChild = items?.some(
+    (item) => item.url && isPathActive(item.url, pathname),
+  );
 
   // Collapsed: icon-only button centered, no dropdown
   if (collapsed) {
@@ -45,6 +51,8 @@ export default function NavItem({
             <Link
               href={href ?? items?.[0]?.url ?? "#"}
               onClick={onItemClick}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={collapsed ? label : undefined}
               className={cn(
                 "flex items-center justify-center rounded-lg px-3 py-2.5",
                 isActive || hasActiveChild
@@ -72,7 +80,7 @@ export default function NavItem({
       >
         <CollapsibleTrigger
           className={cn(
-            "group/collapsible flex w-full items-center justify-between gap-3 rounded-lg border-none bg-transparent px-3 py-2 text-sm font-medium sm:px-3 sm:py-2",
+            "group/collapsible flex w-full items-center justify-between gap-3 rounded-lg border-none bg-transparent px-3 py-3 text-sm font-medium sm:px-3 sm:py-2",
             hasActiveChild
               ? "bg-sidebar-navigation-nav-item-nav-hover-background text-text-primary"
               : "text-text-secondary transition-colors duration-200 hover:bg-sidebar-navigation-nav-item-nav-hover-background hover:text-text-primary",
@@ -96,7 +104,9 @@ export default function NavItem({
 
         <CollapsibleContent className="space-y-1 pr-0 group-data-expanded:mt-2">
           {items.map((item) => {
-            const isChildActive = item.url ? isPathActive(item.url, pathname) : false;
+            const isChildActive = item.url
+              ? isPathActive(item.url, pathname)
+              : false;
 
             return (
               <div key={item.title} className="px-0">
@@ -104,7 +114,7 @@ export default function NavItem({
                   href={item.url ?? "#"}
                   onClick={onItemClick}
                   className={cn(
-                    "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "block rounded-lg px-3 py-3 text-sm font-medium transition-colors",
                     isChildActive
                       ? "bg-sidebar-navigation-nav-item-nav-hover-background text-text-primary"
                       : "text-text-secondary hover:bg-sidebar-navigation-nav-item-nav-hover-background hover:text-text-primary",
@@ -125,11 +135,12 @@ export default function NavItem({
     href && (
       <Link
         href={href}
+        aria-current={isActive ? "page" : undefined}
         onClick={onItemClick}
         className={cn(
-          "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors",
           isActive
-            ? "bg-sidebar-navigation-nav-item-nav-hover-background text-text-primary"
+            ? "bg-sidebar-navigation-nav-item-nav-hover-background text-brand-600"
             : "text-text-secondary hover:bg-sidebar-navigation-nav-item-nav-hover-background hover:text-text-primary",
         )}
       >

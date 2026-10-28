@@ -38,8 +38,13 @@ import { toast } from "sonner";
 
 export default function DocenteCarpetaDetallePage() {
   const params = useParams();
-  const router = useRouter();
   const carpetaId = Number(params?.id);
+
+  return <CarpetaContent key={carpetaId} carpetaId={carpetaId} />;
+}
+
+function CarpetaContent({ carpetaId }: { carpetaId: number }) {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [carpeta, setCarpeta] = useState<CarpetaDetail | null>(null);
@@ -58,7 +63,6 @@ export default function DocenteCarpetaDetallePage() {
 
   useEffect(() => {
     if (!carpetaId) return;
-    setLoading(true);
     apiFetchCarpetaDetalle(carpetaId)
       .then((data) => {
         setCarpeta(data);
@@ -103,10 +107,10 @@ export default function DocenteCarpetaDetallePage() {
 
   if (loading) {
     return (
-      <div className="mt-6 px-2 lg:px-5">
+      <div className="px-4 py-7 sm:px-7 lg:px-10">
         <Card className="py-12 text-center">
           <p className="text-sm text-text-tertiary">
-            Cargando estación de trabajo de Carpeta Docente...
+            Cargando documentos del curso…
           </p>
         </Card>
       </div>
@@ -115,9 +119,9 @@ export default function DocenteCarpetaDetallePage() {
 
   if (!carpeta) {
     return (
-      <div className="mt-6 px-2 lg:px-5">
+      <div className="px-4 py-7 sm:px-7 lg:px-10">
         <Card className="py-8 text-center">
-          <p className="text-sm text-red-500">
+          <p className="text-sm text-badge-error-text">
             No se pudo encontrar la carpeta solicitada.
           </p>
         </Card>
@@ -155,9 +159,9 @@ export default function DocenteCarpetaDetallePage() {
   };
 
   return (
-    <div className="mt-6 space-y-5 px-2 lg:px-5">
+    <div className="space-y-6 px-4 py-7 sm:px-7 lg:px-10 lg:py-9">
       {/* Barra Superior de la Carpeta con KPI Compacto y Botón Auditoría */}
-      <Card>
+      <div className="border-b border-card-border pb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
@@ -167,7 +171,7 @@ export default function DocenteCarpetaDetallePage() {
                 size="xs"
                 onPress={() => router.push("/docente")}
               >
-                ← Mis Cursos
+                Volver a mis carpetas
               </Button>
               <Badge color="primary" size="sm">
                 {curso.codigo}
@@ -185,7 +189,7 @@ export default function DocenteCarpetaDetallePage() {
             <div className="min-w-56">
               <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
                 <span className="text-text-secondary">
-                  AVANCE OBLIGATORIO (RF8)
+                  Documentos obligatorios
                 </span>
                 <span className="text-text-primary">
                   {metricas.porcentaje_avance}% (
@@ -205,11 +209,11 @@ export default function DocenteCarpetaDetallePage() {
               size="sm"
               onPress={() => setDrawerOpen(true)}
             >
-              Auditoría RF10 ({historial.length})
+              Ver historial ({historial.length})
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
       <CicloCarpeta carpeta={carpeta} onUpdated={setCarpeta} />
 
@@ -219,11 +223,11 @@ export default function DocenteCarpetaDetallePage() {
         <div className="lg:col-span-4">
           <Card className="p-0 overflow-hidden">
             <div className="border-b border-card-border bg-background-gray-primary px-4 py-3.5">
-              <h2 className="text-sm font-semibold text-text-primary uppercase">
-                Ítems de la plantilla propuesta
+              <h2 className="text-base font-semibold text-text-primary">
+                Documentos del curso
               </h2>
               <p className="text-xs text-text-tertiary">
-                Seleccione una sección para subir o descargar versiones
+                Seleccione un ítem para consultar sus documentos
               </p>
             </div>
 
@@ -232,18 +236,28 @@ export default function DocenteCarpetaDetallePage() {
               {(
                 [
                   { key: "todas", label: `Todas (${secciones.length})` },
-                  { key: "observado", label: `Obs (${metricas.observadas})` },
-                  { key: "pendiente", label: `Pend (${metricas.pendientes})` },
-                  { key: "aprobado", label: `Aprob (${metricas.aprobadas})` },
+                  {
+                    key: "observado",
+                    label: `Observados (${metricas.observadas})`,
+                  },
+                  {
+                    key: "pendiente",
+                    label: `Pendientes (${metricas.pendientes})`,
+                  },
+                  {
+                    key: "aprobado",
+                    label: `Aprobados (${metricas.aprobadas})`,
+                  },
                 ] as const
               ).map((f) => (
                 <button
                   key={f.key}
+                  aria-pressed={filtroLista === f.key}
                   onClick={() => setFiltroLista(f.key)}
                   className={cn(
-                    "rounded-full px-2.5 py-1 text-xs font-medium transition",
+                    "min-h-10 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors",
                     filtroLista === f.key
-                      ? "bg-brand-500 text-white"
+                      ? "bg-brand-100 text-brand-600"
                       : "bg-background-gray-primary text-text-secondary hover:text-text-primary",
                   )}
                 >
@@ -253,7 +267,7 @@ export default function DocenteCarpetaDetallePage() {
             </div>
 
             {/* Lista de Secciones */}
-            <div className="divide-y divide-card-border">
+            <div className="max-h-64 divide-y divide-card-border overflow-y-auto lg:max-h-none">
               {seccionesFiltradas.map((sec) => {
                 const isSelected = seccionActiva?.id === sec.id;
                 const latestVersion = sec.documentos[0]?.version;
@@ -262,11 +276,12 @@ export default function DocenteCarpetaDetallePage() {
                   <button
                     key={sec.id}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedSeccionId(sec.id)}
                     className={cn(
-                      "flex w-full items-start justify-between gap-3 px-4 py-3.5 text-left transition",
+                      "flex w-full items-start justify-between gap-3 px-4 py-3.5 text-left transition-colors duration-150",
                       isSelected
-                        ? "border-l-4 border-l-brand-500 bg-background-gray-primary"
+                        ? "bg-brand-100 text-brand-600"
                         : "hover:bg-background-gray-primary/60",
                     )}
                   >
@@ -281,7 +296,8 @@ export default function DocenteCarpetaDetallePage() {
                       </p>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                         <Badge color={getEstadoColor(sec.estado)} size="sm">
-                          {sec.estado.toUpperCase()}
+                          {sec.estado.charAt(0).toUpperCase() +
+                            sec.estado.slice(1)}
                         </Badge>
                         {latestVersion && (
                           <Badge color="gray" size="sm">
@@ -302,27 +318,14 @@ export default function DocenteCarpetaDetallePage() {
           {seccionActiva && (
             <Card className="space-y-5">
               <CardHeader className="border-b border-card-border pb-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge color="primary" size="sm">
-                    SECCIÓN #{seccionActiva.plantilla.orden}
-                  </Badge>
-                  <Badge
-                    color={
-                      seccionActiva.plantilla.obligatoria ? "blue" : "gray"
-                    }
-                    size="sm"
-                  >
-                    {seccionActiva.plantilla.obligatoria
-                      ? "OBLIGATORIA"
-                      : "OPCIONAL"}
-                  </Badge>
-                  <Badge color="gray" size="sm">
-                    Formatos: {formatosPermitidos.join(", ").toUpperCase()}
-                  </Badge>
-                </div>
-
-                <Badge color={getEstadoColor(seccionActiva.estado)} size="md">
-                  ESTADO: {seccionActiva.estado.toUpperCase()}
+                <span className="text-sm text-text-secondary">
+                  {seccionActiva.plantilla.obligatoria
+                    ? "Documento obligatorio"
+                    : "Documento opcional"}
+                </span>
+                <Badge color={getEstadoColor(seccionActiva.estado)} size="sm">
+                  {seccionActiva.estado.charAt(0).toUpperCase() +
+                    seccionActiva.estado.slice(1)}
                 </Badge>
               </CardHeader>
 
@@ -341,42 +344,37 @@ export default function DocenteCarpetaDetallePage() {
                 .map((obs) => (
                   <div
                     key={obs.id}
-                    className="rounded-xl border border-amber-500/50 bg-amber-500/10 p-4"
+                    className="rounded-xl bg-badge-warning-background p-4"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-amber-600">
-                        Observación Emitida por Dirección de Escuela (
-                        {obs.revisor_nombre})
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <span className="text-sm font-semibold text-badge-warning-text">
+                        Observación de {obs.revisor_nombre}
                       </span>
                       <Badge color="warning" size="sm">
-                        PENDIENTE DE SUBSANAR
+                        Pendiente
                       </Badge>
                     </div>
                     <p className="mt-1.5 text-sm text-text-primary">
                       {obs.texto}
                     </p>
-                    <p className="mt-2 text-xs font-medium text-amber-600">
-                      Instrucción: Suba una nueva versión corregida en el
-                      recuadro inferior para presentar la corrección. Reenvíe el
-                      hito para que el Director confirme la subsanación.
+                    <p className="mt-2 text-xs font-medium text-badge-warning-text">
+                      Cargue la versión corregida y reenvíe la entrega para que
+                      el Director confirme la subsanación.
                     </p>
                   </div>
                 ))}
 
               {/* Zona Interactiva de Subida y Versionado (RF5) */}
-              <div className="rounded-2xl border-2 border-dashed border-brand-500/40 bg-background-gray-primary p-6 text-center">
+              <div className="rounded-xl border border-dashed border-input-border bg-background-gray-primary p-6 text-center">
                 <h3 className="text-base font-semibold text-text-primary">
                   {seccionActiva.documentos.length > 0
-                    ? `Reemplazar con Nueva Versión (Generará Versión v${
-                        seccionActiva.documentos[0].version + 1
-                      })`
-                    : "Subir Evidencia Inicial (Versión v1)"}
+                    ? `Subir versión ${seccionActiva.documentos[0].version + 1}`
+                    : "Subir primer documento"}
                 </h3>
                 <p className="mt-1 text-xs text-text-tertiary">
                   Extensiones aceptadas:{" "}
                   <strong>{formatosPermitidos.join(", ").toUpperCase()}</strong>{" "}
-                  · Tamaño máximo: 20 MB · Almacenamiento con control de
-                  versiones (RF5)
+                  · Máximo 20 MB. Las versiones anteriores se conservan.
                 </p>
 
                 <input
@@ -398,21 +396,18 @@ export default function DocenteCarpetaDetallePage() {
                     onPress={() => fileInputRef.current?.click()}
                   >
                     {uploading
-                      ? "Subiendo y versionando..."
+                      ? "Subiendo documento…"
                       : seccionActiva.documentos.length > 0
-                        ? `Seleccionar Archivo para Versión v${
-                            seccionActiva.documentos[0].version + 1
-                          }`
-                        : "Seleccionar Archivo desde mi Equipo"}
+                        ? `Seleccionar archivo (v${seccionActiva.documentos[0].version + 1})`
+                        : "Seleccionar archivo"}
                   </Button>
                 </div>
               </div>
 
               {/* Tabla de Control de Versiones del Documento (RF5) */}
               <div>
-                <h4 className="mb-3 text-xs font-semibold tracking-wider text-text-secondary uppercase">
-                  Historial de Versiones en esta Sección (
-                  {seccionActiva.documentos.length})
+                <h4 className="mb-3 text-sm font-medium text-text-secondary">
+                  Versiones del documento ({seccionActiva.documentos.length})
                 </h4>
 
                 {seccionActiva.documentos.length === 0 ? (
@@ -475,7 +470,7 @@ export default function DocenteCarpetaDetallePage() {
           className="w-96 max-w-full border-l border-card-border bg-card-surface-area p-5 overflow-y-auto"
         >
           <SheetTitle className="text-lg font-semibold text-text-primary">
-            Registro de Auditoría (RF10)
+            Historial de carpeta
           </SheetTitle>
           <p className="mt-1 text-xs text-text-tertiary">
             Trazabilidad institucional de subidas, reemplazos y dictámenes.

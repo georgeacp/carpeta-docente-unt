@@ -37,8 +37,13 @@ import { toast } from "sonner";
 
 export default function RevisorCarpetaDetallePage() {
   const params = useParams();
-  const router = useRouter();
   const carpetaId = Number(params?.id);
+
+  return <CarpetaContent key={carpetaId} carpetaId={carpetaId} />;
+}
+
+function CarpetaContent({ carpetaId }: { carpetaId: number }) {
+  const router = useRouter();
 
   const [carpeta, setCarpeta] = useState<CarpetaDetail | null>(null);
 
@@ -51,7 +56,6 @@ export default function RevisorCarpetaDetallePage() {
 
   useEffect(() => {
     if (!carpetaId) return;
-    setLoading(true);
     apiFetchCarpetaDetalle(carpetaId)
       .then((data) => {
         setCarpeta(data);
@@ -74,7 +78,7 @@ export default function RevisorCarpetaDetallePage() {
 
   if (loading) {
     return (
-      <div className="mt-6 px-2 lg:px-5">
+      <div className="px-4 py-7 sm:px-7 lg:px-10">
         <Card className="py-12 text-center">
           <p className="text-sm text-text-tertiary">
             Cargando carpeta para dictamen...
@@ -86,9 +90,11 @@ export default function RevisorCarpetaDetallePage() {
 
   if (!carpeta) {
     return (
-      <div className="mt-6 px-2 lg:px-5">
+      <div className="px-4 py-7 sm:px-7 lg:px-10">
         <Card className="py-8 text-center">
-          <p className="text-sm text-red-500">Carpeta no encontrada.</p>
+          <p className="text-sm text-badge-error-text">
+            Carpeta no encontrada.
+          </p>
         </Card>
       </div>
     );
@@ -113,9 +119,9 @@ export default function RevisorCarpetaDetallePage() {
   };
 
   return (
-    <div className="mt-6 space-y-5 px-2 lg:px-5">
+    <div className="space-y-6 px-4 py-7 sm:px-7 lg:px-10 lg:py-9">
       {/* Cabecera Superior del Dictaminador */}
-      <Card>
+      <div className="border-b border-card-border pb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
@@ -125,7 +131,7 @@ export default function RevisorCarpetaDetallePage() {
                 size="xs"
                 onPress={() => router.push("/revisor")}
               >
-                ← Volver al Tablero
+                Volver a revisión
               </Button>
               <Badge color="primary" size="sm">
                 {curso.codigo}
@@ -135,7 +141,7 @@ export default function RevisorCarpetaDetallePage() {
               </Badge>
             </div>
             <h1 className="text-xl font-semibold text-text-primary md:text-2xl">
-              Mesa de Dictamen: {curso.nombre} (Sección {carpeta.seccion} ·{" "}
+              Revisión: {curso.nombre} (Sección {carpeta.seccion} ·{" "}
               {semestre.nombre})
             </h1>
           </div>
@@ -143,8 +149,8 @@ export default function RevisorCarpetaDetallePage() {
           <div className="flex flex-wrap items-center gap-4">
             <div className="min-w-56">
               <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
-                <span className="text-emerald-600">
-                  APROBADAS POR DIRECCIÓN
+                <span className="text-badge-success-text">
+                  Documentos aprobados
                 </span>
                 <span className="text-text-primary">
                   {metricas.porcentaje_aprobacion}% ({metricas.aprobadas}/
@@ -154,7 +160,7 @@ export default function RevisorCarpetaDetallePage() {
               <Progress
                 progress={metricas.porcentaje_aprobacion}
                 className="max-w-full"
-                barColor="#059669"
+                barColor="var(--color-badge-success-text)"
               />
             </div>
 
@@ -164,11 +170,11 @@ export default function RevisorCarpetaDetallePage() {
               size="sm"
               onPress={() => setDrawerOpen(true)}
             >
-              Auditoría RF10 ({historial.length})
+              Ver historial ({historial.length})
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
       <CicloCarpeta carpeta={carpeta} onUpdated={setCarpeta} director />
 
@@ -178,8 +184,8 @@ export default function RevisorCarpetaDetallePage() {
         <div className="lg:col-span-4">
           <Card className="p-0 overflow-hidden">
             <div className="border-b border-card-border bg-background-gray-primary px-4 py-3.5">
-              <h2 className="text-sm font-semibold text-text-primary uppercase">
-                Biblioteca de ítems y versiones
+              <h2 className="text-base font-semibold text-text-primary">
+                Documentos del curso
               </h2>
               <p className="text-xs text-text-tertiary">
                 {metricas.entregadas} pendientes de visto bueno ·{" "}
@@ -187,7 +193,7 @@ export default function RevisorCarpetaDetallePage() {
               </p>
             </div>
 
-            <div className="divide-y divide-card-border">
+            <div className="max-h-64 divide-y divide-card-border overflow-y-auto lg:max-h-none">
               {secciones.map((sec) => {
                 const isSelected = seccionActiva?.id === sec.id;
 
@@ -195,13 +201,14 @@ export default function RevisorCarpetaDetallePage() {
                   <button
                     key={sec.id}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => {
                       setSelectedSeccionId(sec.id);
                     }}
                     className={cn(
-                      "flex w-full items-start justify-between gap-3 px-4 py-3.5 text-left transition",
+                      "flex w-full items-start justify-between gap-3 px-4 py-3.5 text-left transition-colors duration-150",
                       isSelected
-                        ? "border-l-4 border-l-amber-500 bg-background-gray-primary"
+                        ? "bg-brand-100 text-brand-600"
                         : "hover:bg-background-gray-primary/60",
                     )}
                   >
@@ -216,7 +223,8 @@ export default function RevisorCarpetaDetallePage() {
                       </p>
                       <div className="mt-1.5 flex items-center gap-2">
                         <Badge color={getEstadoColor(sec.estado)} size="sm">
-                          {sec.estado.toUpperCase()}
+                          {sec.estado.charAt(0).toUpperCase() +
+                            sec.estado.slice(1)}
                         </Badge>
                         <span className="text-xs text-text-tertiary">
                           {sec.documentos.length} archivo(s)
@@ -258,24 +266,24 @@ export default function RevisorCarpetaDetallePage() {
                     <div
                       key={obs.id}
                       className={cn(
-                        "rounded-xl border p-3.5 text-sm",
+                        "rounded-xl p-4 text-sm",
                         obs.resuelta
-                          ? "border-blue-500/30 bg-blue-500/5"
-                          : "border-amber-500/40 bg-amber-500/10",
+                          ? "bg-background-gray-primary"
+                          : "bg-badge-warning-background",
                       )}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
                         <span className="font-semibold text-text-primary">
                           {obs.resuelta
-                            ? "Observación Subsanada"
-                            : "Observación Activa"}{" "}
+                            ? "Observación subsanada"
+                            : "Observación pendiente"}{" "}
                           · {obs.revisor_nombre}
                         </span>
                         <Badge
                           color={obs.resuelta ? "blue" : "warning"}
                           size="sm"
                         >
-                          {obs.resuelta ? "SUBSANADA" : "ACTIVA"}
+                          {obs.resuelta ? "Subsanada" : "Pendiente"}
                         </Badge>
                       </div>
                       <p className="mt-1 text-text-secondary">{obs.texto}</p>
@@ -286,9 +294,8 @@ export default function RevisorCarpetaDetallePage() {
 
               {/* Archivos Presentados por el Docente */}
               <div>
-                <h4 className="mb-3 text-xs font-semibold tracking-wider text-text-secondary uppercase">
-                  Documentos Presentados por el Docente (
-                  {seccionActiva.documentos.length})
+                <h4 className="mb-3 text-sm font-medium text-text-secondary">
+                  Versiones del documento ({seccionActiva.documentos.length})
                 </h4>
 
                 {seccionActiva.documentos.length === 0 ? (
@@ -346,14 +353,14 @@ export default function RevisorCarpetaDetallePage() {
         </div>
       </div>
 
-      {/* Sheet Lateral de Historial de Acciones (RF10) */}
+      {/* Sheet Lateral de Historial de carpeta */}
       <SheetOverlay isOpen={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent
           side="right"
           className="w-96 max-w-full border-l border-card-border bg-card-surface-area p-5 overflow-y-auto"
         >
           <SheetTitle className="text-lg font-semibold text-text-primary">
-            Historial de Acciones (RF10)
+            Historial de carpeta
           </SheetTitle>
           <p className="mt-1 text-xs text-text-tertiary">
             Registro cronológico de auditoría de esta carpeta.

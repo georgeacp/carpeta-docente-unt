@@ -81,18 +81,24 @@
 
   /* Primary */
   --color-button-primary-background: var(--button-primary-background);
-  --color-button-primary-hover-background: var(--button-primary-hover-background);
+  --color-button-primary-hover-background: var(
+    --button-primary-hover-background
+  );
   --color-button-primary-text: var(--button-primary-text);
   --color-button-primary-focus-ring: var(--button-primary-focus-ring);
 
   /* Outline */
   --color-button-outline-background: var(--button-outline-background);
-  --color-button-outline-hover-background: var(--button-outline-hover-background);
+  --color-button-outline-hover-background: var(
+    --button-outline-hover-background
+  );
   --color-button-outline-border: var(--button-outline-border);
   --color-button-outline-focus-ring: var(--button-outline-focus-ring);
   --color-button-outline-text: var(--button-outline-text);
   --color-button-outline-hover-text: var(--button-outline-hover-text);
-  --color-button-outline-disabled-background: var(--button-outline-disabled-background);
+  --color-button-outline-disabled-background: var(
+    --button-outline-disabled-background
+  );
   --color-button-outline-disabled-text: var(--button-outline-disabled-text);
   --color-button-outline-disabled-border: var(--button-outline-disabled-border);
 
@@ -109,29 +115,51 @@
   --color-button-error-focus-ring: var(--button-error-focus-ring);
 
   /* Error Outline */
-  --color-button-error-outline-background: var(--button-error-outline-background);
-  --color-button-error-outline-hover-background: var(--button-error-outline-hover-background);
+  --color-button-error-outline-background: var(
+    --button-error-outline-background
+  );
+  --color-button-error-outline-hover-background: var(
+    --button-error-outline-hover-background
+  );
   --color-button-error-outline-border: var(--button-error-outline-border);
-  --color-button-error-outline-focus-border: var(--button-error-outline-focus-border);
-  --color-button-error-outline-focus-ring: var(--button-error-outline-focus-ring);
+  --color-button-error-outline-focus-border: var(
+    --button-error-outline-focus-border
+  );
+  --color-button-error-outline-focus-ring: var(
+    --button-error-outline-focus-ring
+  );
   --color-button-error-outline-text: var(--button-error-outline-text);
-  --color-button-error-outline-hover-text: var(--button-error-outline-hover-text);
+  --color-button-error-outline-hover-text: var(
+    --button-error-outline-hover-text
+  );
 
   /* Success */
   --color-button-success-background: var(--button-success-background);
-  --color-button-success-hover-background: var(--button-success-hover-background);
+  --color-button-success-hover-background: var(
+    --button-success-hover-background
+  );
   --color-button-success-border: var(--button-success-border);
   --color-button-success-text: var(--button-success-text);
   --color-button-success-focus-ring: var(--button-success-focus-ring);
 
   /* Success Outline */
-  --color-button-success-outline-background: var(--button-success-outline-background);
-  --color-button-success-outline-hover-background: var(--button-success-outline-hover-background);
+  --color-button-success-outline-background: var(
+    --button-success-outline-background
+  );
+  --color-button-success-outline-hover-background: var(
+    --button-success-outline-hover-background
+  );
   --color-button-success-outline-border: var(--button-success-outline-border);
-  --color-button-success-outline-focus-border: var(--button-success-outline-focus-border);
+  --color-button-success-outline-focus-border: var(
+    --button-success-outline-focus-border
+  );
   --color-button-success-outline-text: var(--button-success-outline-text);
-  --color-button-success-outline-hover-text: var(--button-success-outline-hover-text);
-  --color-button-success-outline-focus-ring: var(--button-success-outline-focus-ring);
+  --color-button-success-outline-hover-text: var(
+    --button-success-outline-hover-text
+  );
+  --color-button-success-outline-focus-ring: var(
+    --button-success-outline-focus-ring
+  );
 
   /* Ghost */
   --color-button-ghost-text: var(--button-ghost-text);
@@ -139,13 +167,21 @@
   --color-button-ghost-hover-background: var(--button-ghost-hover-background);
 
   /* Button Group Primary */
-  --color-button-group-primary-background: var(--button-group-primary-background);
-  --color-button-group-primary-hover-background: var(--button-group-primary-hover-background);
+  --color-button-group-primary-background: var(
+    --button-group-primary-background
+  );
+  --color-button-group-primary-hover-background: var(
+    --button-group-primary-hover-background
+  );
   --color-button-group-primary-text: var(--button-group-primary-text);
-  --color-button-group-primary-hover-text: var(--button-group-primary-hover-text);
+  --color-button-group-primary-hover-text: var(
+    --button-group-primary-hover-text
+  );
 
   /* Button Group Secondary */
-  --color-button-group-secondary-background: var(--button-group-secondary-background);
+  --color-button-group-secondary-background: var(
+    --button-group-secondary-background
+  );
   --color-button-group-secondary-text: var(--button-group-secondary-text);
 
   /* ======== Badge Color =========*/
@@ -226,7 +262,9 @@
   /* Nav Item */
   --color-sidebar-nav-default-background: var(--sidebar-nav-default-background);
   --color-sidebar-nav-hover-background: var(--sidebar-nav-hover-background);
-  --color-sidebar-nav-secondary-hover-background: var(--sidebar-nav-secondary-hover-background);
+  --color-sidebar-nav-secondary-hover-background: var(
+    --sidebar-nav-secondary-hover-background
+  );
   --color-sidebar-nav-hover-text: var(--sidebar-nav-hover-text);
   --color-sidebar-nav-active-text: var(--sidebar-nav-active-text);
   --color-sidebar-nav-active-background: var(--sidebar-nav-active-background);
@@ -257,8 +295,12 @@
   --color-alert-success-close-icon: var(--alert-success-close-icon);
   --color-alert-success-title: var(--alert-success-title);
   --color-alert-success-description: var(--alert-success-description);
-  --color-alert-success-button-background: var(--alert-success-button-background);
-  --color-alert-success-button-hover-background: var(--alert-success-button-hover-background);
+  --color-alert-success-button-background: var(
+    --alert-success-button-background
+  );
+  --color-alert-success-button-hover-background: var(
+    --alert-success-button-hover-background
+  );
   --color-alert-success-button-text: var(--alert-success-button-text);
 
   /* ======== Alert Danger Color =========*/
@@ -269,7 +311,9 @@
   --color-alert-danger-title: var(--alert-danger-title);
   --color-alert-danger-description: var(--alert-danger-description);
   --color-alert-danger-button-background: var(--alert-danger-button-background);
-  --color-alert-danger-button-hover-background: var(--alert-danger-button-hover-background);
+  --color-alert-danger-button-hover-background: var(
+    --alert-danger-button-hover-background
+  );
   --color-alert-danger-button-text: var(--alert-danger-button-text);
 
   /* ======== Alert Info Color =========*/
@@ -280,7 +324,9 @@
   --color-alert-info-title: var(--alert-info-title);
   --color-alert-info-description: var(--alert-info-description);
   --color-alert-info-button-background: var(--alert-info-button-background);
-  --color-alert-info-button-hover-background: var(--alert-info-button-hover-background);
+  --color-alert-info-button-hover-background: var(
+    --alert-info-button-hover-background
+  );
   --color-alert-info-button-text: var(--alert-info-button-text);
 
   /* ======== Alert Warning Color =========*/
@@ -290,8 +336,12 @@
   --color-alert-warning-close-icon: var(--alert-warning-close-icon);
   --color-alert-warning-title: var(--alert-warning-title);
   --color-alert-warning-description: var(--alert-warning-description);
-  --color-alert-warning-button-background: var(--alert-warning-button-background);
-  --color-alert-warning-button-hover-background: var(--alert-warning-button-hover-background);
+  --color-alert-warning-button-background: var(
+    --alert-warning-button-background
+  );
+  --color-alert-warning-button-hover-background: var(
+    --alert-warning-button-hover-background
+  );
   --color-alert-warning-button-text: var(--alert-warning-button-text);
 
   /* ======== Alert Default Color =========*/
@@ -301,8 +351,12 @@
   --color-alert-default-close-icon: var(--alert-default-close-icon);
   --color-alert-default-title: var(--alert-default-title);
   --color-alert-default-description: var(--alert-default-description);
-  --color-alert-default-button-background: var(--alert-default-button-background);
-  --color-alert-default-button-hover-background: var(--alert-default-button-hover-background);
+  --color-alert-default-button-background: var(
+    --alert-default-button-background
+  );
+  --color-alert-default-button-hover-background: var(
+    --alert-default-button-hover-background
+  );
   --color-alert-default-button-text: var(--alert-default-button-text);
 
   /* ======== Input Color =========*/
@@ -321,7 +375,9 @@
   /* ======== Tab Color =========*/
   --color-tab-background: var(--tab-background);
   --color-tab-active-background: var(--tab-active-background);
-  --color-tab-secondary-active-background: var(--tab-secondary-active-background);
+  --color-tab-secondary-active-background: var(
+    --tab-secondary-active-background
+  );
 
   /* ======== Checkbox Color =========*/
   --color-checkbox-background: var(--checkbox-background);
@@ -335,7 +391,9 @@
   /* ======== Datepicker Color =========*/
   --color-datepicker-background: var(--datepicker-background);
   --color-datepicker-selected-background: var(--datepicker-selected-background);
-  --color-datepicker-selected-hover-background: var(--datepicker-selected-hover-background);
+  --color-datepicker-selected-hover-background: var(
+    --datepicker-selected-hover-background
+  );
 
   /* ======== Dropdowns Color =========*/
   --color-dropdown-background: var(--dropdown-background);
@@ -359,7 +417,9 @@
   --color-calendar-dropdown-background: var(--calendar-dropdown-background);
 
   /* ======== Pricing Table Color =========*/
-  --color-pricing-active-switcher-background: var(--pricing-active-switcher-background);
+  --color-pricing-active-switcher-background: var(
+    --pricing-active-switcher-background
+  );
   --color-pricing-active-card-background: var(--pricing-active-card-background);
   --color-pricing-button-background: var(--pricing-button-background);
   --color-pricing-icon-color: var(--pricing-icon-color);
@@ -367,16 +427,22 @@
 
   /* ======== FAQ's Color =========*/
   --color-faq-primary-active-background: var(--faq-primary-active-background);
-  --color-faq-secondary-active-background: var(--faq-secondary-active-background);
+  --color-faq-secondary-active-background: var(
+    --faq-secondary-active-background
+  );
   --color-faq-secondary-active-border: var(--faq-secondary-active-border);
   --color-faq-secondary-active-title: var(--faq-secondary-active-title);
   --color-faq-secondary-active-text: var(--faq-secondary-active-text);
 
   /* ======== Chat List Color =========*/
   --color-chat-list-background-primary: var(--chat-list-background-primary);
-  --color-chat-list-background-primary-alt: var(--chat-list-background-primary-alt);
+  --color-chat-list-background-primary-alt: var(
+    --chat-list-background-primary-alt
+  );
   --color-chat-list-background-secondary: var(--chat-list-background-secondary);
-  --color-chat-list-background-secondary-alt: var(--chat-list-background-secondary-alt);
+  --color-chat-list-background-secondary-alt: var(
+    --chat-list-background-secondary-alt
+  );
 
   /* ======== Tooltip Color =========*/
   --color-tooltip-text: var(--tooltip-text);
@@ -399,9 +465,13 @@
   --color-blog-shape: var(--blog-shape);
 
   /* ======== Modal Color =========*/
-  --color-modal-button-success-background: var(--modal-button-success-background);
+  --color-modal-button-success-background: var(
+    --modal-button-success-background
+  );
   --color-modal-button-info-background: var(--modal-button-info-background);
-  --color-modal-button-warning-background: var(--modal-button-warning-background);
+  --color-modal-button-warning-background: var(
+    --modal-button-warning-background
+  );
   --color-modal-button-error-background: var(--modal-button-error-background);
 
   /* ======== Section Title Color =========*/
@@ -444,18 +514,38 @@
   --color-map-fill: var(--map-fill);
 
   /* ======== AI Sidebar Gradient Color =========*/
-  --color-ai-sidebar-primary-gradient-shade-1: var(--ai-sidebar-primary-gradient-shade-1);
-  --color-ai-sidebar-primary-gradient-shade-2: var(--ai-sidebar-primary-gradient-shade-2);
-  --color-ai-sidebar-secondary-gradient-shade-1: var(--ai-sidebar-secondary-gradient-shade-1);
-  --color-ai-sidebar-secondary-gradient-shade-2: var(--ai-sidebar-secondary-gradient-shade-2);
+  --color-ai-sidebar-primary-gradient-shade-1: var(
+    --ai-sidebar-primary-gradient-shade-1
+  );
+  --color-ai-sidebar-primary-gradient-shade-2: var(
+    --ai-sidebar-primary-gradient-shade-2
+  );
+  --color-ai-sidebar-secondary-gradient-shade-1: var(
+    --ai-sidebar-secondary-gradient-shade-1
+  );
+  --color-ai-sidebar-secondary-gradient-shade-2: var(
+    --ai-sidebar-secondary-gradient-shade-2
+  );
 
   /* ======== AI Sidebar Menu Color =========*/
-  --color-ai-sidebar-hover-primary-shade-1: var(--ai-sidebar-hover-primary-shade-1);
-  --color-ai-sidebar-hover-primary-shade-2: var(--ai-sidebar-hover-primary-shade-2);
-  --color-ai-sidebar-hover-secondary-shade-1: var(--ai-sidebar-hover-secondary-shade-1);
-  --color-ai-sidebar-hover-secondary-shade-2: var(--ai-sidebar-hover-secondary-shade-2);
-  --color-ai-sidebar-hover-primary-background: var(--ai-sidebar-hover-primary-background);
-  --color-ai-sidebar-hover-secondary-background: var(--ai-sidebar-hover-secondary-background);
+  --color-ai-sidebar-hover-primary-shade-1: var(
+    --ai-sidebar-hover-primary-shade-1
+  );
+  --color-ai-sidebar-hover-primary-shade-2: var(
+    --ai-sidebar-hover-primary-shade-2
+  );
+  --color-ai-sidebar-hover-secondary-shade-1: var(
+    --ai-sidebar-hover-secondary-shade-1
+  );
+  --color-ai-sidebar-hover-secondary-shade-2: var(
+    --ai-sidebar-hover-secondary-shade-2
+  );
+  --color-ai-sidebar-hover-primary-background: var(
+    --ai-sidebar-hover-primary-background
+  );
+  --color-ai-sidebar-hover-secondary-background: var(
+    --ai-sidebar-hover-secondary-background
+  );
   --color-ai-title-gradient-shade-1: var(--ai-title-gradient-shade-1);
   --color-ai-title-gradient-shade-2: var(--ai-title-gradient-shade-2);
   --color-ai-hero-blend-1: var(--ai-hero-blend-1);
@@ -476,7 +566,9 @@
 
   /* ======================= Carpeta Docente UNT ======================= */
   /* backgrounds */
-  --color-background-gray-secondary_alt_2: var(--background-gray-secondary_alt_2);
+  --color-background-gray-secondary_alt_2: var(
+    --background-gray-secondary_alt_2
+  );
   --color-background-gray-secondary_alt: var(--background-gray-secondary_alt);
   --color-background-gray-primary: var(--background-gray-primary);
   --color-background-gray-secondary: var(--background-gray-secondary);
@@ -488,12 +580,18 @@
     --sidebar-navigation-nav-item-nav-hover-background
   );
   --color-background-white-secondary: var(--background-white-secondary);
-  --color-button-primary-outline-background: var(--button-primary-outline-background);
-  --color-button-primary-outline-hover-background: var(--button-primary-outline-hover-background);
+  --color-button-primary-outline-background: var(
+    --button-primary-outline-background
+  );
+  --color-button-primary-outline-hover-background: var(
+    --button-primary-outline-hover-background
+  );
   --color-dropdowns-background: var(--dropdowns-background);
   --color-background-white-primary: var(--background-white-primary);
   --color-tooltip-background: var(--tooltip-background);
-  --color-button-error-outline-background: var(--button-error-outline-background);
+  --color-button-error-outline-background: var(
+    --button-error-outline-background
+  );
   --color-badge-gray-background: var(--badge-gray-background);
   --color-badge-gray-icon: var(--badge-gray-icon);
   --color-background-gray-quaternary: var(--background-gray-quaternary);
@@ -555,7 +653,81 @@
   }
 }
 
+/* Institutional palette shared by the application and access screen. */
+:root {
+  color-scheme: light;
+  --primary-50: #eef4fa;
+  --brand-100: #e8eff7;
+  --brand-200: #cdddee;
+  --brand-300: #a4bedc;
+  --brand-400: #769bc5;
+  --brand-500: #244e7b;
+  --brand-600: #193c63;
+  --button-primary-background: var(--brand-500);
+  --button-primary-hover-background: var(--brand-600);
+  --button-primary-focus-ring: #244e7b26;
+  --input-primary-focus-border: var(--brand-500);
+  --badge-primary-background: var(--brand-100);
+  --badge-primary-text: var(--brand-600);
+  --badge-primary-icon-color: var(--brand-500);
+  --sidebar-nav-active-background: var(--brand-100);
+  --sidebar-nav-focused-background: var(--brand-100);
+  --sidebar-navigation-nav-item-nav-hover-background: var(--brand-100);
+  --background-gray-secondary_alt_2: #f3f5f7;
+  --background-gray-primary: #f7f8fa;
+  --card-surface-area: #ffffff;
+  --card-border: #dfe4e9;
+  --card-surface-border: var(--card-border);
+  --text-primary: #202d3d;
+  --text-secondary: #4e5c6c;
+  --text-tertiary: #647183;
+  --input-placeholder-text-color: var(--text-tertiary);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --brand-100: #1b2e45;
+  --brand-200: #284260;
+  --brand-300: #7da5cf;
+  --brand-400: #a4c5e7;
+  --brand-500: #8ab4df;
+  --brand-600: #b0ceed;
+  --button-primary-background: #315e8b;
+  --button-primary-hover-background: #3c70a3;
+  --badge-primary-background: var(--brand-100);
+  --badge-primary-text: var(--brand-600);
+  --background-gray-secondary_alt_2: #121a24;
+  --background-gray-primary: #192330;
+  --card-surface-area: #151f2b;
+  --card-background: #192330;
+  --card-border: #2d3b4b;
+  --text-primary: #e6edf5;
+  --text-secondary: #bbc8d7;
+  --text-tertiary: #9eafc2;
+  --input-placeholder-text-color: var(--text-tertiary);
+  --input-border: #536477;
+}
+
 @layer base {
+  ::selection {
+    color: var(--text-primary);
+    background: var(--brand-200);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand-500);
+    outline-offset: 3px;
+  }
+
+  input,
+  textarea {
+    caret-color: var(--brand-500);
+  }
+
+  [role="progressbar"] > div > div {
+    transition: transform 240ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -575,8 +747,20 @@
 /* Marquee Scroller Wrapper */
 .scroller {
   overflow: hidden;
-  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
 }
 
 .scroller .scroller__inner {
@@ -589,6 +773,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .scroller .scroller__inner {
     animation: none !important;
     flex-wrap: wrap !important;
