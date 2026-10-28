@@ -134,6 +134,7 @@ export function DocumentoRevision({
           {saveError && <p id={`review-error-${documento.id}`} role="alert" className="text-sm text-badge-warning-text">{saveError}</p>}
           <div className="flex flex-wrap gap-2">
             <Button
+              className="min-h-11"
               size="sm"
               variant="success"
               isDisabled={guardando}
@@ -142,6 +143,7 @@ export function DocumentoRevision({
               Marcar conforme
             </Button>
             <Button
+              className="min-h-11"
               size="sm"
               variant="danger"
               appearance="outline"

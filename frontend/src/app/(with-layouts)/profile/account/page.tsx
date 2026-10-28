@@ -26,7 +26,7 @@ export default function AccountPage() {
 
   if (error) return <div role="alert" className="space-y-4 text-text-primary">
     <p>{t("profile.loadError")}</p>
-    <Button onPress={() => { setLoading(true); setAttempt(attempt + 1); }}>{t("common.retry")}</Button>
+    <Button className="min-h-11" onPress={() => { setLoading(true); setAttempt(attempt + 1); }}>{t("common.retry")}</Button>
   </div>;
 
   if (!usuario) return null;
@@ -47,6 +47,6 @@ export default function AccountPage() {
         <dd className="min-w-0 break-words font-medium text-text-primary sm:col-span-2">{value || t("profile.notRecorded")}</dd>
       </div>)}
     </dl>
-    <Button appearance="outline" onPress={logout}>{t("profile.signOutHere")}</Button>
+    <Button className="min-h-11" appearance="outline" onPress={logout}>{t("profile.signOutHere")}</Button>
   </section>;
 }

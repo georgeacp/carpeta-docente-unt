@@ -4,7 +4,7 @@
   "bloqueada": true,
   "asignacion_id": 1,
   "seccion": "A",
-  "fecha_actualizacion": "2026-10-28T22:53:55.936516",
+  "fecha_actualizacion": "2026-10-28T22:53:55.936516Z",
   "docente": {
     "id": 1,
     "nombre": "Docente",
@@ -24,7 +24,7 @@
     "nombre": "2026-II",
     "inicio": "2026-08-01",
     "fin": "2026-12-01",
-    "fecha_limite": "2026-12-01T00:00:00",
+    "fecha_limite": "2026-12-01T00:00:00Z",
     "activo": true
   },
   "metricas": {
@@ -115,7 +115,8 @@
             "comentario": null,
             "subsanada_en_entrega_id": null
           }
-        ]
+        ],
+        "director_nombre": null
       }
     ]
   },
@@ -138,7 +139,7 @@
           "tamano_mb": 1.811981201171875e-05,
           "version": 1,
           "subido_por": "Docente",
-          "fecha": "2026-10-28T22:53:55.921325"
+          "fecha": "2026-10-28T22:53:55.921325Z"
         }
       ],
       "observaciones": []
@@ -161,7 +162,7 @@
           "tamano_mb": 1.811981201171875e-05,
           "version": 1,
           "subido_por": "Docente",
-          "fecha": "2026-10-28T22:53:55.928390"
+          "fecha": "2026-10-28T22:53:55.928390Z"
         }
       ],
       "observaciones": []
@@ -202,7 +203,7 @@
       "detalle": "Inicio, intento 1. Fuera de plazo.",
       "usuario_nombre": "Docente",
       "usuario_rol": "docente",
-      "fecha": "2026-10-28T22:53:55.940277"
+      "fecha": "2026-10-28T22:53:55.940277Z"
     },
     {
       "id": 2,
@@ -210,7 +211,7 @@
       "detalle": "Cargó evidencia.pdf, versión 1. No constituye un envío formal.",
       "usuario_nombre": "Docente",
       "usuario_rol": "docente",
-      "fecha": "2026-10-28T22:53:55.928176"
+      "fecha": "2026-10-28T22:53:55.928176Z"
     },
     {
       "id": 1,
@@ -218,7 +219,7 @@
       "detalle": "Cargó evidencia.pdf, versión 1. No constituye un envío formal.",
       "usuario_nombre": "Docente",
       "usuario_rol": "docente",
-      "fecha": "2026-10-28T22:53:55.920522"
+      "fecha": "2026-10-28T22:53:55.920522Z"
     }
   ]
 }

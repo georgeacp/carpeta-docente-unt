@@ -22,8 +22,8 @@ export function ReviewProgress({ entrega, processing, unsaved = false, onNext, o
     {pending > 0 && <p id="review-conclude-help" className="text-sm text-text-secondary">Evalúa los {pending} documentos pendientes antes de concluir el dictamen.</p>}
     {unsaved && <p role="status" className="text-sm text-badge-warning-text">Guarda o descarta los comentarios modificados antes de concluir.</p>}
     <div className="flex flex-wrap gap-3">
-      <Button appearance="outline" isDisabled={processing || pending === 0} onPress={onNext}>Siguiente pendiente</Button>
-      <Button isDisabled={processing || pending > 0 || total === 0 || unsaved} aria-describedby={pending > 0 ? "review-conclude-help" : undefined} onPress={onConclude}>Concluir dictamen de la entrega</Button>
+      <Button className="min-h-11" appearance="outline" isDisabled={processing || pending === 0} onPress={onNext}>Siguiente pendiente</Button>
+      <Button className="min-h-11" isDisabled={processing || pending > 0 || total === 0 || unsaved} aria-describedby={pending > 0 ? "review-conclude-help" : undefined} onPress={onConclude}>Concluir dictamen de la entrega</Button>
     </div>
   </div>;
 }

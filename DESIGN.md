@@ -23,4 +23,6 @@ Aplicación de trabajo académico para docentes, Directores de Escuela y adminis
 
 ## Verificación
 
+Las correcciones incrementales de perfil, administración y revisión cuentan con recorridos en `tests/e2e/impeccable.cjs`, capturas y reflujo en `tests/e2e/impeccable-visual.cjs` y el ciclo completo en `tests/e2e/ciclo.cjs`. Todos utilizan exclusivamente los puertos principales 3000/8000. Para el ciclo con escrituras, `backend/tests/visual_app.py` ofrece registros ficticios en memoria y el recorrido verifica su marca antes de escribir. Véase `docs/quality/impeccable.md`.
+
 `tests/e2e/interfaz.cjs` comprueba las vistas por rol, escritorio y móvil, filtros, tema oscuro, movimiento reducido y estados de carga fallida y vacío. Usa `UI_QA_FRONTEND` para una instancia local y `UI_QA_ARTIFACTS` para guardar capturas; no sube documentos ni emite decisiones académicas.

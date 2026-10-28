@@ -129,18 +129,11 @@ export function CicloCarpeta({
               : ciclo.estado.replaceAll("_", " ")}
           </Badge>
         </div>
-        <p className="text-sm text-text-secondary">
-          Inicio y seguimiento son entregas parciales. Solo la aprobación del
-          cierre integral aprueba definitivamente la carpeta.
-        </p>
-        {director && (
-          <Link
-            href="/docente"
-            className="inline-block text-sm font-medium text-text-brand-primary underline underline-offset-4"
-          >
-            Ver mis carpetas como docente
-          </Link>
-        )}
+        {director ? <details className="text-sm text-text-secondary">
+          <summary className="cursor-pointer rounded focus-visible:outline-2 focus-visible:outline-brand-500">Sobre las entregas y la aprobación final</summary>
+          <p className="mt-3">Inicio y seguimiento son entregas parciales. Solo la aprobación del cierre integral aprueba definitivamente la carpeta.</p>
+          <Link href="/docente" className="mt-3 inline-block underline underline-offset-4">Ver mis carpetas como docente</Link>
+        </details> : <p className="text-sm text-text-secondary">Inicio y seguimiento son entregas parciales. Solo la aprobación del cierre integral aprueba definitivamente la carpeta.</p>}
         {ciclo.bloqueada && (
           <p role="status" className="text-sm font-medium text-text-primary">
             {ciclo.estado === "aprobada"
@@ -188,6 +181,7 @@ export function CicloCarpeta({
               </div>
             )}
             <Button
+              className="min-h-11"
               isDisabled={
                 procesando || pendientes.length > 0 || aprobados.has(hito.id)
               }
@@ -261,6 +255,7 @@ export function CicloCarpeta({
           </p>
           <div className="flex flex-wrap justify-end gap-2">
             <Button
+              className="min-h-11"
               variant="ghost"
               isDisabled={procesando}
               onPress={() => setConfirmar(null)}

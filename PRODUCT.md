@@ -38,7 +38,7 @@ Hechos documentados en el repositorio:
 - Las presentaciones tardías están permitidas y se registran como tales.
 - El Director puede revisar su propia carpeta; el dictamen deja constancia de la autorrevisión.
 - La plantilla y las fechas iniciales son demostrativas. El editor por curso y las prórrogas están pendientes, según `docs/ciclo-carpeta.md`.
-- Notificaciones, algunas pantallas de cuenta y seguridad, y páginas heredadas de la plantilla visual no deben presentarse como funcionalidades completas sin comprobar su integración.
+- El perfil institucional consulta los datos actuales de la cuenta y no permite editarlos. Las rutas antiguas de seguridad y preferencias redirigen al perfil; no hay edición de contraseña ni notificaciones reales. Las páginas heredadas de la plantilla visual no deben presentarse como funcionalidades completas sin comprobar su integración.
 
 Las propuestas de ampliación discutidas en el chat son opciones, no compromisos de implementación.
 

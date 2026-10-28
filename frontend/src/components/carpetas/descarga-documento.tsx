@@ -34,6 +34,7 @@ export function DescargaDocumento({
 
   return (
     <Button
+              className="min-h-11"
       size="xs"
       variant="ghost"
       appearance="outline"

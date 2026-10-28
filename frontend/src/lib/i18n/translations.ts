@@ -216,6 +216,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "login.brandDetail": "Universidad Nacional de Trujillo",
     "docente.coursesTitle": "Carpetas por curso",
     "docente.foldersCount": "{count} carpetas",
+    "docente.foldersCount.one": "{count} carpeta",
     "docente.reviewBreakdown": "{approved} aprobados · {review} en revisión",
     "docente.documentsCount": "{done} de {total} documentos",
     "docente.observedCount": "{count} con observaciones",
@@ -231,11 +232,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     "revisor.average": "{count}% de avance promedio",
     "revisor.approvedHint": "Con aprobación definitiva",
     "revisor.observedHint": "Pendientes de corrección",
-    "revisor.lateHint": "{count} carpetas fuera de plazo",
+    "revisor.lateHint": "{count} carpetas incompletas con plazo de cierre vencido",
     "revisor.emptyTitle": "No hay carpetas que coincidan",
     "revisor.emptyHint": "Pruebe con otro nombre o cambie el filtro de estado.",
     "revisor.clear": "Limpiar búsqueda y filtros",
     "revisor.results": "{count} resultados",
+    "revisor.results.one": "{count} resultado",
     "revisor.docs": "Documentos",
     "revisor.docsLegend": "Aprobados / En revisión / Observados",
     "status.draft": "En elaboración",
@@ -445,6 +447,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "login.brandDetail": "National University of Trujillo",
     "docente.coursesTitle": "Portfolios by course",
     "docente.foldersCount": "{count} portfolios",
+    "docente.foldersCount.one": "{count} portfolio",
     "docente.reviewBreakdown": "{approved} approved · {review} in review",
     "docente.documentsCount": "{done} of {total} documents",
     "docente.observedCount": "{count} with observations",
@@ -465,6 +468,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "revisor.emptyHint": "Try another name or change the status filter.",
     "revisor.clear": "Clear search and filters",
     "revisor.results": "{count} results",
+    "revisor.results.one": "{count} result",
     "revisor.docs": "Documents",
     "revisor.docsLegend": "Approved / In review / Observed",
     "status.draft": "In preparation",
@@ -481,7 +485,8 @@ export function getTranslation(
   params?: Record<string, string | number>,
 ): string {
   const dictionary = translations[locale] || translations[DEFAULT_LOCALE];
-  let text = dictionary[key] || translations[DEFAULT_LOCALE][key] || key;
+  const selectedKey = params?.count === 1 && dictionary[`${key}.one`] ? `${key}.one` : key;
+  let text = dictionary[selectedKey] || translations[DEFAULT_LOCALE][selectedKey] || key;
 
   if (params) {
     Object.entries(params).forEach(([paramKey, paramVal]) => {

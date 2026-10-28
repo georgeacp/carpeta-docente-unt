@@ -5,7 +5,8 @@ export function apiMessage(detail: string | ValidationIssue[] | null | undefined
     const issues: ValidationIssue[] = detail;
 
     return issues.map((issue) => {
-      const field = issue.loc?.filter((part) => part !== "body").join(" · ");
+      const labels = new Map([["inicio", "Fecha de inicio"], ["fin", "Fecha de término"], ["fecha_limite", "Fecha límite"], ["nombre", "Nombre"], ["email", "Correo institucional"], ["codigo", "Código"], ["ciclo", "Ciclo"], ["seccion", "Sección"]]);
+      const field = issue.loc?.filter(part => part !== "body").map(part => labels.get(String(part)) || "Campo").join(" · ");
 
       const message = issue.type === "timezone_aware"
         ? "Indica una fecha con zona horaria."

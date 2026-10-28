@@ -45,9 +45,9 @@ npm run lint:anti-slop
 
 Las pruebas del backend usan `unittest`, una base SQLite en memoria y archivos temporales aislados; no requieren instalar dependencias. Las pruebas HTTP sustituyen las dependencias de identidad y base de datos.
 
-El recorrido de navegador está en `tests/e2e/ciclo.cjs`. Por seguridad, exige una instancia de backend separada en el puerto 8100 y frontend en el 3100, con base y almacenamiento ficticios independientes. Las variables `CICLO_QA_BACKEND`, `CICLO_QA_FRONTEND` y `CICLO_QA_ARTIFACTS` identifican esas instancias y la carpeta de capturas.
+El recorrido de navegador está en `tests/e2e/ciclo.cjs` y utiliza únicamente la instancia principal: frontend 3000 y backend 8000. Antes de cualquier escritura exige la marca `fictitious-visual-qa` del backend de pruebas `backend/tests/visual_app.py`, con base en memoria y archivos ficticios temporales. No debe ejecutarse contra registros reales ni iniciar servicios en puertos alternativos. Las variables `CICLO_QA_BACKEND`, `CICLO_QA_FRONTEND` y `CICLO_QA_ARTIFACTS` identifican los servicios principales y la carpeta de capturas. La preparación y limpieza están documentadas en `docs/quality/impeccable.md`.
 
-Para separar la instancia de prueba, el frontend admite `BACKEND_URL`, `NEXT_DIST_DIR` y `NEXT_TSCONFIG_PATH`, manteniendo los valores habituales cuando no se configuran. El recorrido agrega un curso ficticio nuevo en cada ejecución y no debe apuntarse a una base compartida.
+Los recorridos `tests/e2e/impeccable.cjs` y `tests/e2e/impeccable-visual.cjs` comprueban recuperación, accesibilidad de campos, plazos, progreso, borradores y adaptación visual con API ficticia en el navegador. No modifican registros del backend. No se crean instancias adicionales para compilaciones o verificaciones.
 
 La concurrencia se verifica mediante conflictos de versión en SQLite. La ejecución concurrente sobre PostgreSQL debe comprobarse en el despliegue que utilice ese motor; las pruebas locales no certifican su comportamiento operativo.
 
