@@ -1,5 +1,7 @@
 'use client';
 
+import { useNavigationGuard } from "@/context/navigation-guard";
+
 import { SearchIcon } from '@/components/common/header/icons';
 import { NAV_DATA } from '@/components/common/sidebar/data';
 import {
@@ -25,6 +27,7 @@ export default function SearchBar() {
     const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const router = useRouter();
+    const { navigate } = useNavigationGuard();
 
     // Keyboard shortcut listener (Cmd+K / Ctrl+K)
     useEffect(() => {
@@ -88,7 +91,7 @@ export default function SearchBar() {
 
     const handleSelect = (url: string) => {
         setOpen(false);
-        router.push(url);
+        navigate(() => router.push(url));
     };
 
     return (

@@ -15,8 +15,7 @@ import {
 import { useAuth } from "@/context/auth-context";
 import { useI18n } from "@/context/i18n-context";
 import { AltArrowDownIcon } from "@/utils/icon";
-import Link from "next/link";
-import { toast } from "sonner";
+import Link from "@/components/common/guarded-link";
 
 export function UserProfileButton() {
   const { usuario, logout } = useAuth();
@@ -116,7 +115,6 @@ export function UserProfileButton() {
         <DropdownMenuItem
           onAction={() => {
             logout();
-            toast.info(t("common.logoutSuccess"));
           }}
           className="m-1.5 w-auto cursor-pointer px-3 py-2.5"
         >

@@ -1,5 +1,6 @@
 "use client";
 
+import { useNavigationGuard } from "@/context/navigation-guard";
 import { RequestError } from "@/components/common/request-error";
 import { useRemoteData } from "@/hooks/use-remote-data";
 import { ApiError } from "@/lib/api-error";
@@ -46,6 +47,8 @@ export default function RevisorCarpetaDetallePage() {
 
 function CarpetaContent({ carpetaId }: { carpetaId: number }) {
   const router = useRouter();
+  const { navigate } = useNavigationGuard();
+  const [area, setArea] = useState<"review" | "library">("review");
 
   const load = useCallback((signal: AbortSignal) => {
     if (!Number.isInteger(carpetaId) || carpetaId <= 0) return Promise.reject(new ApiError(404, "Carpeta no encontrada."));
@@ -100,7 +103,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
   return (
     <div className="space-y-6 px-4 py-7 sm:px-7 lg:px-10 lg:py-9">
       {error && <RequestError error={error} onRetry={reload} stale pending={loading} backHref="/revisor" />}
-      <Button appearance="outline" isDisabled={loading} onPress={reload}>{loading ? "Consultando…" : "Actualizar carpeta"}</Button>
+      <Button appearance="outline" isDisabled={loading} onPress={() => navigate(reload)}>{loading ? "Consultando…" : "Actualizar carpeta"}</Button>
       {/* Cabecera Superior del Dictaminador */}
       <div className="border-b border-card-border pb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -110,7 +113,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
                 variant="ghost"
                 appearance="outline"
                 size="xs"
-                onPress={() => router.push("/revisor")}
+                onPress={() => navigate(() => router.push("/revisor"))}
               >
                 Volver a revisión
               </Button>
@@ -157,10 +160,14 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
         </div>
       </div>
 
-      <CicloCarpeta carpeta={carpeta} onUpdated={setCarpeta} director />
+      <nav aria-label="Área de la carpeta" className="flex flex-wrap gap-3">
+        <Button appearance={area === "review" ? "fill" : "outline"} aria-pressed={area === "review"} onPress={() => { if (area !== "review") navigate(() => setArea("review")); }}>Entrega en revisión</Button>
+        <Button appearance={area === "library" ? "fill" : "outline"} aria-pressed={area === "library"} onPress={() => { if (area !== "library") navigate(() => setArea("library")); }}>Biblioteca e historial</Button>
+      </nav>
+      <CicloCarpeta carpeta={carpeta} onUpdated={setCarpeta} director showReview={area === "review"} />
 
       {/* Cockpit Master-Detail del Revisor (2 Columnas) */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+      {area === "library" && <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
         {/* Columna Izquierda (4/12): Lista de 10 Secciones para Inspección */}
         <div className="lg:col-span-4">
           <Card className="p-0 overflow-hidden">
@@ -332,7 +339,7 @@ function CarpetaContent({ carpetaId }: { carpetaId: number }) {
             </Card>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Sheet Lateral de Historial de carpeta */}
       <SheetOverlay isOpen={drawerOpen} onOpenChange={setDrawerOpen}>

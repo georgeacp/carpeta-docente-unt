@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/common/guarded-link";
 import { toast } from "sonner";
 import { Badge } from "@/components/tailgrids/core/badge";
 import { Button } from "@/components/tailgrids/core/button";
 import { Card } from "@/components/tailgrids/core/card";
 import { Dialog, DialogTitle } from "@/components/tailgrids/core/dialog";
 import { apiConcluirEntrega, apiEnviarEntrega, CarpetaDetail } from "@/lib/api";
-import { ReviewProgress } from "./review-progress";
+import { ReviewWorkspace } from "./review-workspace";
 import { DocumentoRevision } from "./documento-revision";
 
 interface CicloCarpetaProps {
   carpeta: CarpetaDetail;
   director?: boolean;
+  showReview?: boolean;
   onUpdated: (carpeta: CarpetaDetail) => void;
 }
 
@@ -23,6 +24,7 @@ const fecha = (valor: string) =>
 export function CicloCarpeta({
   carpeta,
   director = false,
+  showReview = true,
   onUpdated,
 }: CicloCarpetaProps) {
   const [hitoId, setHitoId] = useState<number | null>(null);
@@ -68,18 +70,6 @@ export function CicloCarpeta({
   const pendiente = ciclo.entregas.find(
     (entrega) => entrega.estado === "pendiente",
   );
-
-  const [lastFocused, setLastFocused] = useState<number | null>(null);
-
-  const nextPending = () => {
-    const items = pendiente?.detalles.filter(item => item.dictamen === "pendiente") || [];
-    const index = items.findIndex(item => item.id === lastFocused);
-    const next = items[(index + 1) % items.length];
-
-    if (!next) return;
-    setLastFocused(next.id);
-    document.getElementById(`review-document-${next.id}`)?.focus();
-  };
 
   const resultado = pendiente?.detalles.some(
     (detalle) => detalle.dictamen === "observado",
@@ -207,7 +197,7 @@ export function CicloCarpeta({
             </Button>
           </div>
         )}
-        {director && pendiente && <ReviewProgress entrega={pendiente} processing={procesando} onNext={nextPending} onConclude={() => setConfirmar("dictaminar")} />}
+        {director && showReview && (pendiente ? <ReviewWorkspace key={pendiente.id} entrega={pendiente} processing={procesando} onUpdated={onUpdated} onConclude={() => setConfirmar("dictaminar")} /> : <p className="text-sm text-text-secondary">No hay entregas pendientes de revisión.</p>)}
         <div className="space-y-3">
           {ciclo.entregas.length === 0 && (
             <p className="text-sm text-text-tertiary">
@@ -215,7 +205,7 @@ export function CicloCarpeta({
               anteriores permanecen disponibles.
             </p>
           )}
-          {ciclo.entregas.map((entrega, index) => (
+          {ciclo.entregas.filter(entrega => !director || (!showReview && entrega.estado !== "pendiente")).map((entrega, index) => (
             <details
               key={entrega.id}
               open={entrega.estado === "pendiente" || index === 0}

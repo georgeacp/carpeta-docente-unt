@@ -10,7 +10,7 @@ import {
 } from "@/components/tailgrids/core/tooltip";
 import { cn } from "@/utils/cn";
 import { AltArrowUpIcon } from "@/utils/icon";
-import Link from "next/link";
+import Link from "@/components/common/guarded-link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { isPathActive } from "./utils";

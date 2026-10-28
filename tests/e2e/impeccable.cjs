@@ -144,17 +144,19 @@ async function reviewProgress(browser) {
   const progress=n=>page.getByRole('status').filter({hasText:`${n}/${count} documentos evaluados`});
   await progress(0).waitFor();
   await page.getByRole('button',{name:'Siguiente pendiente',exact:true}).click();
-  assert.equal(await page.locator(`#review-document-${delivery.detalles[0].id}`).evaluate(el=>el===document.activeElement),true);
+  assert.equal(await page.locator(`#review-document-${delivery.detalles[1].id}`).evaluate(el=>el===document.activeElement),true);
+  await page.getByRole('navigation',{name:'Documentos de la entrega'}).getByRole('button').first().click();
   const first=page.getByRole('region',{name:delivery.detalles[0].titulo,exact:true});
   assert.equal(await first.getByRole('button',{name:'Guardar observación',exact:true}).isDisabled(),true);
   await first.getByRole('textbox').fill('QA observación fundamentada');
   await first.getByRole('button',{name:'Guardar observación',exact:true}).click();
-  await page.getByText('QA evaluación fallida',{exact:true}).waitFor();
+  await page.getByText('QA evaluación fallida',{exact:true}).first().waitFor();
   await progress(0).waitFor();
   fail=false;
   await first.getByRole('button',{name:'Guardar observación',exact:true}).click();
   await progress(1).waitFor();
   for(let i=1;i<count;i++) {
+    await page.getByRole('navigation',{name:'Documentos de la entrega'}).getByRole('button').nth(i).click();
     const item=page.getByRole('region',{name:delivery.detalles[i].titulo,exact:true});
     await item.getByRole('button',{name:'Marcar conforme',exact:true}).click();
     await progress(i+1).waitFor();
@@ -164,11 +166,61 @@ async function reviewProgress(browser) {
   await context.close();
 }
 
+
+async function reviewWorkspace(browser) {
+  const context=await browser.newContext();await seed(context,{...user,rol:'revisor'});
+  const data=structuredClone(folder);data.ciclo.entregas[0].detalles.forEach(d=>{d.dictamen='aprobado';d.comentario=null;});
+  await context.route('**/api/carpetas/*',r=>r.fulfill({json:data}));
+  const page=await context.newPage();page.setDefaultNavigationTimeout(120000);
+  await page.goto(`${base}/profile/account`);
+  await page.goto(`${base}/revisor/carpeta/1`);
+  const index=page.getByRole('navigation',{name:'Documentos de la entrega'});
+  await index.waitFor();
+  await page.evaluate(() => window.history.pushState(window.history.state, '', '?qa-history=1'));
+  await page.getByRole('textbox',{name:'Comentario de evaluación (obligatorio para observar)',exact:true}).fill('QA borrador no guardado');
+  assert.equal(await page.locator('textarea').count(),1);
+  assert.equal(await page.getByRole('button',{name:'Concluir dictamen de la entrega',exact:true}).isDisabled(),true);
+  await index.getByRole('button').nth(1).click();
+  await page.getByRole('textbox',{name:'Comentario de evaluación (obligatorio para observar)',exact:true}).fill('QA segundo borrador');
+  await index.getByRole('button').first().click();
+  assert.equal(await page.locator('textarea').inputValue(),'QA borrador no guardado');
+  await page.getByRole('button',{name:'Biblioteca e historial',exact:true}).click();
+  await page.getByRole('dialog',{name:'Comentarios sin guardar'}).waitFor();
+  await page.getByRole('button',{name:'Permanecer',exact:true}).click();
+  assert.equal(await page.locator('textarea').inputValue(),'QA borrador no guardado');
+  let unload=false;
+  page.once('dialog',async dialog=>{unload=dialog.type()==='beforeunload';await dialog.dismiss();});
+  await page.reload({timeout:4000}).catch(()=>{});
+  assert.equal(unload,true,'Advertencia al recargar');
+  await page.goBack({waitUntil:'commit'}).catch(()=>{});
+  await page.getByRole('dialog',{name:'Comentarios sin guardar'}).waitFor();
+  await page.getByRole('button',{name:'Permanecer',exact:true}).click();
+  assert.ok(page.url().includes('/revisor/carpeta/1'));
+  await page.getByRole('button',{name:'Biblioteca e historial',exact:true}).click();
+  await page.getByRole('button',{name:'Descartar y continuar',exact:true}).click();
+  assert.equal(await page.locator('textarea').count(),0);
+  await page.getByRole('button',{name:'Entrega en revisión',exact:true}).click();
+  assert.equal(await page.locator('textarea').inputValue(),'');
+  await page.locator('textarea').fill('QA salir por enlace');
+  await page.locator('a[href="/profile"]').first().click();
+  await page.getByRole('dialog',{name:'Comentarios sin guardar'}).waitFor();
+  await page.getByRole('button',{name:'Permanecer',exact:true}).click();
+  assert.ok(page.url().includes('/revisor/carpeta/1'));
+  await page.getByRole('button',{name:/cerrar sesión/i}).first().click();
+  await page.getByRole('dialog',{name:'Comentarios sin guardar'}).waitFor();
+  await page.getByRole('button',{name:'Permanecer',exact:true}).click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('unt_jwt_token')),'qa-token');
+  await page.getByRole('button',{name:'Descartar comentarios sin guardar',exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:'Concluir dictamen de la entrega',exact:true}).isEnabled(),true);
+  await context.close();
+}
+
 async function main() {
   const browser = await chromium.launch({channel:'chrome',headless:true});
   try {
     if (!process.argv[2] || process.argv[2] === 'recovery') { await recovery(browser); console.log('PASS recuperación: red, 401/403/404/500, datos previos y catálogo'); }
     if (!process.argv[2] || process.argv[2] === 'review') { await reviewProgress(browser); console.log('PASS revisión: avance persistido, siguiente pendiente y bloqueo de dictamen'); }
+    if (!process.argv[2] || process.argv[2] === 'workspace') { await reviewWorkspace(browser); console.log('PASS espacio de revisión: borradores, panel único, cambios de área, enlaces, Atrás y recarga'); }
     if (!process.argv[2] || process.argv[2] === 'profile') { await profile(browser); console.log('PASS perfil: roles, recuperación, rutas antiguas y cierre de sesión'); }
     if (!process.argv[2] || process.argv[2] === 'semester') { await semesterDeadline(browser); console.log('PASS semestre: año nuevo, zona de navegador independiente y UTC correcto'); }
     if (!process.argv[2] || process.argv[2] === 'admin') { await adminForms(browser); console.log('PASS administración: etiquetas, bloqueo de envío, error y reintento'); }
