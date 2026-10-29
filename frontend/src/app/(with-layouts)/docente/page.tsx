@@ -6,10 +6,20 @@ import { SummaryStrip } from "@/components/carpetas/summary-strip";
 import { useAuth } from "@/context/auth-context";
 import { useI18n } from "@/context/i18n-context";
 import { apiFetchMisCarpetas, CarpetaSummary } from "@/lib/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { FolderFilters } from "@/components/carpetas/folder-filters";
+import { useFolderFilters } from "@/hooks/use-folder-filters";
 import { toast } from "sonner";
 
 export default function DocenteDashboardPage() {
+  return (
+    <Suspense>
+      <DocenteDashboard />
+    </Suspense>
+  );
+}
+
+function DocenteDashboard() {
   const { usuario } = useAuth();
   const { t } = useI18n();
   const [carpetas, setCarpetas] = useState<CarpetaSummary[]>([]);
@@ -39,6 +49,9 @@ export default function DocenteDashboardPage() {
       active = false;
     };
   }, [usuario, retry]);
+
+  const filters = useFolderFilters(carpetas);
+  const visibles = filters.filtered;
 
   const totalObservadas = carpetas.reduce(
     (acc, c) => acc + c.metricas.observadas,
@@ -117,6 +130,7 @@ export default function DocenteDashboardPage() {
       )}
 
       <section aria-labelledby="course-list-title">
+        <FolderFilters carpetas={carpetas} filters={filters} />
         <div className="mb-4 flex items-baseline justify-between gap-3">
           <h2
             id="course-list-title"
@@ -126,7 +140,7 @@ export default function DocenteDashboardPage() {
           </h2>
           {!loading && !error && (
             <span className="text-sm tabular-nums text-text-tertiary">
-              {t("docente.foldersCount", { count: carpetas.length })}
+              {t("docente.foldersCount", { count: visibles.length })}
             </span>
           )}
         </div>
@@ -160,13 +174,15 @@ export default function DocenteDashboardPage() {
                 setRetry((value) => value + 1);
               }}
             />
-          ) : carpetas.length === 0 ? (
+          ) : visibles.length === 0 ? (
             <FolderListState
               title={t("docente.emptyTitle")}
               description={t("docente.emptyHint")}
+              retryLabel={t("modules.clear")}
+              onRetry={filters.clear}
             />
           ) : (
-            carpetas.map((carpeta) => (
+            visibles.map((carpeta) => (
               <CourseFolder key={carpeta.id} carpeta={carpeta} />
             ))
           )}

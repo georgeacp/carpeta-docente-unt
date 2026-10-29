@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  HomeIcon,
-  TableIcon,
-  UserIcon,
-  Widget4Icon,
-  WindowIcon,
-} from "./icon";
+import { HomeIcon, TableIcon, UserIcon, Widget4Icon, WindowIcon } from "./icon";
 
 export interface NavChildItem {
   title: string;
@@ -26,7 +20,7 @@ export interface NavSectionData {
 
 export function getNavDataByRole(
   rol?: string | null,
-  t?: (key: string) => string
+  t?: (key: string) => string,
 ): NavSectionData[] {
   const tr = (key: string, fallback: string) => (t ? t(key) : fallback);
 
@@ -63,9 +57,21 @@ export function getNavDataByRole(
         label: tr("nav.supervisionAndRuling", "SUPERVISIÓN Y DICTAMEN"),
         items: [
           {
-            title: tr("nav.supervisionDashboard", "Tablero de Supervisión"),
+            title: tr("modules.inbox", "Entregas pendientes"),
             url: "/revisor",
             icon: <TableIcon />,
+            items: [],
+          },
+          {
+            title: tr("modules.tracking", "Seguimiento"),
+            url: "/revisor/seguimiento",
+            icon: <TableIcon />,
+            items: [],
+          },
+          {
+            title: tr("modules.myFolders", "Mis carpetas"),
+            url: "/docente",
+            icon: <WindowIcon />,
             items: [],
           },
         ],
@@ -95,6 +101,18 @@ export function getNavDataByRole(
             icon: <Widget4Icon />,
             items: [],
           },
+          ...[
+            "usuarios",
+            "cursos",
+            "semestres",
+            "asignaciones",
+            "configuracion",
+          ].map((section) => ({
+            title: tr(`modules.${section}`, section),
+            url: `/admin/${section}`,
+            icon: <Widget4Icon />,
+            items: [],
+          })),
         ],
       },
       {
