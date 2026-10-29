@@ -6,9 +6,12 @@ import { NAV_DATA, NavSectionData } from "./data";
 export function isPathActive(href: string, pathname: string): boolean {
   if (!href) return false;
 
-  if (href === "/") {
-    return pathname === "/";
+  if (["/", "/admin"].includes(href)) {
+    return pathname === href;
   }
+
+  if (href === "/revisor")
+    return pathname === href || pathname.startsWith("/revisor/carpeta/");
 
   return pathname === href || pathname.startsWith(href + "/");
 }
@@ -17,13 +20,18 @@ export function isPathActive(href: string, pathname: string): boolean {
  * Find the nav group whose child URLs include the current pathname.
  * Returns the group's `title` (used as the Disclosure `id`) or null.
  */
-export function findActiveGroupKey(pathname: string, navData?: NavSectionData[]): string | null {
+export function findActiveGroupKey(
+  pathname: string,
+  navData?: NavSectionData[],
+): string | null {
   const sections = navData || NAV_DATA;
 
   for (const section of sections) {
     for (const item of section.items) {
       if (item.items && item.items.length > 0) {
-        const hasMatch = item.items.some((child) => child.url && isPathActive(child.url, pathname));
+        const hasMatch = item.items.some(
+          (child) => child.url && isPathActive(child.url, pathname),
+        );
 
         if (hasMatch) return item.title;
       }

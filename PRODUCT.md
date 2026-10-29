@@ -37,7 +37,7 @@ Hechos documentados en el repositorio:
 - Cargar una nueva versión no equivale a subsanar una observación: la conformidad debe confirmarla el Director en una revisión posterior.
 - Las presentaciones tardías están permitidas y se registran como tales.
 - El Director puede revisar su propia carpeta; el dictamen deja constancia de la autorrevisión.
-- La plantilla y las fechas iniciales son demostrativas. El editor por curso y las prórrogas están pendientes, según `docs/ciclo-carpeta.md`.
+- La plantilla y las fechas iniciales son demostrativas. El administrador puede configurar requisitos existentes y fechas por curso y semestre hasta la primera carga exitosa de documentos. Las prórrogas siguen pendientes, según `docs/ciclo-carpeta.md`.
 - El perfil institucional consulta los datos actuales de la cuenta y no permite editarlos. Las rutas antiguas de seguridad y preferencias redirigen al perfil; no hay edición de contraseña ni notificaciones reales. Las páginas heredadas de la plantilla visual no deben presentarse como funcionalidades completas sin comprobar su integración.
 
 Las propuestas de ampliación discutidas en el chat son opciones, no compromisos de implementación.

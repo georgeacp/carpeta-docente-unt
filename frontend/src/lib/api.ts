@@ -32,6 +32,12 @@ export interface MetricasCarpeta {
 
 export interface CarpetaSummary {
   id: number;
+  seguimiento?: {
+    entregas_presentadas: number;
+    entregas_tardias: number;
+    hitos_vencidos_sin_presentacion: number;
+    pendiente_revision: boolean;
+  };
   estado_ciclo:
     | "borrador"
     | "en_progreso"
@@ -196,6 +202,45 @@ export interface CatalogoAdmin {
   asignaciones: CarpetaSummary[];
 }
 
+export interface ConfiguracionCurso {
+  curso_id: number;
+  semestre_id: number;
+  version: number;
+  bloqueada: boolean;
+  motivo_bloqueo: string | null;
+  hitos: Omit<HitoEntrega, "id">[];
+}
+
+export async function apiFetchConfiguracion(
+  curso: number,
+  semestre: number,
+  signal?: AbortSignal,
+): Promise<ConfiguracionCurso> {
+  return handleResponse(
+    await request(
+      `/api/admin/cursos/${curso}/semestres/${semestre}/configuracion`,
+      { headers: getAuthHeaders(), signal },
+    ),
+  );
+}
+
+export async function apiGuardarConfiguracion(
+  configuracion: ConfiguracionCurso,
+): Promise<ConfiguracionCurso> {
+  const { curso_id, semestre_id, version, hitos } = configuracion;
+
+  return handleResponse(
+    await request(
+      `/api/admin/cursos/${curso_id}/semestres/${semestre_id}/configuracion`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ version, hitos }),
+      },
+    ),
+  );
+}
+
 function getAuthHeaders(): HeadersInit {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("unt_jwt_token");
@@ -203,12 +248,18 @@ function getAuthHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-async function request(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+async function request(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
   try {
     return await fetch(input, init);
   } catch (cause) {
     if (init?.signal?.aborted) throw cause;
-    throw new ApiError(null, "No se pudo conectar con el servidor. Comprueba tu conexión y vuelve a intentarlo.");
+    throw new ApiError(
+      null,
+      "No se pudo conectar con el servidor. Comprueba tu conexión y vuelve a intentarlo.",
+    );
   }
 }
 
@@ -295,13 +346,17 @@ export async function apiSubirDocumento(
   return handleResponse<CarpetaDetail>(res);
 }
 
-export async function apiFetchCarpetasRevisor(estadoGlobal = "todos"): Promise<{
+export async function apiFetchCarpetasRevisor(
+  estadoGlobal = "todos",
+  signal?: AbortSignal,
+): Promise<{
   resumen: ResumenRevisor;
   carpetas: CarpetaSummary[];
 }> {
   const res = await request(
     `/api/revision/carpetas?estado_global=${encodeURIComponent(estadoGlobal)}`,
     {
+      signal,
       headers: { ...getAuthHeaders() },
     },
   );
@@ -312,7 +367,9 @@ export async function apiFetchCarpetasRevisor(estadoGlobal = "todos"): Promise<{
   }>(res);
 }
 
-export async function apiFetchCatalogoAdmin(signal?: AbortSignal): Promise<CatalogoAdmin> {
+export async function apiFetchCatalogoAdmin(
+  signal?: AbortSignal,
+): Promise<CatalogoAdmin> {
   const res = await request("/api/admin/catalogo", {
     signal,
     headers: { ...getAuthHeaders() },
@@ -367,9 +424,12 @@ export async function apiDescargarDocumento(
   documentoId: number,
   nombre: string,
 ): Promise<void> {
-  const res = await request(`/api/carpetas/documentos/${documentoId}/descargar`, {
-    headers: { ...getAuthHeaders() },
-  });
+  const res = await request(
+    `/api/carpetas/documentos/${documentoId}/descargar`,
+    {
+      headers: { ...getAuthHeaders() },
+    },
+  );
 
   if (!res.ok) await handleResponse(res);
   const url = URL.createObjectURL(await res.blob());

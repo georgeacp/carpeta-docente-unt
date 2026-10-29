@@ -42,6 +42,8 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
     db = object_session(carpeta)
     control = db.get(CicloCarpeta, carpeta.id) if db else None
     estado_ciclo = control.estado if control else "borrador"
+    from app.seguimiento import indicadores
+    seguimiento = indicadores(db, carpeta, estado_ciclo) if db else None
     if estado_ciclo == "observada":
         estado_global = "observada"
     elif estado_ciclo == "aprobada":
@@ -53,6 +55,7 @@ def serialize_carpeta_summary(carpeta: Carpeta) -> dict:
 
     return {
         "id": carpeta.id,
+        "seguimiento": seguimiento,
         "estado_ciclo": estado_ciclo,
         "bloqueada": estado_ciclo in ("enviada", "reenviada", "aprobada"),
         "asignacion_id": asignacion.id,

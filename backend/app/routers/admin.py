@@ -1,6 +1,7 @@
+from typing import Literal
 from datetime import date, datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import AwareDatetime, BaseModel, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
 
@@ -21,8 +22,12 @@ from app.ciclo import inicializar
 router = APIRouter(prefix="/api/admin", tags=["Administración Académica"])
 
 
-class CrearSemestreRequest(BaseModel):
-    nombre: str
+class SolicitudAdmin(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+
+class CrearSemestreRequest(SolicitudAdmin):
+    nombre: str = Field(min_length=1, max_length=50)
     inicio: date
     fin: date
     fecha_limite: AwareDatetime
@@ -38,23 +43,23 @@ class CrearSemestreRequest(BaseModel):
         return self
 
 
-class CrearCursoRequest(BaseModel):
-    codigo: str
-    nombre: str
+class CrearCursoRequest(SolicitudAdmin):
+    codigo: str = Field(min_length=1, max_length=30)
+    nombre: str = Field(min_length=1, max_length=180)
     escuela: str = "Ingeniería de Sistemas"
     ciclo: int = 6
 
 
-class CrearUsuarioRequest(BaseModel):
-    nombre: str
-    email: str
+class CrearUsuarioRequest(SolicitudAdmin):
+    nombre: str = Field(min_length=1, max_length=150)
+    email: str = Field(max_length=150, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
     password: str = "unt2026"
-    rol: str = "docente"
+    rol: Literal["docente", "revisor", "admin"] = "docente"
     escuela: str = "Ingeniería de Sistemas"
     categoria: str = "Docente Ordinario"
 
 
-class CrearAsignacionRequest(BaseModel):
+class CrearAsignacionRequest(SolicitudAdmin):
     docente_id: int
     curso_id: int
     semestre_id: int
@@ -63,7 +68,7 @@ class CrearAsignacionRequest(BaseModel):
 
 @router.get("/catalogo")
 def obtener_catalogo_completo(
-    current_user: Usuario = Depends(require_roles(["admin", "revisor", "docente"])),
+    current_user: Usuario = Depends(require_roles(["admin"])),
     db: Session = Depends(get_db),
 ):
     semestres = db.query(Semestre).order_by(Semestre.id.desc()).all()
@@ -201,6 +206,17 @@ def crear_asignacion_con_carpeta(
     current_user: Usuario = Depends(require_roles(["admin"])),
     db: Session = Depends(get_db),
 ):
+    docente = db.get(Usuario, payload.docente_id)
+    curso = db.get(Curso, payload.curso_id)
+    semestre = db.get(Semestre, payload.semestre_id)
+    if docente is None or curso is None or semestre is None:
+        raise HTTPException(status_code=404, detail="Docente, curso o semestre no encontrado.")
+    if not docente.activo or docente.rol not in ("docente", "revisor"):
+        raise HTTPException(status_code=400, detail="Seleccione un docente o Director activo.")
+    if docente.escuela != curso.escuela:
+        raise HTTPException(status_code=400, detail="El docente debe pertenecer a la escuela del curso.")
+    if not payload.seccion.strip():
+        raise HTTPException(status_code=400, detail="Indique la sección.")
     # Verificar duplicado
     dup = (
         db.query(Asignacion)
@@ -233,3 +249,30 @@ def crear_asignacion_con_carpeta(
     inicializar(db)
     db.refresh(carpeta)
     return serialize_carpeta_summary(carpeta)
+
+
+class ConfigurarHitoRequest(BaseModel):
+    codigo: Literal["inicio", "seguimiento", "cierre"]
+    fecha_limite: AwareDatetime
+    item_ids: list[int]
+
+
+class ConfigurarCursoRequest(BaseModel):
+    version: int = Field(ge=0)
+    hitos: list[ConfigurarHitoRequest]
+
+
+@router.get("/cursos/{curso_id}/semestres/{semestre_id}/configuracion")
+def consultar_configuracion(curso_id: int, semestre_id: int,
+                            current_user: Usuario = Depends(require_roles(["admin"])),
+                            db: Session = Depends(get_db)):
+    from app.configuracion import consultar
+    return consultar(db, curso_id, semestre_id)
+
+
+@router.put("/cursos/{curso_id}/semestres/{semestre_id}/configuracion")
+def guardar_configuracion(curso_id: int, semestre_id: int, payload: ConfigurarCursoRequest,
+                          current_user: Usuario = Depends(require_roles(["admin"])),
+                          db: Session = Depends(get_db)):
+    from app.configuracion import guardar
+    return guardar(db, curso_id, semestre_id, payload, current_user)

@@ -52,13 +52,13 @@ async function adminForms(browser) {
   });
   const page = await context.newPage(); page.setDefaultTimeout(60000); page.setDefaultNavigationTimeout(120000);
   await page.goto(`${base}/admin`);
-  for (const name of ['Carga lectiva','Cursos y docentes','Semestres']) {
-    await page.getByRole('button',{name,exact:true}).click();
+  for (const name of ['asignaciones','cursos','usuarios','semestres']) {
+    await page.goto(`${base}/admin/${name}`);
     await page.locator('form input, form select').first().waitFor();
     const unlabeled = await page.locator('form input, form select').evaluateAll(fields => fields.filter(f => !f.labels?.length).length);
     assert.equal(unlabeled,0,`Etiquetas: ${name}`);
   }
-  await page.getByRole('button',{name:'Cursos y docentes',exact:true}).click();
+  await page.goto(`${base}/admin/cursos`);
   await page.getByLabel(/^Código/).fill('QA-TEST');
   await page.getByLabel('Nombre de la Asignatura', {exact:true}).fill('Curso ficticio de prueba');
   await page.locator('#curso').evaluate(form => {form.requestSubmit();form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));});
@@ -82,7 +82,7 @@ async function semesterDeadline(browser) {
   await context.route('**/api/admin/semestres',async r => {saved = r.request().postDataJSON();await r.fulfill({json:{id:99105}});});
   const page = await context.newPage();page.setDefaultNavigationTimeout(120000);
   await page.goto(`${base}/admin`);
-  await page.getByRole('button',{name:'Semestres',exact:true}).click();
+  await page.goto(`${base}/admin/semestres`);
   await page.getByLabel('Fecha de Inicio',{exact:true}).fill('2028-04-01');
   await page.getByLabel('Fecha de Término',{exact:true}).fill('2028-07-30');
   assert.equal(await page.getByLabel('Fecha límite de cierre (hora de Perú)',{exact:true}).inputValue(),'2028-07-30');
@@ -118,7 +118,7 @@ async function recovery(browser) {
   const context=await browser.newContext();await seed(context,{...user,rol:'admin'});
   let code=500;
   await context.route('**/api/admin/catalogo',r=>r.fulfill({status:code,json:code===200?catalogo:{detail:'QA catálogo'}}));
-  const page=await context.newPage();await page.goto(`${base}/admin`);
+  const page=await context.newPage();await page.goto(`${base}/admin/asignaciones`);
   await page.getByRole('alert').getByText('No se pudo cargar la información',{exact:true}).waitFor();
   assert.equal(await page.locator('form').count(),0);
   code=200;await page.getByRole('button',{name:'Volver a intentar',exact:true}).click();

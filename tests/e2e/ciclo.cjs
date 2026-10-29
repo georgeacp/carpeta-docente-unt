@@ -58,7 +58,11 @@ async function main() {
   const waitForCycle = (target, state) => target.locator('[aria-label="Ciclo de entregas"]').getByText(state, { exact: true }).waitFor();
   const submit = async (name) => {
     await page.getByRole("button", { name, exact: true }).click();
-    await page.getByRole("button", { name: "Confirmar envío", exact: true }).click();
+    const [response] = await Promise.all([
+      page.waitForResponse(r => r.request().method() === "POST" && /\/api\/carpetas\/\d+\/entregas$/.test(r.url())),
+      page.getByRole("button", { name: "Confirmar envío", exact: true }).click(),
+    ]);
+    assert(response.ok(), await response.text());
   };
   const evaluateRemaining = async () => {
     const items = director.getByRole("navigation", { name: "Documentos de la entrega", exact: true }).getByRole("button");
@@ -79,10 +83,12 @@ async function main() {
   };
   try {
     await login(page, "docente");
-    await page.goto(`${frontend}/docente/carpeta/${folder.id}`);
+    await page.goto(`${frontend}/docente/carpeta/${folder.id}?vista=entregas`);
     await submit("Enviar a revisión");
     await waitForCycle(page, "enviada");
+    await page.getByRole("button", { name: "Documentación", exact: true }).click();
     assert(await page.locator('input[type="file"]').isDisabled());
+    await page.getByRole("button", { name: "Entregas", exact: true }).click();
     await login(director, "revisor");
     await director.goto(`${frontend}/revisor/carpeta/${folder.id}`);
     await director.getByRole("button", { name: "Marcar conforme" }).first().waitFor();
@@ -94,8 +100,10 @@ async function main() {
     await waitForCycle(director, "observada");
     await page.reload();
     await waitForCycle(page, "observada");
+    await page.getByRole("button", { name: "Documentación", exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles({ name: "correccion-ficticia.pdf", mimeType: "application/pdf", buffer: Buffer.concat([pdf, Buffer.from("\ncorreccion")]) });
     await page.getByText(/Nueva versión subida exitosamente/).waitFor();
+    await page.getByRole("button", { name: "Entregas", exact: true }).click();
     await submit("Reenviar a revisión");
     await waitForCycle(page, "reenviada");
     await director.reload();
@@ -119,7 +127,9 @@ async function main() {
     await director.getByText("Carpeta aprobada definitivamente", { exact: true }).waitFor();
     await page.reload();
     await page.getByText("Carpeta aprobada definitivamente", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Documentación", exact: true }).click();
     assert(await page.locator('input[type="file"]').isDisabled());
+    await page.getByRole("button", { name: "Entregas", exact: true }).click();
     await fs.mkdir(artifacts, { recursive: true });
     await page.screenshot({ path: path.join(artifacts, "docente-desktop.png"), fullPage: true });
     await director.screenshot({ path: path.join(artifacts, "director-desktop.png"), fullPage: true });
