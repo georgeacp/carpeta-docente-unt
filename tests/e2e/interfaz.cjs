@@ -29,7 +29,7 @@ async function main() {
     await page.getByRole("button", { name: "Acceso de demostración", exact: true }).click();
     await page.waitForURL(`**/${role}`);
     if (role === "admin") {
-      await page.getByRole("combobox").first().waitFor();
+      await page.getByRole("heading", { name: "Administración académica", exact: true }).waitFor();
     } else {
       await page.locator('[aria-busy="false"]').last().waitFor();
     }
@@ -87,15 +87,13 @@ async function main() {
     await page.setViewportSize({ width: 1440, height: 950 });
     await login("revisor");
     await screenshot("revisor-desktop");
-    await page.getByRole("textbox", { name: "Buscar por docente o curso..." }).fill("zz-no-hay-resultados-zz");
-    await page.getByText("No hay carpetas que coincidan", { exact: true }).waitFor();
-    await page.getByRole("button", { name: "Limpiar búsqueda y filtros" }).click();
-    assert.equal(await page.getByRole("textbox", { name: "Buscar por docente o curso..." }).inputValue(), "");
-    await page.getByRole("button", { name: "Con observaciones", exact: true }).click();
-    await page.locator('[aria-busy="false"]').last().waitFor();
-    assert.equal(await page.getByRole("button", { name: "Con observaciones", exact: true }).getAttribute("aria-pressed"), "true");
-    await page.getByRole("button", { name: "Todas", exact: true }).click();
-    await page.locator('[aria-busy="false"]').last().waitFor();
+    await page.getByRole("searchbox", { name: "Buscar", exact: true }).fill("zz-no-hay-resultados-zz");
+    await page.getByText("No hay carpetas para mostrar", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Limpiar filtros", exact: true }).first().click();
+    assert.equal(await page.getByRole("searchbox", { name: "Buscar", exact: true }).inputValue(), "");
+    await page.getByRole("combobox", { name: "Estado", exact: true }).selectOption("observada");
+    assert.equal(new URL(page.url()).searchParams.get("estado"), "observada");
+    await page.getByRole("combobox", { name: "Estado", exact: true }).selectOption("");
     await page.setViewportSize({ width: 390, height: 844 });
     await noOverflow();
     await screenshot("revisor-mobile");
@@ -104,9 +102,13 @@ async function main() {
     await login("admin");
     await page.getByRole("heading", { name: "Administración académica", exact: true }).waitFor();
     await screenshot("admin-desktop");
-    for (const name of ["Cursos y docentes", "Semestres", "Plantilla de carpeta", "Carga lectiva"]) {
-      await page.getByRole("button", { name, exact: true }).click();
-      assert.equal(await page.getByRole("button", { name, exact: true }).getAttribute("aria-pressed"), "true");
+    for (const name of ["Cursos", "Usuarios", "Semestres", "Plantillas y plazos", "Asignaciones"]) {
+      const link = page.getByRole("navigation", { name: "Gestión académica", exact: true }).getByRole("link", { name, exact: true });
+      const destination = await link.getAttribute("href");
+      await link.click();
+      await page.waitForURL(`**${destination}`);
+      await page.getByRole("navigation", { name: "Gestión académica", exact: true }).locator('a[aria-current="page"]').filter({ hasText: name }).waitFor();
+      assert.equal(await page.getByRole("navigation", { name: "Gestión académica", exact: true }).getByRole("link", { name, exact: true }).getAttribute("aria-current"), "page");
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await noOverflow();

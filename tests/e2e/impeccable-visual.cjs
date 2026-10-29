@@ -17,13 +17,12 @@ async function main() {
       await context.route('**/api/admin/catalogo',r=>r.fulfill({json:catalogo}));
       await context.route('**/api/carpetas/*',r=>r.fulfill({json:data}));
       const page=await context.newPage();page.setDefaultNavigationTimeout(120000);page.on('pageerror',e=>errors.push(e.message));
-      const routes=role==='admin'?['/admin','/profile/account']:[`/${role}/carpeta/1`,'/profile/account'];
+      const routes=role==='admin'?['/admin/semestres','/profile/account']:[`/${role}/carpeta/1`,'/profile/account'];
       for(const route of routes) {
         await page.goto(base+route);
         if(route.includes('profile')) await page.getByText(user.email,{exact:true}).waitFor();
-        else if(role==='admin') await page.locator('#asignacion').waitFor();
+        else if(role==='admin') await page.locator('#semestre').waitFor();
         else await page.getByRole('button',{name:'Actualizar carpeta',exact:true}).waitFor();
-        if(role==='admin'&&!route.includes('profile')) await page.getByRole('button',{name:'Semestres',exact:true}).click();
         for(const width of [360,768,1440]) {
           await page.setViewportSize({width,height:1000});
           assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`Overflow ${route} ${width}`);
