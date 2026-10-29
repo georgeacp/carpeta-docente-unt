@@ -5,10 +5,9 @@ de una entrega conservan la evidencia presentada; la evaluación solo cambia
 mientras la entrega está pendiente.
 """
 from contextlib import contextmanager
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
-from zoneinfo import ZoneInfo
 
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import StaleDataError
@@ -74,36 +73,11 @@ def _historial(db, carpeta, usuario, accion, detalle):
 
 def inicializar(db):
     """Inicialización aditiva e idempotente: no inventa envíos históricos."""
-    plantillas = db.query(PlantillaSeccion).order_by(PlantillaSeccion.orden).all()
+    from app.configuracion import asegurar
     for carpeta in db.query(Carpeta).all():
         if db.get(CicloCarpeta, carpeta.id) is None:
             db.add(CicloCarpeta(carpeta_id=carpeta.id))
-        asignacion = carpeta.asignacion
-        semestre = asignacion.semestre
-        for codigo, nombre, orden in [("inicio", "Inicio", 1), ("seguimiento", "Seguimiento", 2), ("cierre", "Cierre integral", 3)]:
-            existente = db.query(HitoEntrega).filter_by(curso_id=asignacion.curso_id, semestre_id=asignacion.semestre_id, codigo=codigo).first()
-            if existente:
-                continue
-            dias = 14 if codigo == "inicio" else max(0, (semestre.fin - semestre.inicio).days // 2)
-            fecha = datetime.combine(semestre.inicio + timedelta(days=dias), time(23, 59, 59), ZoneInfo("America/Lima"))
-            if codigo == "cierre":
-                fecha = _utc(semestre.fecha_limite)
-            hito = HitoEntrega(curso_id=asignacion.curso_id, semestre_id=asignacion.semestre_id, codigo=codigo, nombre=nombre, orden=orden, fecha_limite=fecha)
-            db.add(hito)
-            db.flush()
-            # Configuración demostrativa inicial; cada oferta conserva sus requisitos.
-            seleccion = []
-            for plantilla in plantillas:
-                nombre_item = plantilla.nombre.lower()
-                if codigo == "inicio" and not any(palabra in nombre_item for palabra in ("sílabo", "silabo", "plan de sesiones", "socializ", "delegad", "entrada", "carga horaria")):
-                    continue
-                if codigo == "seguimiento" and any(palabra in nombre_item for palabra in ("informe final", "actas firmadas", "cierre")):
-                    continue
-                seleccion.append(plantilla.id)
-            if not seleccion and plantillas:
-                seleccion = [plantillas[0].id]
-            for plantilla_id in seleccion:
-                db.add(RequisitoHito(hito_id=hito.id, plantilla_id=plantilla_id))
+        asegurar(db, carpeta.asignacion.curso_id, carpeta.asignacion.semestre_id)
     db.commit()
 
 
@@ -146,6 +120,8 @@ def cargar(db, seccion_id, usuario, nombre, contenido, storage):
             db.expire(seccion, ["documentos"])
             if control.estado in ("enviada", "reenviada", "aprobada"):
                 raise ErrorCiclo("La carpeta está bloqueada durante la revisión o después de su aprobación final.")
+            from app.configuracion import bloquear_por_carga
+            bloquear_por_carga(db, carpeta)
             version = max((d.version for d in seccion.documentos), default=0) + 1
             archivo.parent.mkdir(parents=True, exist_ok=True)
             with archivo.open("xb") as destino:
@@ -182,7 +158,7 @@ def enviar(db, carpeta_id, hito_id, usuario, storage):
         if control.estado == "observada" and otra_observada and otra_observada.hito_id != hito_id and hito.codigo != "cierre":
             raise ErrorCiclo("Reenvíe el hito observado o presente el cierre integral.")
         item_ids = {r.plantilla_id for r in hito.requisitos}
-        secciones = [s for s in carpeta.secciones if s.plantilla_id in item_ids or hito.codigo == "cierre"]
+        secciones = [s for s in carpeta.secciones if s.plantilla_id in item_ids or (hito.codigo == "cierre" and s.plantilla.obligatoria)]
         for seccion in secciones:
             db.expire(seccion, ["documentos"])
         if not secciones:

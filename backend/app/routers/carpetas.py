@@ -20,13 +20,19 @@ class EnviarEntregaRequest(BaseModel):
 @router.get("/mis-carpetas")
 def listar_mis_carpetas(
     semestre_id: int | None = None,
+    curso_id: int | None = None,
+    estado_global: str | None = None,
+    q: str | None = None,
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     query = db.query(Carpeta).join(Asignacion).filter(Asignacion.docente_id == current_user.id)
     if semestre_id:
         query = query.filter(Asignacion.semestre_id == semestre_id)
-    return [serialize_carpeta_summary(c) for c in query.all()]
+    if curso_id:
+        query = query.filter(Asignacion.curso_id == curso_id)
+    from app.seguimiento import filtrar
+    return filtrar([serialize_carpeta_summary(c) for c in query.all()], estado_global, q)
 
 
 @router.get("/{carpeta_id}")

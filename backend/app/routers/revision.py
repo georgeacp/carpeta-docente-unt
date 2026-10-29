@@ -22,16 +22,26 @@ class EvaluarDocumentoRequest(BaseModel):
 def listar_carpetas_revisor(
     semestre_id: int | None = None,
     estado_global: str | None = None,
+    curso_id: int | None = None,
+    docente_id: int | None = None,
+    q: str | None = None,
+    pendientes: bool = False,
     current_user: Usuario = Depends(require_roles(["revisor"])),
     db: Session = Depends(get_db),
 ):
     query = db.query(Carpeta).join(Asignacion).join(Curso).filter(Curso.escuela == current_user.escuela)
     if semestre_id:
         query = query.filter(Asignacion.semestre_id == semestre_id)
+    if curso_id:
+        query = query.filter(Asignacion.curso_id == curso_id)
+    if docente_id:
+        query = query.filter(Asignacion.docente_id == docente_id)
+    from app.seguimiento import filtrar
     todas = [serialize_carpeta_summary(c) for c in query.all()]
-    items = todas
-    if estado_global and estado_global != "todos":
-        items = [i for i in todas if i["metricas"]["estado_global"] == estado_global]
+    todas = filtrar(todas, q=q)
+    items = filtrar(todas, estado_global)
+    if pendientes:
+        items = [i for i in items if i["seguimiento"]["pendiente_revision"]]
     resumen = {
         "total_carpetas": len(todas),
         "aprobadas": sum(x["estado_ciclo"] == "aprobada" for x in todas),
@@ -40,6 +50,8 @@ def listar_carpetas_revisor(
         "en_progreso": sum(x["estado_ciclo"] in ("borrador", "en_progreso") for x in todas),
         "vencidas": sum(x["metricas"]["vencida"] for x in todas),
         "promedio_avance": round(sum(x["metricas"]["porcentaje_avance"] for x in todas) / len(todas)) if todas else 0,
+        "hitos_vencidos_sin_presentacion": sum(x["seguimiento"]["hitos_vencidos_sin_presentacion"] for x in todas),
+        "entregas_tardias": sum(x["seguimiento"]["entregas_tardias"] for x in todas),
     }
     return {"resumen": resumen, "carpetas": items}
 

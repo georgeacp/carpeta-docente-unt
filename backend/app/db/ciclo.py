@@ -4,6 +4,26 @@ from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 
+class ConfiguracionCurso(Base):
+    __tablename__ = "configuraciones_curso"
+    curso_id = Column(Integer, ForeignKey("cursos.id"), primary_key=True)
+    semestre_id = Column(Integer, ForeignKey("semestres.id"), primary_key=True)
+    version = Column(Integer, nullable=False, default=1)
+    bloqueada = Column(Boolean, nullable=False, default=False)
+    __mapper_args__ = {"version_id_col": version}
+
+
+class CambioConfiguracion(Base):
+    __tablename__ = "cambios_configuracion"
+    id = Column(Integer, primary_key=True)
+    curso_id = Column(Integer, ForeignKey("cursos.id"), nullable=False)
+    semestre_id = Column(Integer, ForeignKey("semestres.id"), nullable=False)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    fecha = Column(DateTime(timezone=True), nullable=False)
+    anterior = Column(Text, nullable=False)
+    nueva = Column(Text, nullable=False)
+
+
 class CicloCarpeta(Base):
     __tablename__ = "ciclos_carpeta"
     carpeta_id = Column(Integer, ForeignKey("carpetas.id"), primary_key=True)
